@@ -1,0 +1,10 @@
+User-agent: *
+Disallow: /admin/
+Disallow: /settings/
+Disallow: /user-management/
+Disallow: /pimpinan/
+Disallow: /teknisi/
+Disallow: /ruangan/
+Disallow: /asset-manager/
+Disallow: /api/
+Allow: /

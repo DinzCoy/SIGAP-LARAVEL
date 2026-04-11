@@ -1,0 +1,46 @@
+# ─── Environment & Secrets ───────────────────────────────────────────
+.env
+.env.*
+!.env.example
+auth.json
+storage/*.key
+
+# ─── Laravel Generated / Cache ───────────────────────────────────────
+/bootstrap/cache/*.php
+/public/storage
+/public/hot
+/public/build
+/storage/app/public/*
+/storage/framework/cache/*
+/storage/framework/sessions/*
+/storage/framework/views/*
+/storage/logs/*
+/storage/pail
+*.log
+stderr.log
+
+# ─── Test / Debug Artifacts ──────────────────────────────────────────
+tests_output.txt
+test_roles.php
+help.txt
+verify_checklist.php
+
+# ─── Dependencies (reinstallable) ────────────────────────────────────
+/vendor
+/node_modules
+
+# ─── IDE & OS ────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+.idea
+.nova
+.fleet
+.zed
+/.vscode
+.phpunit.result.cache
+/.phpunit.cache
+.phpactor.json
+
+# ─── Misc ────────────────────────────────────────────────────────────
+Homestead.json
+Homestead.yaml
