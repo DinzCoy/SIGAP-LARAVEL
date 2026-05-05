@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Asset;
 use App\Models\Room;
 use App\Models\Ticket;
+use App\Models\User;
+use App\Services\Dashboard\DashboardStatsService;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
@@ -12,88 +14,81 @@ use Illuminate\View\View;
 
 class DashboardController extends Controller
 {
-    /**
-     * Handle the incoming dashboard request and dispatch to the correct
-     * role-specific dashboard based on the active session role.
-     */
+    protected $layananDashboard;
+
+    public function __construct(DashboardStatsService $layananDashboard)
+    {
+        $this->layananDashboard = $layananDashboard;
+    }
+
+    // Entry point utama: mengarahkan user ke dashboard sesuai role yang aktif
     public function index(Request $request): RedirectResponse|View
     {
-        $roleRouteMap = [
-            1 => 'pimpinan.dashboard',
-            2 => 'admin.dashboard',
-            3 => 'teknisi.dashboard',
-            4 => 'pengelola_aset.dashboard',
-            5 => 'ruangan.dashboard',
-            6 => 'user.dashboard',
-        ];
-
         $activeRole = session('active_role_id');
+        $routeName = User::getDashboardRoute($activeRole);
 
-        if (isset($roleRouteMap[$activeRole])) {
-            return redirect()->route($roleRouteMap[$activeRole]);
+        if ($routeName) {
+            return redirect()->route($routeName);
         }
 
         return view('dashboard', ['user' => Auth::user()]);
     }
 
-    /**
-     * Display the Teknisi (Technician) dashboard with open/completed ticket stats.
-     */
-    public function teknisi(): View
-    {
-        $openTickets = Ticket::whereIn('status', ['Open', 'In Progress', 'Menunggu Persetujuan Biaya'])->count();
-        $completedTickets = Ticket::where('status', 'Selesai')->count();
-        $recentTickets = Ticket::with(['asset', 'reporter'])
-            ->latest()
-            ->take(5)
-            ->get();
-
-        return view('teknisi.dashboard', compact('openTickets', 'completedTickets', 'recentTickets'));
-    }
-
-    /**
-     * Display the Pengelola Aset (Asset Manager) dashboard with asset and ticket summaries.
-     */
-    public function pengelolaAset(): View
-    {
-        $totalAssets   = Asset::count();
-        $brokenAssets  = Asset::whereIn('status_kondisi', ['Rusak Ringan', 'Rusak Berat'])->count();
-        $pendingTickets = Ticket::where('type', 'Asset')
-            ->where('status', 'Menunggu Pengecekan Pengelola')
-            ->count();
-
-        $recentAssets = Asset::with(['room', 'deviceName'])
-            ->latest()
-            ->take(5)
-            ->get();
-
-        return view('pengelola_aset.dashboard', compact('totalAssets', 'brokenAssets', 'pendingTickets', 'recentAssets'));
-    }
-
-    /**
-     * Display the Pengelola Ruangan (Room Manager) dashboard with room and asset summaries.
-     */
-    public function ruangan(): View
-    {
-        $totalRooms   = Room::count();
-        $totalAssets  = Asset::count();
-        $recentAssets = Asset::with(['room', 'deviceName'])->latest()->take(5)->get();
-
-        return view('ruangan.dashboard', compact('totalRooms', 'totalAssets', 'recentAssets'));
-    }
-
-    /**
-     * Display the regular User dashboard with personal ticket and asset summaries.
-     */
-    public function user(): View
+    public function switchRole($roleId)
     {
         $user = Auth::user();
+        $allowedRoles = [
+            User::ROLE_PIMPINAN,
+            User::ROLE_ADMIN,
+            User::ROLE_TEKNISI,
+            User::ROLE_PENGELOLA_ASET,
+            User::ROLE_PIC_RUANGAN,
+            User::ROLE_USER,
+            User::ROLE_KETUA_TIM
+        ];
 
-        $myTicketsCount = Ticket::where('reported_by', $user->id)->count();
-        $myAssetsCount  = Asset::where('user_id', $user->id)->count();
-        $myTickets      = Ticket::where('reported_by', $user->id)->latest()->take(5)->get();
-        $myAssets       = Asset::where('user_id', $user->id)->with('deviceName')->take(5)->get();
+        $roleId = (int) $roleId;
 
-        return view('user.dashboard', compact('myTicketsCount', 'myAssetsCount', 'myTickets', 'myAssets'));
+        if (in_array($roleId, $allowedRoles, true) && $user->roles->contains('id', $roleId)) {
+            session(['active_role_id' => $roleId]);
+            return redirect()->route('dashboard')->with('success', 'Role berhasil diubah.');
+        }
+
+        return redirect()->back()->with('error', 'Role tidak valid atau Anda tidak memiliki akses.');
+    }
+
+    // Dashboard khusus Teknisi untuk memantau antrean tugas penanganan
+    public function teknisi(): View
+    {
+        $stats = $this->layananDashboard->getTeknisiStats(Auth::user());
+        return view('teknisi.dashboard', $stats);
+    }
+
+    // Dashboard Pengelola Aset untuk memantau status inventaris secara keseluruhan
+    public function pengelolaAset(): View
+    {
+        $stats = $this->layananDashboard->getPengelolaAsetStats();
+        return view('pengelola_aset.dashboard', $stats);
+    }
+
+    // Dashboard PIC Ruangan untuk memantau aset dan kondisi di ruangan terkait
+    public function ruangan(): View
+    {
+        $stats = $this->layananDashboard->getRuanganStats(Auth::user());
+        return view('rooms.dashboard', $stats);
+    }
+
+    // Dashboard User untuk memantau riwayat tiket dan aset pribadi yang dikelola
+    public function user(): View
+    {
+        $stats = $this->layananDashboard->getUserStats(Auth::user());
+        return view('user.dashboard', $stats);
+    }
+
+    // Dashboard Ketua Tim untuk manajemen pembagian tugas kepada teknisi
+    public function ketuaTim(): View
+    {
+        $stats = $this->layananDashboard->getKetuaTimStats(Auth::user());
+        return view('ketua_tim.dashboard', $stats);
     }
 }

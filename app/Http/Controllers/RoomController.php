@@ -11,9 +11,8 @@ use Illuminate\View\View;
 
 class RoomController extends Controller
 {
-    /**
-     * Display all rooms with their asset condition breakdown.
-     */
+    
+    // spill list ruangan di kantor
     public function index(): View
     {
         $rooms = Room::with('pic')->withCount([
@@ -26,10 +25,7 @@ class RoomController extends Controller
         return view('rooms.index', compact('rooms'));
     }
 
-    /**
-     * Show the form for creating a new room.
-     * Only users with role Pengelola Ruangan (5) or User (6) may be set as PIC.
-     */
+    // panggung buat input ruangan baru
     public function create(): View
     {
         $users = $this->getPicCandidates();
@@ -37,9 +33,7 @@ class RoomController extends Controller
         return view('rooms.create', compact('users'));
     }
 
-    /**
-     * Store a newly created room, generating its slug automatically from the name.
-     */
+    // bungkus data ruangan baru ke database
     public function store(Request $request): RedirectResponse
     {
         $request->validate([
@@ -48,19 +42,21 @@ class RoomController extends Controller
             'pic_id'      => 'nullable|exists:users,id',
         ]);
 
+        // ruang baru taro paling belakang
+        $nextOrder = (Room::max('sort_order') ?? -1) + 1;
+
         Room::create([
             'name'        => $request->name,
             'slug'        => Str::slug($request->name),
             'description' => $request->description,
             'pic_id'      => $request->pic_id,
+            'sort_order'  => $nextOrder,
         ]);
 
         return redirect()->route('rooms.index')->with('success', 'Ruangan berhasil ditambahkan.');
     }
 
-    /**
-     * Show the form for editing the specified room.
-     */
+    // tempat edit-edit kalau ruangan ganti nama atau pic
     public function edit(Room $room): View
     {
         $users = $this->getPicCandidates();
@@ -68,9 +64,6 @@ class RoomController extends Controller
         return view('rooms.edit', compact('room', 'users'));
     }
 
-    /**
-     * Update the specified room record. Slug is regenerated from the new name.
-     */
     public function update(Request $request, Room $room): RedirectResponse
     {
         $request->validate([
@@ -89,10 +82,6 @@ class RoomController extends Controller
         return redirect()->route('rooms.index')->with('success', 'Ruangan berhasil diperbarui.');
     }
 
-    /**
-     * Remove a room from storage.
-     * Deletion is blocked if the room still contains assets.
-     */
     public function destroy(Room $room): RedirectResponse
     {
         if ($room->assets()->exists()) {
@@ -105,11 +94,7 @@ class RoomController extends Controller
         return redirect()->route('rooms.index')->with('success', 'Ruangan berhasil dihapus.');
     }
 
-    /**
-     * Get users eligible to be set as a Room PIC (roles: Pengelola Ruangan or User).
-     *
-     * @return \Illuminate\Database\Eloquent\Collection
-     */
+    // filter siapa aja yang bisa jadi pic ruangan
     private function getPicCandidates()
     {
         return User::whereHas('roles', fn ($q) => $q->whereIn('roles.id', [5, 6]))->get();

@@ -45,5 +45,27 @@ class UserSeeder extends Seeder
             ]
         );
         $pimpinan->roles()->sync([1, 6]);
+
+        // Ketua Tim IT — Roles: Ketua Tim (7) + User (6)
+        $ketuaTim = User::firstOrCreate(
+            ['email' => 'ketua_it@bps.go.id'],
+            [
+                'username' => 'ketua_it_bps',
+                'name' => 'Ketua Tim IT BPS',
+                'password' => Hash::make('password'),
+            ]
+        );
+        $ketuaTim->roles()->sync([7, 6]);
+
+        // Teknisi BPS — Roles: Teknisi (3) + User (6)
+        $teknisi = User::firstOrCreate(
+            ['email' => 'teknisi@bps.go.id'],
+            [
+                'username' => 'teknisi_bps',
+                'name' => 'Teknisi BPS',
+                'password' => Hash::make('password'),
+            ]
+        );
+        $teknisi->roles()->sync([3, 6]);
     }
 }

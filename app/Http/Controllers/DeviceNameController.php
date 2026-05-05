@@ -12,9 +12,7 @@ use Illuminate\View\View;
 
 class DeviceNameController extends Controller
 {
-    /**
-     * Display all device name records, ordered by brand and name.
-     */
+    
     public function index(): View
     {
         $device_names = DeviceName::orderBy('brand')->orderBy('name')->get();
@@ -22,18 +20,11 @@ class DeviceNameController extends Controller
         return view('device_names.index', compact('device_names'));
     }
 
-    /**
-     * Show the form for creating a new device name entry.
-     */
     public function create(): View
     {
         return view('device_names.create');
     }
 
-    /**
-     * Store a newly created device name and auto-generate asset slots
-     * based on the specified quantity.
-     */
     public function store(Request $request): RedirectResponse
     {
         $request->validate([
@@ -70,9 +61,6 @@ class DeviceNameController extends Controller
             ->with('success', "Data nama perangkat berhasil ditambahkan dan {$deviceName->quantity} aset didaftarkan.");
     }
 
-    /**
-     * Display details and asset breakdown for a specific device name.
-     */
     public function show(DeviceName $deviceName): View
     {
         $deviceName->loadCount([
@@ -88,18 +76,11 @@ class DeviceNameController extends Controller
         return view('device_names.show', compact('deviceName', 'assets', 'rooms'));
     }
 
-    /**
-     * Show the form for editing the specified device name.
-     */
     public function edit(DeviceName $deviceName): View
     {
         return view('device_names.edit', compact('deviceName'));
     }
 
-    /**
-     * Update the device name record and generate additional asset slots
-     * if the quantity has been increased.
-     */
     public function update(Request $request, DeviceName $deviceName): RedirectResponse
     {
         $request->validate([
@@ -123,7 +104,7 @@ class DeviceNameController extends Controller
 
         $deviceName->update($data);
 
-        // Auto-generate new asset slots if quantity was increased
+        // auto bikin slot aset kalo qty nambah
         $existingCount = $deviceName->assets()->count();
         $diff          = (int) $request->quantity - $existingCount;
 
@@ -143,14 +124,14 @@ class DeviceNameController extends Controller
             ->with('success', 'Data nama perangkat berhasil diperbarui.');
     }
 
-    /**
-     * Remove the device name record and its associated image from storage.
-     */
     public function destroy(DeviceName $deviceName): RedirectResponse
     {
         if ($deviceName->image) {
             Storage::disk('public')->delete($deviceName->image);
         }
+
+        // Hapus semua aset yang terkait dengan master ini
+        $deviceName->assets()->delete();
 
         $deviceName->delete();
 

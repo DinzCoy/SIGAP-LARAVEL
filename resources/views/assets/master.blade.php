@@ -1,6 +1,5 @@
 <x-app-layout>
-    <div class="py-8">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+    <div class="space-y-6">
             
             {{-- Header Section --}}
             <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg border border-gray-100 mb-8">
@@ -79,11 +78,9 @@
                     <p class="mt-1 text-gray-500">Silakan tambahkan aset baru melalui menu Daftar Aset untuk mulai mengelola.</p>
                 </div>
             @endif
-
         </div>
-    </div>
 
-    {{-- Modal Tambah Aset --}}
+        {{-- Modal Tambah Aset --}}
     <div id="addModal" class="hidden fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
         <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
             <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true" onclick="document.getElementById('addModal').classList.add('hidden')"></div>
@@ -131,10 +128,10 @@
                         </div>
                     </div>
                     <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse border-t border-gray-100">
-                        <button type="submit" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-bps-blue text-base font-medium text-white hover:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-bps-blue sm:ml-3 sm:w-auto sm:text-sm">
+                        <button type="submit" class="modal-btn-primary">
                             Simpan Aset
                         </button>
-                        <button type="button" onclick="document.getElementById('addModal').classList.add('hidden')" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-bps-blue sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+                        <button type="button" onclick="document.getElementById('addModal').classList.add('hidden')" class="modal-btn-secondary">
                             Batal
                         </button>
                     </div>
@@ -154,7 +151,6 @@
         <option value="Lenovo">
         <option value="Samsung">
         <option value="Think Vision">
-        <option value="Cisco">
         <option value="MikroTik">
     </datalist>
 

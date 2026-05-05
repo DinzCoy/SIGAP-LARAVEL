@@ -32,6 +32,7 @@
                     ['id' => 'profil', 'icon' => 'user', 'label' => 'Pengaturan Profil'],
                     ['id' => 'sistem', 'icon' => 'server', 'label' => 'Konfigurasi Sistem'],
                     ['id' => 'threshold', 'icon' => 'gauge', 'label' => 'Threshold Anomali'],
+                    ['id' => 'jadwal-agent', 'icon' => 'clock', 'label' => 'Jadwal Agent'],
                     ['id' => 'maintenance', 'icon' => 'database', 'label' => 'Maintenance & Logs'],
                 ];
             @endphp
@@ -135,11 +136,11 @@
                     @else
                         <div class="overflow-x-auto">
                             <table class="w-full text-sm">
-                                <thead>
+                                <thead class="whitespace-nowrap">
                                     <tr class="text-left text-xs text-gray-500 uppercase tracking-wider">
-                                        <th class="pb-3 pr-4 font-semibold">Waktu</th>
-                                        <th class="pb-3 pr-4 font-semibold">IP Address</th>
-                                        <th class="pb-3 font-semibold">Browser / Agent</th>
+                                        <th class="pb-3 pr-4 font-semibold whitespace-nowrap">Waktu</th>
+                                        <th class="pb-3 pr-4 font-semibold whitespace-nowrap">IP Address</th>
+                                        <th class="pb-3 font-semibold whitespace-nowrap">Browser / Agent</th>
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-gray-50">
@@ -149,10 +150,10 @@
                                                 <span class="font-medium">{{ $activity->logged_in_at->format('d M Y') }}</span>
                                                 <span class="text-gray-400 ml-1">{{ $activity->logged_in_at->format('H:i') }}</span>
                                             </td>
-                                            <td class="py-2.5 pr-4">
+                                            <td class="py-2.5 pr-4 whitespace-nowrap">
                                                 <code class="px-2 py-0.5 bg-gray-100 rounded text-xs font-mono text-gray-600">{{ $activity->ip_address }}</code>
                                             </td>
-                                            <td class="py-2.5 text-gray-500 text-xs truncate max-w-[200px]">{{ Str::limit($activity->user_agent, 60) }}</td>
+                                            <td class="py-2.5 text-gray-500 text-xs truncate max-w-[200px] whitespace-nowrap">{{ Str::limit($activity->user_agent, 60) }}</td>
                                         </tr>
                                     @endforeach
                                 </tbody>
@@ -235,7 +236,7 @@
                     @else
                         <div class="divide-y divide-gray-50">
                             @foreach($whitelistedIps as $ip)
-                                <div class="flex items-center justify-between py-3 group">
+                                <div class="flex items-center justify-between py-3">
                                     <div class="flex items-center gap-3">
                                         <div class="w-2 h-2 rounded-full bg-emerald-400"></div>
                                         <code class="text-sm font-mono text-gray-700 font-medium">{{ $ip->ip_address }}</code>
@@ -245,7 +246,7 @@
                                     </div>
                                     <form method="POST" action="{{ route('settings.removeWhitelistIp', $ip->id) }}" onsubmit="return confirm('Hapus IP ini dari whitelist?')">
                                         @csrf @method('DELETE')
-                                        <button type="submit" class="text-gray-300 hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100">
+                                        <button type="submit" class="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors border border-gray-200 hover:border-red-200" title="Hapus dari Whitelist">
                                             <x-lucide-trash-2 class="w-4 h-4" />
                                         </button>
                                     </form>
@@ -318,7 +319,167 @@
             </div>
         </div>
 
-        {{-- ========== TAB 4: MAINTENANCE & LOGS ========== --}}
+        {{-- ========== TAB 4: JADWAL AGENT ========== --}}
+        <div x-show="activeTab === 'jadwal-agent'" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 translate-y-2" x-transition:enter-end="opacity-100 translate-y-0" class="space-y-6">
+
+            {{-- Info Banner --}}
+            <div class="bg-gradient-to-r from-sky-50 to-indigo-50 rounded-2xl border border-sky-100 p-5">
+                <div class="flex items-start gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-sky-100 flex items-center justify-center shrink-0">
+                        <x-lucide-info class="w-5 h-5 text-sky-600" />
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-sky-800 text-sm">Cara Kerja Jadwal Agent</h4>
+                        <p class="text-xs text-sky-600 mt-1 leading-relaxed">
+                            Agent di setiap PC akan mengirim laporan pada jam-jam yang ditentukan di bawah.
+                            Pengiriman dilakukan <strong>bertahap per ruangan</strong> dengan jeda waktu (delay) antar ruangan
+                            untuk menghindari beban server berlebih. Ruangan dengan urutan lebih kecil akan dikirim lebih dulu.
+                            <br class="hidden sm:block">
+                            <strong>Contoh:</strong> Jika jam 09:00 dan delay 5 menit → Ruangan urutan ke-0 kirim jam 09:00, urutan ke-1 kirim jam 09:05, dst.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Schedule Hours & Delay Config --}}
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                <div class="px-6 py-4 border-b border-gray-100 bg-gray-50/50">
+                    <h3 class="font-bold text-gray-800 flex items-center gap-2">
+                        <x-lucide-timer class="w-4 h-4 text-indigo-500" /> Jadwal & Delay Pengiriman
+                    </h3>
+                    <p class="text-xs text-gray-500 mt-1">Atur jam-jam pengiriman dan jeda antar ruangan</p>
+                </div>
+                <form method="POST" action="{{ route('settings.updateAgentSchedule') }}" class="p-6 space-y-5"
+                      x-data="{
+                          hours: '{{ $settings['agent_schedule_hours'] ?? '9,15' }}'.split(',').map(h => parseInt(h.trim())),
+                          newHour: '',
+                          addHour() {
+                              let h = parseInt(this.newHour);
+                              if (!isNaN(h) && h >= 0 && h <= 23 && !this.hours.includes(h)) {
+                                  this.hours.push(h);
+                                  this.hours.sort((a, b) => a - b);
+                              }
+                              this.newHour = '';
+                          },
+                          removeHour(h) { this.hours = this.hours.filter(x => x !== h); },
+                          formatHour(h) { return String(h).padStart(2, '0') + ':00'; }
+                      }">
+                    @csrf
+
+                    {{-- Hidden input with actual value --}}
+                    <input type="hidden" name="agent_schedule_hours" :value="hours.join(',')">
+
+                    {{-- Hour Chips --}}
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-3">Jam Pengiriman Laporan</label>
+                        <div class="flex flex-wrap gap-2 mb-3 min-h-[40px] p-3 bg-gray-50 rounded-xl border border-gray-100">
+                            <template x-for="h in hours" :key="h">
+                                <span class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-indigo-100 text-indigo-700 rounded-lg text-sm font-bold">
+                                    <x-lucide-clock class="w-3.5 h-3.5" />
+                                    <span x-text="formatHour(h)"></span>
+                                    <button type="button" @click="removeHour(h)" class="ml-0.5 text-indigo-400 hover:text-red-500 transition-colors">
+                                        <x-lucide-x class="w-3.5 h-3.5" />
+                                    </button>
+                                </span>
+                            </template>
+                            <span x-show="hours.length === 0" class="text-xs text-gray-400 py-1.5">Belum ada jam yang ditambahkan</span>
+                        </div>
+
+                        {{-- Add Hour Input --}}
+                        <div class="flex gap-2 max-w-xs">
+                            <select x-model="newHour" class="flex-1 rounded-xl border-gray-200 focus:border-bps-blue focus:ring-bps-blue/20 text-sm py-2.5">
+                                <option value="">Pilih Jam...</option>
+                                @for ($h = 0; $h <= 23; $h++)
+                                    <option value="{{ $h }}">{{ str_pad($h, 2, '0', STR_PAD_LEFT) }}:00</option>
+                                @endfor
+                            </select>
+                            <button type="button" @click="addHour()" class="px-4 py-2.5 bg-indigo-500 text-white rounded-xl text-sm font-bold hover:bg-indigo-600 transition-colors shrink-0 active:scale-[0.97]">
+                                <x-lucide-plus class="w-4 h-4 inline mr-0.5" /> Tambah
+                            </button>
+                        </div>
+                        <p class="text-[11px] text-gray-400 mt-2">Agent juga tetap mengirim data saat PC startup (tanpa delay) untuk deteksi anomali langsung</p>
+                    </div>
+
+                    {{-- Delay Per Room --}}
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1.5">Jeda Antar Ruangan (detik)</label>
+                        <div class="relative max-w-xs">
+                            <input type="number" name="agent_delay_per_room" value="{{ $settings['agent_delay_per_room'] ?? 300 }}"
+                                   min="60" max="1800" step="30"
+                                   class="w-full rounded-xl border-gray-200 focus:border-bps-blue focus:ring-bps-blue/20 text-sm py-2.5 pr-16" required>
+                            <span class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 text-sm font-semibold">detik</span>
+                        </div>
+                        <p class="text-[11px] text-gray-400 mt-1.5">
+                            Rekomendasi: 300 detik (5 menit). Dengan {{ $rooms->count() ?? 'N' }} ruangan, total waktu antar ruangan pertama dan terakhir:
+                            <strong class="text-gray-600">{{ (($rooms->count() ?? 1) - 1) * (int)($settings['agent_delay_per_room'] ?? 300) / 60 }} menit</strong>
+                        </p>
+                    </div>
+
+                    <div class="flex justify-end pt-2">
+                        <button type="submit" class="px-5 py-2.5 bg-bps-blue text-white rounded-xl text-sm font-bold hover:bg-blue-700 transition-colors shadow-sm shadow-blue-200 active:scale-[0.97]">
+                            <x-lucide-save class="w-4 h-4 inline mr-1" /> Simpan Jadwal
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            {{-- Room Order Configuration --}}
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                <div class="px-6 py-4 border-b border-gray-100 bg-gray-50/50">
+                    <h3 class="font-bold text-gray-800 flex items-center gap-2">
+                        <x-lucide-list-ordered class="w-4 h-4 text-emerald-500" /> Urutan Pengiriman Per Ruangan
+                    </h3>
+                    <p class="text-xs text-gray-500 mt-1">Ruangan dengan urutan lebih kecil akan mengirim data lebih dulu. Urutan 0 = pertama.</p>
+                </div>
+                <form method="POST" action="{{ route('settings.updateRoomOrder') }}" class="p-6">
+                    @csrf
+                    @if($rooms->isEmpty())
+                        <div class="text-center py-8">
+                            <x-lucide-building-2 class="w-12 h-12 text-gray-200 mx-auto mb-3" />
+                            <p class="text-sm text-gray-400">Belum ada ruangan. Tambahkan ruangan di <a href="{{ route('rooms.index') }}" class="text-bps-blue hover:underline font-medium">Master Ruangan</a>.</p>
+                        </div>
+                    @else
+                        <div class="space-y-2">
+                            @foreach($rooms as $index => $room)
+                                <div class="flex items-center gap-3 p-3 rounded-xl border border-gray-100 hover:border-gray-200 hover:bg-gray-50/50 transition-all group">
+                                    {{-- Sort Order Input --}}
+                                    <div class="w-20 shrink-0">
+                                        <input type="number" name="room_orders[{{ $room->id }}]" value="{{ $room->sort_order }}"
+                                               min="0" max="99"
+                                               class="w-full text-center rounded-lg border-gray-200 focus:border-indigo-400 focus:ring-indigo-200 text-sm py-2 font-bold text-indigo-700 bg-indigo-50/50">
+                                    </div>
+
+                                    {{-- Room Info --}}
+                                    <div class="flex-1 min-w-0">
+                                        <p class="text-sm font-semibold text-gray-800 truncate">{{ $room->name }}</p>
+                                        <p class="text-xs text-gray-400">
+                                            {{ $room->assets_count ?? $room->assets()->count() }} perangkat
+                                            @if($room->pic)
+                                                · PIC: {{ $room->pic->name }}
+                                            @endif
+                                        </p>
+                                    </div>
+
+                                    {{-- Delay Preview --}}
+                                    <div class="text-right shrink-0">
+                                        <p class="text-xs text-gray-400">Delay</p>
+                                        <p class="text-sm font-bold text-gray-600">+{{ $room->sort_order * (int)($settings['agent_delay_per_room'] ?? 300) / 60 }} mnt</p>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+
+                        <div class="flex justify-end pt-4">
+                            <button type="submit" class="px-5 py-2.5 bg-emerald-500 text-white rounded-xl text-sm font-bold hover:bg-emerald-600 transition-colors shadow-sm shadow-emerald-200 active:scale-[0.97]">
+                                <x-lucide-save class="w-4 h-4 inline mr-1" /> Simpan Urutan
+                            </button>
+                        </div>
+                    @endif
+                </form>
+            </div>
+        </div>
+
+        {{-- ========== TAB 5: MAINTENANCE & LOGS ========== --}}
         <div x-show="activeTab === 'maintenance'" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 translate-y-2" x-transition:enter-end="opacity-100 translate-y-0" class="space-y-6">
 
             {{-- Log Retention --}}
@@ -350,16 +511,31 @@
             {{-- Action Cards --}}
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {{-- Export Data --}}
-                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 flex flex-col items-center text-center hover:shadow-md transition-shadow">
-                    <div class="w-12 h-12 rounded-xl bg-emerald-50 flex items-center justify-center mb-3">
-                        <x-lucide-download class="w-6 h-6 text-emerald-500" />
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 flex flex-col items-center hover:shadow-md transition-shadow">
+                    <div class="w-12 h-12 rounded-xl bg-emerald-50 flex items-center justify-center mb-3 mx-auto">
+                        <x-lucide-file-spreadsheet class="w-6 h-6 text-emerald-500" />
                     </div>
-                    <h4 class="font-bold text-gray-800 text-sm">Export Data</h4>
-                    <p class="text-xs text-gray-400 mt-1 mb-4">Download semua data PC ke file CSV untuk laporan</p>
-                    <a href="{{ route('settings.exportData') }}"
-                       class="w-full px-4 py-2.5 bg-emerald-500 text-white rounded-xl text-sm font-bold hover:bg-emerald-600 transition-colors text-center active:scale-[0.97]">
-                        <x-lucide-file-spreadsheet class="w-4 h-4 inline mr-1" /> Download CSV
-                    </a>
+                    <h4 class="font-bold text-gray-800 text-sm text-center">Super Export Data</h4>
+                    <p class="text-xs text-gray-400 mt-1 mb-4 text-center">Download Laporan Excel: Aset, Tiket, PC, Penugasan & User</p>
+                    
+                    <form method="GET" action="{{ route('settings.exportData') }}" class="w-full text-left space-y-3"
+                          x-data="{ isExporting: false }" @submit="isExporting = true; setTimeout(() => isExporting = false, 5000)">
+                        <div class="flex gap-2">
+                            <div class="w-1/2">
+                                <label class="block text-[10px] font-bold text-gray-500 mb-1 uppercase tracking-wider">Mulai Tgl</label>
+                                <input type="date" name="start_date" class="w-full rounded-lg border-gray-200 focus:border-emerald-500 focus:ring-emerald-500/20 text-xs py-2 px-2 text-gray-600">
+                            </div>
+                            <div class="w-1/2">
+                                <label class="block text-[10px] font-bold text-gray-500 mb-1 uppercase tracking-wider">Sampai Tgl</label>
+                                <input type="date" name="end_date" class="w-full rounded-lg border-gray-200 focus:border-emerald-500 focus:ring-emerald-500/20 text-xs py-2 px-2 text-gray-600">
+                            </div>
+                        </div>
+                        <button type="submit" :disabled="isExporting"
+                                class="w-full mt-2 px-4 py-2 bg-emerald-500 text-white rounded-xl text-sm font-bold hover:bg-emerald-600 transition-colors text-center active:scale-[0.97] disabled:opacity-75 disabled:cursor-wait flex items-center justify-center gap-2">
+                            <span x-show="!isExporting" class="flex items-center gap-1.5"><x-lucide-download class="w-4 h-4" /> Download Excel</span>
+                            <span x-show="isExporting" x-cloak class="flex items-center gap-1.5"><x-lucide-loader-2 class="w-4 h-4 animate-spin" /> Memproses...</span>
+                        </button>
+                    </form>
                 </div>
 
                 {{-- Backup Database --}}

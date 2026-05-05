@@ -1,3 +1,37 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+@import "./asset-manager.css";
+@import "./dashboard-print.css";
+
+@plugin "daisyui";
+
+/* Dark mode — class-based strategy via Tailwind v4 */
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+    --color-bps-blue: #005A8C;
+    --color-bps-orange: #F28C28;
+}
+
+@layer components {
+    .modal-btn-primary {
+        @apply w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-bps-blue text-base font-medium text-white hover:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-bps-blue sm:ml-3 sm:w-auto sm:text-sm;
+    }
+
+    .modal-btn-secondary {
+        @apply mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-bps-blue sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm;
+    }
+
+    .modal-btn-warning {
+        @apply w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-bps-orange text-base font-medium text-white hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-bps-orange sm:ml-3 sm:w-auto sm:text-sm;
+    }
+}
+
+[x-cloak] {
+    display: none !important;
+}
+
+/* Sembunyikan label "Powered by CKEditor" di versi gratis */
+.ck-powered-by {
+    display: none !important;
+}
+

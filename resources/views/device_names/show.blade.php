@@ -1,6 +1,5 @@
 <x-app-layout>
-    <div class="py-8">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+    <div class="space-y-6">
             
             {{-- Header Section --}}
             <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg border border-gray-100 mb-8">
@@ -112,14 +111,14 @@
                 
                 <div class="overflow-x-auto">
                     <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-white">
+                        <thead class="bg-white whitespace-nowrap">
                             <tr>
-                                <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">No. BMN</th>
-                                <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Serial Number</th>
-                                <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">MAC Address</th>
-                                <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Ruangan / Lokasi</th>
-                                <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Pengguna</th>
-                                <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Kondisi</th>
+                                <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider whitespace-nowrap">No. BMN</th>
+                                <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider whitespace-nowrap">Serial Number</th>
+                                <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider whitespace-nowrap">MAC Address</th>
+                                <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider whitespace-nowrap">Ruangan / Lokasi</th>
+                                <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider whitespace-nowrap">Pengguna</th>
+                                <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider whitespace-nowrap">Kondisi</th>
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-100">
@@ -173,6 +172,5 @@
             </div>
 
         </div>
-    </div>
     </div>
 </x-app-layout>

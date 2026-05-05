@@ -68,28 +68,28 @@
             </div>
             <div class="overflow-x-auto">
                 <table class="w-full text-left border-collapse">
-                    <thead>
+                    <thead class="whitespace-nowrap">
                         <tr class="bg-gray-50 border-b border-gray-100 text-xs text-gray-500 uppercase tracking-wider">
-                            <th class="px-6 py-4 font-semibold">Judul Tiket</th>
-                            <th class="px-6 py-4 font-semibold">Pelapor</th>
-                            <th class="px-6 py-4 font-semibold">BMN Aset</th>
-                            <th class="px-6 py-4 font-semibold">Status</th>
-                            <th class="px-6 py-4 text-right font-semibold">Aksi</th>
+                            <th class="px-6 py-4 font-semibold whitespace-nowrap">Judul Tiket</th>
+                            <th class="px-6 py-4 font-semibold whitespace-nowrap">Pelapor</th>
+                            <th class="px-6 py-4 font-semibold whitespace-nowrap">BMN Aset</th>
+                            <th class="px-6 py-4 font-semibold whitespace-nowrap">Status</th>
+                            <th class="px-6 py-4 text-right font-semibold whitespace-nowrap">Aksi</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-100">
                         @forelse($recentTickets as $ticket)
                         <tr class="hover:bg-gray-50/50 transition duration-150">
-                            <td class="px-6 py-4">
+                            <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="font-medium text-gray-900">{{ \Illuminate\Support\Str::limit($ticket->title, 40) }}</div>
                                 <div class="text-xs text-gray-500 mt-1 flex items-center gap-1">
                                     <x-lucide-calendar class="w-3 h-3" /> {{ $ticket->created_at->diffForHumans() }}
                                 </div>
                             </td>
-                            <td class="px-6 py-4">
-                                <div class="text-sm font-medium text-gray-700">{{ $ticket->reporter->name ?? 'Unknown' }}</div>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm font-medium text-gray-700">{{ $ticket->reporter?->name ?? 'Unknown' }}</div>
                             </td>
-                            <td class="px-6 py-4">
+                            <td class="px-6 py-4 whitespace-nowrap">
                                 @if($ticket->asset)
                                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-gray-100 text-gray-800">
                                         {{ $ticket->asset->bmn_number ?? 'No BMN' }}
@@ -98,7 +98,7 @@
                                     <span class="text-gray-400 text-sm">-</span>
                                 @endif
                             </td>
-                            <td class="px-6 py-4">
+                            <td class="px-6 py-4 whitespace-nowrap">
                                 @php
                                     $statusColors = [
                                         'Open' => 'bg-gray-100 text-gray-700 border-gray-200',
@@ -114,7 +114,7 @@
                                     {{ $ticket->status }}
                                 </span>
                             </td>
-                            <td class="px-6 py-4 text-right">
+                            <td class="px-6 py-4 text-right whitespace-nowrap">
                                 <a href="{{ route('tickets.show', $ticket->id) }}" class="inline-flex items-center justify-center p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
                                     <x-lucide-arrow-right class="w-4 h-4" />
                                 </a>
@@ -122,7 +122,7 @@
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="5" class="px-6 py-8 text-center text-sm text-gray-500">
+                            <td colspan="5" class="px-6 py-8 text-center text-sm text-gray-500 whitespace-nowrap">
                                 <div class="flex flex-col items-center justify-center">
                                     <x-lucide-inbox class="w-12 h-12 text-gray-300 mb-3" />
                                     <p>Belum ada tiket laporan masalah.</p>

@@ -1,5 +1,5 @@
 <x-app-layout>
-    <div class="py-8 space-y-6">
+    <div id="auto-refresh-target" class="py-8 space-y-6">
 
         @if(session('success'))
         <div class="mb-6 bg-green-50 border-l-4 border-green-500 p-4 rounded-md shadow-sm">
@@ -22,9 +22,19 @@
         @endif
 
         <!-- Header Titles -->
-        <div class="mb-6">
-            <h2 class="text-2xl font-bold text-gray-900">Ringkasan Sistem</h2>
-            <p class="text-sm text-gray-500 mt-1">Pantauan real-time aset komputer BPS Sulawesi Selatan.</p>
+        <div class="mb-6 flex flex-col md:flex-row md:justify-between md:items-start gap-4">
+            <div>
+                <h2 class="text-2xl font-bold text-gray-900">Ringkasan Sistem</h2>
+                <p class="text-sm text-gray-500 mt-1">Pantauan real-time aset komputer BPS Sulawesi Selatan.</p>
+            </div>
+            <!-- Auto Refresh Indicator -->
+            <div class="flex items-center gap-2 bg-white px-3 py-1.5 rounded-full border border-gray-200 shadow-sm text-sm font-medium text-gray-700 transition-colors" id="auto-refresh-badge">
+                <span class="relative flex h-2.5 w-2.5">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500"></span>
+                </span>
+                <span>Live Refresh: <span id="refresh-countdown">30</span>s</span>
+            </div>
         </div>
 
         <!-- Summary Cards -->
@@ -68,7 +78,7 @@
                 <div class="absolute top-0 right-0 w-2 h-full bg-red-500 animate-pulse"></div>
                 @endif
                 <div>
-                    <p class="text-sm font-medium {{ $anomalyPcs > 0 ? 'text-red-700' : 'text-gray-500' }} uppercase tracking-wider">Terdeteksi Anomali</p>
+                    <p class="text-sm font-medium {{ $anomalyPcs > 0 ? 'text-red-700' : 'text-gray-500' }} uppercase tracking-wider">PC Bermasalah (Total)</p>
                     <p class="text-3xl font-bold {{ $anomalyPcs > 0 ? 'text-red-600' : 'text-gray-400' }} mt-2">{{ $anomalyPcs }}</p>
                 </div>
                 <div class="p-3 {{ $anomalyPcs > 0 ? 'bg-red-100 text-red-600' : 'bg-gray-50 text-gray-400' }} rounded-full">
@@ -166,10 +176,10 @@
                             $diskCritical = $freeDiskGb < 10.0; 
                             $diskWarning = $freeDiskGb >= 10.0 && $freeDiskGb < 25.0; 
                             
-                            $diskStatusColor = $report->disk_status === 'HEALTHY' ? 'text-green-600' : 'text-red-600 font-bold animate-pulse';
+                            $diskStatusColor = in_array($report->disk_status, ['HEALTHY', 'SEHAT']) ? 'text-green-600' : 'text-red-600 font-bold animate-pulse';
                         @endphp
 
-                        <tr onclick="window.location.href='{{ route('admin.reports.show', $report->id) }}'" 
+                        <tr data-href="{{ route('admin.reports.show', $report->id) }}" onclick="window.location.href=this.dataset.href;" 
                             class="group hover:bg-blue-50/50 transition-all cursor-pointer {{ $isOffline ? 'bg-gray-50/50 grayscale-[20%]' : 'bg-white' }} {{ $report->is_trouble ? 'border-l-4 border-l-red-500 bg-red-50/30' : 'border-l-4 border-l-transparent' }}">
                             
                             <!-- Perangkat -->
@@ -182,10 +192,16 @@
                                         <span class="relative inline-flex rounded-full h-3 w-3 {{ $isOffline ? 'bg-gray-400' : 'bg-green-500' }}" title="{{ $isOffline ? 'Offline' : 'Online' }}"></span>
                                     </div>
                                     <div>
+                                        @php
+                                            $isLate = $report->last_seen ? \Carbon\Carbon::parse($report->last_seen) < $reportingDeadline : true;
+                                        @endphp
                                         <div class="font-bold text-gray-900 flex items-center gap-2 group-hover:text-bps-blue transition-colors text-base">
                                             {{ $report->hostname }}
                                             @if($report->is_trouble)
                                                 <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-red-100 text-red-700 border border-red-200 uppercase tracking-wide" title="{{ $report->trouble_note }}">Anomali</span>
+                                            @endif
+                                            @if($isLate)
+                                                <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-orange-100 text-orange-700 border border-orange-200 uppercase tracking-wide" title="PC tidak melapor dalam {{ $reportIntervalDays }} hari terakhir">Telat Lapor</span>
                                             @endif
                                         </div>
                                         <div class="text-xs text-gray-500 mt-1 flex items-center gap-1.5">
@@ -249,7 +265,7 @@
                                         @endif
                                         <span class="text-xs text-gray-400">/ {{ number_format($totalDiskGb, 0) }} GB</span>
                                     </div>
-                                    @if($report->disk_status && $report->disk_status !== 'HEALTHY')
+                                    @if($report->disk_status)
                                         <div class="text-[10px] mt-2 font-semibold {{ $diskStatusColor }}">S.M.A.R.T: {{ $report->disk_status }}</div>
                                     @endif
                                 </div>
@@ -293,4 +309,73 @@
         </div>
 
     </div>
+
+    <!-- Auto-Refresh Script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Prevent duplicate intervals if navigating
+            if (window.autoRefreshInterval) {
+                clearInterval(window.autoRefreshInterval);
+            }
+            
+            let timeLeft = 30;
+            let isPaused = false;
+            
+            // Pause countdown when user is interacting with filters
+            document.addEventListener('focusin', (e) => {
+                if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') {
+                    isPaused = true;
+                    const countdownEl = document.getElementById('refresh-countdown');
+                    if (countdownEl) countdownEl.innerText = '⏸️';
+                }
+            });
+            document.addEventListener('focusout', (e) => {
+                if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') {
+                    isPaused = false;
+                    const countdownEl = document.getElementById('refresh-countdown');
+                    if (countdownEl) countdownEl.innerText = timeLeft;
+                }
+            });
+
+            function updateCountdown() {
+                const countdownEl = document.getElementById('refresh-countdown');
+                if (countdownEl && !isPaused) {
+                    countdownEl.innerText = timeLeft;
+                }
+            }
+
+            window.autoRefreshInterval = setInterval(() => {
+                if (isPaused) return;
+
+                timeLeft--;
+                updateCountdown();
+                
+                if (timeLeft <= 0) {
+                    const countdownEl = document.getElementById('refresh-countdown');
+                    if (countdownEl) countdownEl.innerText = '...';
+
+                    // Fetch fresh HTML
+                    fetch(window.location.href)
+                    .then(response => response.text())
+                    .then(html => {
+                        const parser = new DOMParser();
+                        const doc = parser.parseFromString(html, 'text/html');
+                        const newTarget = doc.getElementById('auto-refresh-target');
+                        
+                        if (newTarget) {
+                            document.getElementById('auto-refresh-target').innerHTML = newTarget.innerHTML;
+                        }
+                        
+                        timeLeft = 30;
+                        updateCountdown();
+                    })
+                    .catch(error => {
+                        console.error('Auto-refresh failed:', error);
+                        timeLeft = 30; // retry on next cycle
+                        updateCountdown();
+                    });
+                }
+            }, 1000);
+        });
+    </script>
 </x-app-layout>

@@ -1,0 +1,61 @@
+/* resources/css/asset-manager.css */
+
+/* Custom calendar icon behavior for the allocated_at date input */
+#edit_allocated_at::-webkit-calendar-picker-indicator {
+    position: absolute;
+    right: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+}
+
+/* Modal and Element Animations */
+@keyframes slideUp {
+    0% {
+        opacity: 0;
+        transform: translateY(15px) scale(0.98);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.animate-slide-up {
+    animation: slideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes shimmer {
+    100% {
+        transform: translateX(100%);
+    }
+}
+
+.fade-in {
+    animation: fadeIn 0.4s ease-out forwards;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Hide arrows on number input (used in tickets cost) */
+.input-no-spin::-webkit-outer-spin-button,
+.input-no-spin::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.input-no-spin {
+    -moz-appearance: textfield;
+}

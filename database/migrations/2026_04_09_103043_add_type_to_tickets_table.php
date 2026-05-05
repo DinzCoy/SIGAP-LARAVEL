@@ -19,7 +19,9 @@ return new class extends Migration
         });
 
         // Use raw SQL to safely modify the ENUM for the status column
-        \Illuminate\Support\Facades\DB::statement("ALTER TABLE tickets MODIFY COLUMN status ENUM('Menunggu Pengecekan Pengelola', 'Diteruskan ke Teknisi', 'Open', 'In Progress', 'Menunggu Persetujuan Biaya', 'Approved', 'Selesai', 'Dibatalkan') DEFAULT 'Open'");
+        if (\Illuminate\Support\Facades\DB::getDriverName() !== 'sqlite') {
+            \Illuminate\Support\Facades\DB::statement("ALTER TABLE tickets MODIFY COLUMN status ENUM('Menunggu Pengecekan Pengelola', 'Diteruskan ke Teknisi', 'Open', 'In Progress', 'Menunggu Persetujuan Biaya', 'Approved', 'Selesai', 'Dibatalkan') DEFAULT 'Open'");
+        }
     }
 
     /**
@@ -28,7 +30,9 @@ return new class extends Migration
     public function down(): void
     {
         // Revert status enum to original
-        \Illuminate\Support\Facades\DB::statement("ALTER TABLE tickets MODIFY COLUMN status ENUM('Open', 'In Progress', 'Menunggu Persetujuan Biaya', 'Approved', 'Selesai', 'Dibatalkan') DEFAULT 'Open'");
+        if (\Illuminate\Support\Facades\DB::getDriverName() !== 'sqlite') {
+            \Illuminate\Support\Facades\DB::statement("ALTER TABLE tickets MODIFY COLUMN status ENUM('Open', 'In Progress', 'Menunggu Persetujuan Biaya', 'Approved', 'Selesai', 'Dibatalkan') DEFAULT 'Open'");
+        }
 
         Schema::table('tickets', function (Blueprint $table) {
             $table->unsignedBigInteger('asset_id')->nullable(false)->change();

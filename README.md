@@ -29,7 +29,7 @@ Sistem monitoring dan manajemen aset PC berbasis web untuk **Badan Pusat Statist
 ## 🏗️ Arsitektur
 
 ```
-bps-pc-guardian/
+sigap/
 ├── app/
 │   ├── Exports/          # Maatwebsite Excel exports
 │   ├── Http/
@@ -43,7 +43,7 @@ bps-pc-guardian/
 ├── routes/
 │   ├── web.php           # Web routes (auth + RBAC)
 │   └── api.php           # API endpoint untuk Windows Agent
-└── bps-pc-guardian-agent.ps1  # Windows Agent script
+└── sigap-agent.ps1  # Windows Agent script
 ```
 
 ---
@@ -60,8 +60,8 @@ bps-pc-guardian/
 
 ```bash
 # 1. Clone repository
-git clone https://github.com/YOUR_USERNAME/bps-pc-guardian.git
-cd bps-pc-guardian
+git clone https://github.com/YOUR_USERNAME/sigap.git
+cd sigap
 
 # 2. Install dependencies
 composer install
@@ -93,7 +93,7 @@ php artisan serve
 
 ## 🤖 Windows Agent
 
-Deploy `bps-pc-guardian-agent.ps1` ke setiap PC client. Agent akan mengirim laporan secara periodik ke endpoint `/api/pc-report` menggunakan `X-API-KEY` header.
+Deploy `sigap-agent.ps1` ke setiap PC client. Agent akan mengirim laporan secara periodik ke endpoint `/api/pc-report` menggunakan `X-API-KEY` header.
 
 Gunakan `install-agent.bat` untuk instalasi otomatis sebagai Windows Scheduled Task.
 

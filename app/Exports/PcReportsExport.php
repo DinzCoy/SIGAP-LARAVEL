@@ -13,16 +13,10 @@ use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
 class PcReportsExport implements FromQuery, WithHeadings, WithMapping, ShouldAutoSize, WithStyles
 {
-    /**
-     * The number of minutes after which a PC is considered offline.
-     * Must match WebReportController::OFFLINE_THRESHOLD_MINUTES.
-     */
-    private const OFFLINE_THRESHOLD_MINUTES = 5;
-
-    /** @var string|null */
+    //Filter software tertentu.
     protected ?string $softwareFilter;
 
-    /** @var string|null */
+    //Filter pencarian hostname.
     protected ?string $search;
 
     public function __construct(?string $softwareFilter, ?string $search)
@@ -31,9 +25,7 @@ class PcReportsExport implements FromQuery, WithHeadings, WithMapping, ShouldAut
         $this->search         = $search;
     }
 
-    /**
-     * Build the base query for export, applying optional software and search filters.
-     */
+    //Membangun query untuk ekspor dengan filter yang dipilih.
     public function query()
     {
         $query = PcReport::query();
@@ -54,9 +46,7 @@ class PcReportsExport implements FromQuery, WithHeadings, WithMapping, ShouldAut
         return $query->orderByDesc('last_seen');
     }
 
-    /**
-     * Return the column headings for the Excel file.
-     */
+    //Menentukan judul kolom untuk file Excel.
     public function headings(): array
     {
         return [
@@ -74,17 +64,14 @@ class PcReportsExport implements FromQuery, WithHeadings, WithMapping, ShouldAut
         ];
     }
 
-    /**
-     * Map each PC report row to the corresponding Excel columns.
-     *
-     * @param  PcReport  $report
-     * @return array
-     */
+    //Memetakan data dari setiap baris laporan ke kolom Excel.
     public function map($report): array
     {
-        $isOffline   = now()->diffInMinutes($report->last_seen) > self::OFFLINE_THRESHOLD_MINUTES;
-        $totalRamGb  = round(($report->total_ram_kb ?? 0) / 1024 / 1024, 2);
-        $usedRamGb   = round((($report->total_ram_kb - $report->ram_free_kb) ?? 0) / 1024 / 1024, 2);
+        $isOffline   = $report->isOffline();
+        $totalRamKb  = $report->total_ram_kb ?? 0;
+        $ramFreeKb   = $report->ram_free_kb ?? 0;
+        $totalRamGb  = round($totalRamKb / 1024 / 1024, 2);
+        $usedRamGb   = round(($totalRamKb - $ramFreeKb) / 1024 / 1024, 2);
         $totalDiskGb = round(($report->total_disk_b ?? 0) / 1024 / 1024 / 1024, 2);
         $freeDiskGb  = round(($report->disk_free_b ?? 0) / 1024 / 1024 / 1024, 2);
 
@@ -103,9 +90,7 @@ class PcReportsExport implements FromQuery, WithHeadings, WithMapping, ShouldAut
         ];
     }
 
-    /**
-     * Apply styling to the header row (bold white text on BPS blue background).
-     */
+    //Memberikan gaya (styling) pada baris header.
     public function styles(Worksheet $sheet): array
     {
         return [

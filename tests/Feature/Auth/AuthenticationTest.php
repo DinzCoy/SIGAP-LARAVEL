@@ -14,7 +14,7 @@ test('users can authenticate using the login screen', function () {
     $user->roles()->attach($role->id);
 
     $response = $this->post('/login', [
-        'email' => $user->email,
+        'login' => $user->email,
         'password' => 'password',
         'role_id' => $role->id,
     ]);
@@ -29,7 +29,7 @@ test('users can not authenticate with invalid password', function () {
     $user->roles()->attach($role->id);
 
     $this->post('/login', [
-        'email' => $user->email,
+        'login' => $user->email,
         'password' => 'wrong-password',
         'role_id' => $role->id,
     ]);

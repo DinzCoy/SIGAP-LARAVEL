@@ -3,37 +3,36 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Auth\LoginRequest;
+use App\Http\Requests\Autentikasi\CekLogin;
 use App\Models\Role;
+use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 class AuthenticatedSessionController extends Controller
 {
-    /**
-     * Display the login view.
-     */
+    // tampilin halaman login biar user bisa absen
     public function create(): View
     {
-        return view('auth.login');
+        $roles = Role::orderBy('id')->get();
+        return view('auth.login', compact('roles'));
     }
 
-    /**
-     * Handle an incoming authentication request.
-     */
-    public function store(LoginRequest $request): RedirectResponse
+    // proses login, cek idsama password, plus pastiin role nya bener
+    public function store(CekLogin $request): RedirectResponse
     {
         $request->authenticate();
 
-        // After credentials are verified, check if user has the selected role
+        // cek role terpilih
         $user = Auth::user();
         $selectedRoleId = (int) $request->role_id;
 
         if (!$user->hasRole($selectedRoleId)) {
-            // User doesn't have this role — logout and show error
+            // tolak login kalo role ga cocok
             Auth::guard('web')->logout();
             $request->session()->invalidate();
             $request->session()->regenerateToken();
@@ -45,16 +44,28 @@ class AuthenticatedSessionController extends Controller
             ]);
         }
 
-        // Role is valid — store active role in session
+        // save role di session
         $request->session()->regenerate();
         session(['active_role_id' => $selectedRoleId]);
 
-        return redirect()->intended(route('dashboard', absolute: false));
+        // Arahkan ke dashboard sesuai role
+        $dashboardRoute = User::getDashboardRoute($selectedRoleId);
+
+        \Illuminate\Support\Facades\Log::info('User login success', [
+            'user_id' => $user->id,
+            'selected_role' => $selectedRoleId,
+            'dashboard_route' => $dashboardRoute,
+            'session_id' => session()->getId()
+        ]);
+
+        if ($dashboardRoute && Route::has($dashboardRoute)) {
+            return redirect()->route($dashboardRoute);
+        }
+
+        return redirect()->route('dashboard');
     }
 
-    /**
-     * Destroy an authenticated session.
-     */
+    // buat user yang mau pamit (logout)
     public function destroy(Request $request): RedirectResponse
     {
         Auth::guard('web')->logout();

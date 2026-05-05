@@ -19,8 +19,9 @@ class RoleSeeder extends Seeder
             ['id' => 4, 'name' => 'Pengelola Barang'],
             ['id' => 5, 'name' => 'Pengelola Ruangan'],
             ['id' => 6, 'name' => 'User'],
+            ['id' => 7, 'name' => 'Ketua Tim'],
         ];
 
-        DB::table('roles')->insert($roles);
+        DB::table('roles')->upsert($roles, ['id'], ['name']);
     }
 }

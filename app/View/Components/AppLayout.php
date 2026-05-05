@@ -7,9 +7,7 @@ use Illuminate\View\View;
 
 class AppLayout extends Component
 {
-    /**
-     * Get the view / contents that represents the component.
-     */
+    //Mendapatkan view / konten yang merepresentasikan komponen.
     public function render(): View
     {
         return view('layouts.app');

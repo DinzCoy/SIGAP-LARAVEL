@@ -57,7 +57,14 @@
 
                         <div class="mb-5">
                             <label class="block text-sm font-semibold text-gray-700 mb-1">Tanggal Pengadaan / Alokasi</label>
-                            <input type="date" name="procurement_date" value="{{ old('procurement_date') }}" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-bps-blue focus:ring-bps-blue sm:text-sm">
+                            <div class="relative">
+                                <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-gray-400">
+                                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                </div>
+                                <input type="date" name="procurement_date" value="{{ old('procurement_date') }}" 
+                                    onclick="this.showPicker()"
+                                    class="w-full border-gray-300 rounded-lg shadow-sm focus:border-bps-blue focus:ring-bps-blue sm:text-sm pr-10 cursor-pointer">
+                            </div>
                             <p class="mt-1 text-xs text-gray-500">Tanggal kapan perangkat ini diadakan/dialokasikan.</p>
                             @error('procurement_date')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>

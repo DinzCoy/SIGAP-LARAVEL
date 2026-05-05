@@ -6,6 +6,7 @@ use App\Models\SystemSetting;
 use App\Models\LoginActivity;
 use App\Models\WhitelistedIp;
 use App\Models\PcReport;
+use App\Models\Room;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -13,9 +14,7 @@ use Illuminate\Validation\Rules\Password;
 
 class SettingsController extends Controller
 {
-    /**
-     * Display the settings page with all tabs.
-     */
+
     public function index()
     {
         $settings = SystemSetting::pluck('value', 'key')->toArray();
@@ -24,13 +23,11 @@ class SettingsController extends Controller
             ->orderBy('logged_in_at', 'desc')
             ->take(10)
             ->get();
+        $rooms = Room::with(['pic'])->withCount('assets')->orderBy('sort_order')->orderBy('name')->get();
 
-        return view('settings.index', compact('settings', 'whitelistedIps', 'loginActivities'));
+        return view('settings.index', compact('settings', 'whitelistedIps', 'loginActivities', 'rooms'));
     }
 
-    /**
-     * Update profile (name, email).
-     */
     public function updateProfile(Request $request)
     {
         $validated = $request->validate([
@@ -46,9 +43,6 @@ class SettingsController extends Controller
         return back()->with('success', 'Profil berhasil diperbarui.');
     }
 
-    /**
-     * Update password.
-     */
     public function updatePassword(Request $request)
     {
         $validated = $request->validate([
@@ -63,9 +57,6 @@ class SettingsController extends Controller
         return back()->with('success', 'Password berhasil diubah.');
     }
 
-    /**
-     * Update system configuration (API key, server URL).
-     */
     public function updateSystem(Request $request)
     {
         $validated = $request->validate([
@@ -79,9 +70,6 @@ class SettingsController extends Controller
         return back()->with('success', 'Konfigurasi sistem berhasil disimpan.');
     }
 
-    /**
-     * Update anomaly thresholds.
-     */
     public function updateThresholds(Request $request)
     {
         $validated = $request->validate([
@@ -97,9 +85,6 @@ class SettingsController extends Controller
         return back()->with('success', 'Threshold anomali berhasil disimpan.');
     }
 
-    /**
-     * Add an IP to the whitelist.
-     */
     public function addWhitelistIp(Request $request)
     {
         $validated = $request->validate([
@@ -112,61 +97,30 @@ class SettingsController extends Controller
         return back()->with('success', 'IP berhasil ditambahkan ke whitelist.');
     }
 
-    /**
-     * Remove an IP from the whitelist.
-     */
     public function removeWhitelistIp($id)
     {
         WhitelistedIp::findOrFail($id)->delete();
         return back()->with('success', 'IP berhasil dihapus dari whitelist.');
     }
 
-    /**
-     * Export PC reports data as CSV.
-     */
-    public function exportData()
+    public function exportData(Request $request)
     {
-        $reports = PcReport::orderBy('hostname')->get();
+        $request->validate([
+            'start_date' => 'nullable|date',
+            'end_date'   => 'nullable|date|after_or_equal:start_date',
+        ]);
 
-        $csvFileName = 'pc_reports_' . date('Y-m-d') . '.csv';
-        $headers = [
-            'Content-Type' => 'text/csv',
-            'Content-Disposition' => "attachment; filename=\"$csvFileName\"",
-        ];
+        $startDate = $request->start_date ? \Carbon\Carbon::parse($request->start_date)->startOfDay() : null;
+        $endDate   = $request->end_date ? \Carbon\Carbon::parse($request->end_date)->endOfDay() : null;
 
-        $columns = ['Hostname', 'IP Address', 'MAC Address', 'Room', 'OS', 'RAM Used %', 'Disk Status', 'Trouble', 'Last Seen'];
+        $fileName = 'BPS_PC_Guardian_Super_Export_' . date('Y-m-d_H-i') . '.xlsx';
 
-        $callback = function () use ($reports, $columns) {
-            $file = fopen('php://output', 'w');
-            fputcsv($file, $columns);
-
-            foreach ($reports as $r) {
-                $ramPercent = $r->total_ram_kb > 0
-                    ? round((($r->total_ram_kb - $r->ram_free_kb) / $r->total_ram_kb) * 100, 1) . '%'
-                    : '-';
-
-                fputcsv($file, [
-                    $r->hostname,
-                    $r->ip_address,
-                    $r->mac_address,
-                    $r->room_name,
-                    $r->os_name,
-                    $ramPercent,
-                    $r->disk_status,
-                    $r->is_trouble ? 'YES: ' . $r->trouble_note : 'No',
-                    $r->last_seen,
-                ]);
-            }
-
-            fclose($file);
-        };
-
-        return response()->stream($callback, 200, $headers);
+        return \Maatwebsite\Excel\Facades\Excel::download(
+            new \App\Exports\Super\SystemSuperExport($startDate, $endDate),
+            $fileName
+        );
     }
 
-    /**
-     * Backup database (mysqldump).
-     */
     public function backupDatabase()
     {
         $dbName = config('database.connections.mysql.database');
@@ -177,10 +131,10 @@ class SettingsController extends Controller
         $fileName = 'backup_' . $dbName . '_' . date('Y-m-d_His') . '.sql';
         $filePath = storage_path('app/' . $fileName);
 
-        $env = 'MYSQL_PWD=' . escapeshellarg($dbPass);
+        // Menggunakan putenv agar kompatibel di Windows (CMD) maupun Linux (Bash)
+        putenv("MYSQL_PWD={$dbPass}");
         $command = sprintf(
-            '%s mysqldump -h %s -u %s %s > %s 2>&1',
-            $env,
+            'mysqldump -h %s -u %s %s > %s 2>&1',
             escapeshellarg($dbHost),
             escapeshellarg($dbUser),
             escapeshellarg($dbName),
@@ -188,6 +142,7 @@ class SettingsController extends Controller
         );
 
         exec($command, $output, $result);
+        putenv("MYSQL_PWD="); // Hapus environment variables setelah pemakaian
 
         if ($result !== 0 || !file_exists($filePath)) {
             return back()->with('error', 'Backup gagal. Pastikan mysqldump tersedia di server.');
@@ -196,23 +151,17 @@ class SettingsController extends Controller
         return response()->download($filePath, $fileName)->deleteFileAfterSend(true);
     }
 
-    /**
-     * Clean old logs based on retention setting.
-     */
     public function cleanOldLogs()
     {
         $months = (int) SystemSetting::getValue('log_retention_months', 6);
         $cutoff = now()->subMonths($months);
 
         $deleted = PcReport::where('last_seen', '<', $cutoff)->delete();
-        LoginActivity::where('logged_in_at', '<', $cutoff)->delete();
+        $deleted += LoginActivity::where('logged_in_at', '<', $cutoff)->delete();
 
         return back()->with('success', "Berhasil membersihkan $deleted laporan lama (lebih dari $months bulan).");
     }
 
-    /**
-     * Update log retention setting.
-     */
     public function updateRetention(Request $request)
     {
         $validated = $request->validate([
@@ -223,4 +172,40 @@ class SettingsController extends Controller
 
         return back()->with('success', 'Pengaturan retensi log berhasil disimpan.');
     }
+
+    public function updateAgentSchedule(Request $request)
+    {
+        $validated = $request->validate([
+            'agent_schedule_hours' => 'required|string|max:100',
+            'agent_delay_per_room' => 'required|integer|min:60|max:1800',
+        ]);
+
+        // format jam: cuma angka 0-23
+        $hours = array_filter(
+            array_map('intval', explode(',', $validated['agent_schedule_hours'])),
+            fn($h) => $h >= 0 && $h <= 23
+        );
+        $hours = array_unique($hours);
+        sort($hours);
+
+        SystemSetting::setValue('agent_schedule_hours', implode(',', $hours));
+        SystemSetting::setValue('agent_delay_per_room', $validated['agent_delay_per_room']);
+
+        return back()->with('success', 'Jadwal pengiriman agent berhasil disimpan.');
+    }
+
+    public function updateRoomOrder(Request $request)
+    {
+        $validated = $request->validate([
+            'room_orders' => 'required|array',
+            'room_orders.*' => 'required|integer|min:0',
+        ]);
+
+        foreach ($validated['room_orders'] as $roomId => $order) {
+            Room::where('id', $roomId)->update(['sort_order' => $order]);
+        }
+
+        return back()->with('success', 'Urutan ruangan berhasil diperbarui.');
+    }
 }
+

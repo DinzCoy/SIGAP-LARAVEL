@@ -1,0 +1,45 @@
+@media print {
+    * {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+
+    body,
+    html {
+        background-color: white !important;
+    }
+
+    /* hide navbar & sidebar */
+    nav,
+    aside,
+    header:not(.dashboard-header) {
+        display: none !important;
+    }
+
+    main {
+        padding: 0 !important;
+        margin: 0 !important;
+        max-width: 100% !important;
+    }
+
+    /* hapus shadow saat print */
+    .shadow-sm,
+    .shadow-md {
+        box-shadow: none !important;
+    }
+
+    .border-gray-200 {
+        border-color: #d1d5db !important;
+    }
+
+    /* cegah elemen terpotong */
+    .mb-8 {
+        page-break-inside: avoid;
+        break-inside: avoid;
+    }
+
+    /* max size canvas */
+    canvas {
+        max-width: 100% !important;
+    }
+}

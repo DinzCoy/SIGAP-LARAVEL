@@ -1,0 +1,633 @@
+/* ================================================================
+   SIGAP — dark-mode.css  (Standalone, bypass Tailwind purge)
+   Palette Slate:
+     deepest bg    #0f172a  (slate-900)
+     card / nav    #1e293b  (slate-800)
+     hover / muted #273548  (slate-750 custom)
+     border        #334155  (slate-700)
+     border muted  #475569  (slate-600)
+     text primary  #f1f5f9  (slate-100)
+     text muted    #94a3b8  (slate-400)
+   ================================================================ */
+
+/* ---- 0. Smooth transition on toggle ---- */
+html.dark-transition,
+html.dark-transition *,
+html.dark-transition *::before,
+html.dark-transition *::after {
+    transition:
+        background-color 300ms ease,
+        color 200ms ease,
+        border-color 200ms ease,
+        box-shadow 200ms ease !important;
+}
+
+/* ================================================================
+   1. ROOT SURFACES
+   ================================================================ */
+.dark body {
+    background-color: #0f172a !important;
+    color: #e2e8f0 !important;
+}
+
+/* ================================================================
+   2. BACKGROUNDS — semua varian bg-white / gray yang dipakai
+   ================================================================ */
+.dark .bg-white {
+    background-color: #1e293b !important;
+}
+/* bg-white dengan opacity modifier */
+.dark .bg-white\/80 {
+    background-color: rgba(30, 41, 59, 0.92) !important;
+}
+.dark .bg-white\/90 {
+    background-color: rgba(30, 41, 59, 0.95) !important;
+}
+
+/* gray surfaces */
+.dark .bg-gray-50 {
+    background-color: #1e293b !important;
+}
+.dark .bg-gray-100 {
+    background-color: #273548 !important;
+}
+.dark .bg-gray-200 {
+    background-color: #334155 !important;
+}
+
+/* bg-gray-50 dengan opacity — dipakai di card headers */
+.dark .bg-gray-50\/80 {
+    background-color: rgba(30, 41, 59, 0.85) !important;
+}
+.dark .bg-gray-50\/50 {
+    background-color: rgba(30, 41, 59, 0.5) !important;
+}
+
+/* halaman utama pakai bg-[#f8fafc] */
+.dark .bg-\[\#f8fafc\] {
+    background-color: #0f172a !important;
+}
+
+/* ================================================================
+   3. TEXT
+   ================================================================ */
+.dark .text-gray-900 {
+    color: #f1f5f9 !important;
+}
+.dark .text-gray-800 {
+    color: #e2e8f0 !important;
+}
+.dark .text-gray-700 {
+    color: #cbd5e1 !important;
+}
+.dark .text-gray-600 {
+    color: #94a3b8 !important;
+}
+.dark .text-gray-500 {
+    color: #64748b !important;
+}
+.dark .text-gray-400 {
+    color: #94a3b8 !important;
+}
+.dark .text-gray-300 {
+    color: #cbd5e1 !important;
+}
+
+/* ================================================================
+   4. BORDERS
+   ================================================================ */
+.dark .border-gray-50 {
+    border-color: #1e293b !important;
+}
+.dark .border-gray-100 {
+    border-color: #334155 !important;
+}
+.dark .border-gray-200 {
+    border-color: #334155 !important;
+}
+.dark .border-gray-200\/80 {
+    border-color: rgba(51, 65, 85, 0.8) !important;
+}
+.dark .border-gray-300 {
+    border-color: #475569 !important;
+}
+
+/* divide utilities */
+.dark .divide-gray-100 > * + * {
+    border-color: #334155 !important;
+}
+.dark .divide-gray-200 > * + * {
+    border-color: #334155 !important;
+}
+
+/* ================================================================
+   5. HOVER BACKGROUNDS
+   ================================================================ */
+.dark .hover\:bg-gray-50:hover {
+    background-color: #273548 !important;
+}
+.dark .hover\:bg-gray-100:hover {
+    background-color: #334155 !important;
+}
+.dark .hover\:bg-gray-200:hover {
+    background-color: #475569 !important;
+}
+/* Card hover yang ada di dashboard pimpinan: hover:shadow-lg hover:-translate-y-1 */
+.dark .hover\:shadow-lg:hover {
+    box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.5) !important;
+}
+
+/* Row table hover */
+.dark .hover\:bg-blue-50\/50:hover {
+    background-color: rgba(30, 58, 138, 0.15) !important;
+}
+.dark tbody tr.hover\:bg-blue-50\/50:hover {
+    background-color: rgba(30, 58, 138, 0.15) !important;
+}
+
+/* List item hover */
+.dark li.hover\:bg-blue-50\/50:hover {
+    background-color: rgba(30, 58, 138, 0.15) !important;
+}
+
+/* ================================================================
+   6. FORM INPUTS
+   ================================================================ */
+.dark
+    input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not(
+        [type="button"]
+    ):not([type="color"]):not([type="range"]),
+.dark textarea,
+.dark select {
+    background-color: #0f172a !important;
+    color: #e2e8f0 !important;
+    border-color: #334155 !important;
+}
+.dark input:focus,
+.dark textarea:focus,
+.dark select:focus {
+    border-color: #3b82f6 !important;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15) !important;
+    outline: none !important;
+}
+.dark input::placeholder,
+.dark textarea::placeholder {
+    color: #475569 !important;
+}
+/* Label */
+.dark label {
+    color: #cbd5e1 !important;
+}
+
+/* ================================================================
+   7. BADGE / TAG BACKGROUNDS — tinted, bukan solid
+   ================================================================ */
+/* Blue */
+.dark .bg-blue-50 {
+    background-color: rgba(59, 130, 246, 0.12) !important;
+}
+.dark .bg-blue-100 {
+    background-color: rgba(59, 130, 246, 0.18) !important;
+}
+.dark .text-blue-700 {
+    color: #93c5fd !important;
+}
+.dark .text-blue-600 {
+    color: #60a5fa !important;
+}
+.dark .border-blue-100 {
+    border-color: rgba(59, 130, 246, 0.2) !important;
+}
+
+/* Green / Emerald */
+.dark .bg-green-50 {
+    background-color: rgba(34, 197, 94, 0.1) !important;
+}
+.dark .bg-green-100 {
+    background-color: rgba(34, 197, 94, 0.18) !important;
+}
+.dark .text-green-700 {
+    color: #86efac !important;
+}
+.dark .text-green-600 {
+    color: #4ade80 !important;
+}
+.dark .bg-emerald-50 {
+    background-color: rgba(16, 185, 129, 0.1) !important;
+}
+
+/* Red */
+.dark .bg-red-50 {
+    background-color: rgba(239, 68, 68, 0.1) !important;
+}
+.dark .bg-red-100 {
+    background-color: rgba(239, 68, 68, 0.18) !important;
+}
+.dark .text-red-700 {
+    color: #fca5a5 !important;
+}
+.dark .text-red-600 {
+    color: #f87171 !important;
+}
+
+/* Yellow / Amber */
+.dark .bg-yellow-50 {
+    background-color: rgba(234, 179, 8, 0.1) !important;
+}
+.dark .bg-yellow-100 {
+    background-color: rgba(234, 179, 8, 0.18) !important;
+}
+.dark .text-yellow-800 {
+    color: #fde68a !important;
+}
+.dark .text-yellow-700 {
+    color: #fcd34d !important;
+}
+
+/* Orange */
+.dark .bg-orange-50 {
+    background-color: rgba(249, 115, 22, 0.1) !important;
+}
+.dark .bg-orange-100 {
+    background-color: rgba(249, 115, 22, 0.18) !important;
+}
+.dark .text-orange-600 {
+    color: #fb923c !important;
+}
+
+/* Indigo */
+.dark .bg-indigo-50 {
+    background-color: rgba(99, 102, 241, 0.1) !important;
+}
+.dark .text-indigo-600 {
+    color: #a5b4fc !important;
+}
+
+/* Purple */
+.dark .bg-purple-50 {
+    background-color: rgba(168, 85, 247, 0.1) !important;
+}
+
+/* Gray badges */
+.dark .bg-gray-50.ring-1 {
+    background-color: rgba(51, 65, 85, 0.4) !important;
+}
+.dark .text-gray-700.ring-1 {
+    color: #cbd5e1 !important;
+}
+
+/* ring color overrides */
+.dark .ring-green-600\/20 {
+    --tw-ring-color: rgba(34, 197, 94, 0.25) !important;
+}
+.dark .ring-blue-600\/20 {
+    --tw-ring-color: rgba(59, 130, 246, 0.25) !important;
+}
+.dark .ring-red-600\/20 {
+    --tw-ring-color: rgba(239, 68, 68, 0.25) !important;
+}
+.dark .ring-yellow-600\/20 {
+    --tw-ring-color: rgba(234, 179, 8, 0.25) !important;
+}
+.dark .ring-gray-500\/10 {
+    --tw-ring-color: rgba(100, 116, 139, 0.2) !important;
+}
+
+/* ================================================================
+   8. NAVIGATION BAR
+   ================================================================ */
+.dark nav.bg-white,
+.dark nav {
+    background-color: #1e293b !important;
+    border-color: #334155 !important;
+}
+
+/* ================================================================
+   9. CARD / PANEL AREAS
+   ================================================================ */
+/* Semua div/section dengan bg-white yang berfungsi sebagai card */
+.dark .rounded-xl.bg-white,
+.dark .rounded-2xl.bg-white,
+.dark .rounded-lg.bg-white {
+    background-color: #1e293b !important;
+}
+/* Overflow cards */
+.dark .overflow-hidden.bg-white {
+    background-color: #1e293b !important;
+}
+
+/* Card headers pakai bg-gray-50/80 atau bg-gray-50 */
+.dark .border-b.border-gray-200.bg-gray-50\/80,
+.dark .border-b.bg-gray-50\/80 {
+    background-color: rgba(15, 23, 42, 0.6) !important;
+    border-color: #334155 !important;
+}
+
+/* Tab switcher bg-gray-100 */
+.dark .bg-gray-100.p-1.rounded-lg {
+    background-color: #273548 !important;
+}
+
+/* Active tab: bg-white shadow-sm */
+.dark .bg-white.shadow-sm.text-gray-900.border {
+    background-color: #334155 !important;
+    color: #f1f5f9 !important;
+    border-color: #475569 !important;
+}
+
+/* Inactive tab hover */
+.dark .hover\:bg-gray-200\/50:hover {
+    background-color: rgba(51, 65, 85, 0.4) !important;
+}
+.dark .hover\:text-gray-700:hover {
+    color: #e2e8f0 !important;
+}
+
+/* ================================================================
+   10. TABLES
+   ================================================================ */
+.dark thead th,
+.dark thead tr th {
+    background-color: #1a2844 !important;
+    color: #94a3b8 !important;
+    border-color: #334155 !important;
+}
+.dark tbody tr {
+    background-color: #1e293b !important;
+}
+.dark tbody tr:hover {
+    background-color: rgba(30, 58, 138, 0.2) !important;
+}
+.dark tbody td {
+    border-color: #334155 !important;
+    color: #e2e8f0 !important;
+}
+.dark .divide-y > tr + tr {
+    border-color: #334155 !important;
+}
+
+/* ================================================================
+   11. DROPDOWN / POPUP PANELS (Notifikasi, User menu)
+   ================================================================ */
+.dark [x-show].absolute.bg-white,
+.dark .absolute.bg-white {
+    background-color: #1e293b !important;
+    border-color: #334155 !important;
+}
+
+/* Notif panel header */
+.dark .bg-gray-50.border-b {
+    background-color: rgba(15, 23, 42, 0.7) !important;
+    border-color: #334155 !important;
+}
+
+/* Dropdown link item hover */
+.dark a.block.hover\:bg-gray-100:hover {
+    background-color: #273548 !important;
+}
+.dark a.block {
+    color: #e2e8f0 !important;
+}
+
+/* ================================================================
+   12. SHADOWS
+   ================================================================ */
+.dark .shadow-sm {
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3) !important;
+}
+.dark .shadow {
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35) !important;
+}
+.dark .shadow-md {
+    box-shadow: 0 4px 10px -1px rgba(0, 0, 0, 0.4) !important;
+}
+.dark .shadow-lg {
+    box-shadow: 0 10px 20px -3px rgba(0, 0, 0, 0.45) !important;
+}
+.dark .shadow-xl {
+    box-shadow: 0 15px 30px -5px rgba(0, 0, 0, 0.5) !important;
+}
+.dark .shadow-2xl {
+    box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.6) !important;
+}
+
+/* ================================================================
+   13. PRINT BUTTON (di pimpinan dashboard)
+   ================================================================ */
+.dark button.bg-white.border.border-gray-300 {
+    background-color: #1e293b !important;
+    border-color: #475569 !important;
+    color: #e2e8f0 !important;
+}
+.dark button.bg-white.border.border-gray-300:hover {
+    background-color: #273548 !important;
+}
+
+/* ================================================================
+   14. SCROLLBAR
+   ================================================================ */
+.dark .custom-scrollbar::-webkit-scrollbar-track {
+    background: #0f172a;
+}
+.dark .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #334155;
+    border-radius: 10px;
+}
+.dark .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #475569;
+}
+
+/* ================================================================
+   15. SWEETALERT2
+   ================================================================ */
+.dark .swal2-popup {
+    background: #1e293b !important;
+    color: #e2e8f0 !important;
+    border: 1px solid #334155 !important;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6) !important;
+}
+.dark .swal2-title {
+    color: #f1f5f9 !important;
+}
+.dark .swal2-html-container {
+    color: #94a3b8 !important;
+}
+.dark .swal2-confirm {
+    background-color: #3b82f6 !important;
+}
+.dark .swal2-cancel {
+    background-color: #475569 !important;
+}
+.dark .swal2-icon {
+    border-color: #334155 !important;
+}
+.dark .swal2-timer-progress-bar {
+    background: #3b82f6 !important;
+}
+
+/* ================================================================
+   16. DEVICE NAMES — Master Perangkat Pages
+   ================================================================ */
+
+/* --- INDEX: Card image/logo area ---
+   Gambar pakai mix-blend-multiply biar menyatu dg bg putih.
+   Di dark mode, ganti ke bg gelap + hapus blend mode agar terlihat. */
+.dark .group.bg-white.rounded-2xl .h-48.bg-white {
+    background-color: #273548 !important;
+}
+/* Fix mix-blend-multiply — gambar jadi invisible di dark bg */
+.dark .mix-blend-multiply {
+    mix-blend-mode: normal !important;
+    filter: brightness(0.9) !important;
+}
+/* Image area hover state */
+.dark .group.bg-white.rounded-2xl .h-48.bg-white.group-hover\:bg-gray-50 {
+    background-color: #2d3f58 !important;
+}
+
+/* --- INDEX: Action icon buttons --- */
+.dark a.hover\:bg-blue-50.rounded-lg:hover {
+    background-color: rgba(59, 130, 246, 0.15) !important;
+}
+.dark button.hover\:bg-red-50.rounded-lg:hover {
+    background-color: rgba(239, 68, 68, 0.12) !important;
+}
+
+/* --- INDEX: Type badge ---  bg-gray-100 text-gray-600 */
+.dark .bg-gray-100.text-gray-600.px-2 {
+    background-color: #334155 !important;
+    color: #94a3b8 !important;
+}
+
+/* --- SHOW: Header area bg-gray-50/50 --- */
+.dark .border-b.border-gray-100.bg-gray-50\/50 {
+    background-color: rgba(15, 23, 42, 0.5) !important;
+    border-color: #334155 !important;
+}
+
+/* --- SHOW: Gradient header (bg-gradient-to-r from-bps-blue) stays as-is, already colored --- */
+
+/* --- SHOW: Inventaris stat card dengan border-b colored --- */
+.dark .bg-gray-50.rounded-xl.p-4.text-center {
+    background-color: #273548 !important;
+    border-color: inherit; /* pertahankan border-bottom warnanya */
+}
+/* text di dalam stat card */
+.dark .bg-gray-50.rounded-xl .text-gray-500 {
+    color: #94a3b8 !important;
+}
+.dark .bg-gray-50.rounded-xl .text-gray-800 {
+    color: #f1f5f9 !important;
+}
+
+/* Icon container di stat card */
+.dark .bg-green-100.text-green-600.rounded-full {
+    background-color: rgba(34, 197, 94, 0.15) !important;
+    color: #4ade80 !important;
+}
+.dark .bg-yellow-100.text-yellow-600.rounded-full {
+    background-color: rgba(234, 179, 8, 0.15) !important;
+    color: #fcd34d !important;
+}
+.dark .bg-red-100.text-red-600.rounded-full {
+    background-color: rgba(239, 68, 68, 0.15) !important;
+    color: #f87171 !important;
+}
+
+/* --- SHOW: Table thead bg-white (bukan bg-gray-50) --- */
+.dark thead.bg-white {
+    background-color: #1a2844 !important;
+}
+.dark tbody.bg-white {
+    background-color: #1e293b !important;
+}
+/* tr hover di show page: hover:bg-blue-50/30 */
+.dark .hover\:bg-blue-50\/30:hover {
+    background-color: rgba(30, 58, 138, 0.12) !important;
+}
+
+/* Warning bar: text-red-500 bg-red-50 rounded italic */
+.dark .bg-red-50.rounded.italic {
+    background-color: rgba(239, 68, 68, 0.1) !important;
+}
+
+/* bg-amber-50 / text-amber-700 di badge procurement date */
+.dark .bg-amber-50 {
+    background-color: rgba(251, 191, 36, 0.1) !important;
+}
+.dark .text-amber-700 {
+    color: #fcd34d !important;
+}
+.dark .border-amber-200 {
+    border-color: rgba(251, 191, 36, 0.25) !important;
+}
+
+/* bg-blue-100 / text-bps-blue di badge tipe */
+.dark .bg-blue-100.text-bps-blue {
+    background-color: rgba(59, 130, 246, 0.15) !important;
+    color: #60a5fa !important;
+}
+.dark .border-blue-200 {
+    border-color: rgba(59, 130, 246, 0.2) !important;
+}
+
+/* Status kondisi badge di tabel show */
+.dark .bg-green-100.text-green-800 {
+    background-color: rgba(34, 197, 94, 0.15) !important;
+    color: #86efac !important;
+}
+.dark .border-green-200 {
+    border-color: rgba(34, 197, 94, 0.2) !important;
+}
+.dark .bg-yellow-100.text-yellow-800 {
+    background-color: rgba(234, 179, 8, 0.15) !important;
+    color: #fde68a !important;
+}
+.dark .border-yellow-200 {
+    border-color: rgba(234, 179, 8, 0.2) !important;
+}
+.dark .bg-red-100.text-red-800 {
+    background-color: rgba(239, 68, 68, 0.15) !important;
+    color: #fca5a5 !important;
+}
+.dark .border-red-200 {
+    border-color: rgba(239, 68, 68, 0.2) !important;
+}
+
+/* Dekoratif SVG background (pojok card) - biar tidak terlalu terang */
+.dark .absolute.-right-6.-top-6.text-gray-50 {
+    color: rgba(51, 65, 85, 0.3) !important;
+}
+
+/* ================================================================
+   17. MISC
+   ================================================================ */
+.dark hr {
+    border-color: #334155 !important;
+}
+.dark .ring-1 {
+    --tw-ring-color: rgba(51, 65, 85, 0.6) !important;
+}
+.dark .ring-2 {
+    --tw-ring-color: rgba(51, 65, 85, 0.5) !important;
+}
+/* Separator garis di nav */
+.dark .bg-gray-200 {
+    background-color: #334155 !important;
+}
+/* Dot separator: text-gray-300 • */
+.dark .text-gray-300 {
+    color: #475569 !important;
+}
+/* Empty state SVG icon */
+.dark .text-gray-300.mx-auto {
+    color: #334155 !important;
+}
+/* Green-left-border alert flash */
+.dark .bg-green-50.border-l-4.border-green-500 {
+    background-color: rgba(34, 197, 94, 0.08) !important;
+    border-color: #4ade80 !important;
+}
+.dark .bg-green-50.border-l-4 .text-green-800 {
+    color: #86efac !important;
+}

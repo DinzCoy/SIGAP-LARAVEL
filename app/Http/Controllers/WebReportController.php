@@ -11,14 +11,7 @@ use Illuminate\View\View;
 
 class WebReportController extends Controller
 {
-    /**
-     * The number of minutes after which a PC is considered offline.
-     */
-    private const OFFLINE_THRESHOLD_MINUTES = 5;
-
-    /**
-     * Display a public-facing listing of PC reports with masked sensitive data.
-     */
+    // spill data pc buat user umum, no cepu-cepu
     public function index(Request $request): View
     {
         $query = $this->applyPcFilters(PcReport::query(), $request);
@@ -29,7 +22,7 @@ class WebReportController extends Controller
 
         $reports = $query->orderByDesc('last_seen')->paginate(20)->withQueryString();
 
-        // Mask sensitive fields before presenting to non-admin viewers
+        // sensor data sensitif buat yg bukan admin
         $reports->getCollection()->transform(function ($report) {
             $report->ip_address  = preg_replace('/(\d+\.\d+\.\d+\.)\d+/', '$1***', $report->ip_address);
             $report->mac_address = 'XX:XX:XX:XX:XX:XX';
@@ -39,9 +32,7 @@ class WebReportController extends Controller
         return view('reports.index', compact('reports'));
     }
 
-    /**
-     * Display the Admin dashboard with full PC details and summary analytics.
-     */
+    // dashboard khusus admin buat mantau kesehatan semua pc
     public function adminIndex(Request $request): View
     {
         $query = $this->applyPcFilters(PcReport::query(), $request);
@@ -52,32 +43,33 @@ class WebReportController extends Controller
                                        ->orWhere('ip_address', 'like', "%{$search}%"));
         }
 
-        $threshold  = now()->subMinutes(self::OFFLINE_THRESHOLD_MINUTES);
+        // Ambil setting interval laporan (default 7 hari jika tidak ada)
+        $reportIntervalDays = (int) \App\Models\SystemSetting::getValue('report_interval_days', 7);
+        $reportingDeadline  = now()->subDays($reportIntervalDays);
+
         $totalPcs   = PcReport::count();
-        $onlinePcs  = PcReport::where('last_seen', '>=', $threshold)->count();
-        $offlinePcs = PcReport::where(fn ($q) => $q->where('last_seen', '<', $threshold)->orWhereNull('last_seen'))->count();
-        $anomalyPcs = PcReport::where('is_trouble', true)->count();
+        $onlinePcs  = PcReport::online()->count();
+        $offlinePcs = PcReport::offline()->count();
+        
+        // PC dianggap Anomali jika: is_trouble manual = true ATAU telat melapor sesuai interval settings
+        $anomalyPcs = PcReport::where('is_trouble', true)
+            ->orWhere(fn ($q) => $q->where('last_seen', '<', $reportingDeadline)->orWhereNull('last_seen'))
+            ->count();
 
         $reports = $query->with('asset')->orderByDesc('last_seen')->paginate(20)->withQueryString();
 
-        return view('reports.admin', compact('reports', 'totalPcs', 'onlinePcs', 'offlinePcs', 'anomalyPcs'));
+        return view('reports.admin', compact('reports', 'totalPcs', 'onlinePcs', 'offlinePcs', 'anomalyPcs', 'reportIntervalDays', 'reportingDeadline'));
     }
 
-    /**
-     * Display a detailed view for a specific PC report (Admin only).
-     */
+    // kepoin detail spek satu pc sampe ke akar-akarnya
     public function show(string $id): View
     {
         $report    = PcReport::with(['installedSoftware', 'asset'])->findOrFail($id);
-        $isOffline = empty($report->last_seen)
-            || Carbon::parse($report->last_seen) < now()->subMinutes(self::OFFLINE_THRESHOLD_MINUTES);
+        $isOffline = $report->isOffline();
 
         return view('reports.show', compact('report', 'isOffline'));
     }
 
-    /**
-     * Update the room assignment for a specific PC report.
-     */
     public function updateRoom(Request $request, string $id): RedirectResponse
     {
         $request->validate([
@@ -90,9 +82,6 @@ class WebReportController extends Controller
         return back()->with('success', "Nama ruangan untuk {$report->hostname} berhasil diperbarui.");
     }
 
-    /**
-     * Remove a PC report from the database.
-     */
     public function destroy(string $id): RedirectResponse
     {
         $report   = PcReport::findOrFail($id);
@@ -103,9 +92,7 @@ class WebReportController extends Controller
             ->with('success', "Device {$hostname} berhasil dihapus dari sistem.");
     }
 
-    /**
-     * Export PC reports to an Excel file based on the current filters.
-     */
+    // bungkus semua data ke excel biar bisa buat laporan ke bos
     public function export(Request $request)
     {
         $fileName = 'Laporan_Aset_BPS_' . date('Y-m-d_H-i-s') . '.xlsx';
@@ -116,13 +103,6 @@ class WebReportController extends Controller
         );
     }
 
-    /**
-     * Apply the standard PC report filters (software-specific, BMN status) to a query.
-     *
-     * @param  Builder  $query
-     * @param  Request  $request
-     * @return Builder
-     */
     private function applyPcFilters(Builder $query, Request $request): Builder
     {
         if (!$request->filled('filter_spesifik')) {

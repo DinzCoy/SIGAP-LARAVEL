@@ -1,6 +1,6 @@
 @echo off
 echo ========================================================
-echo BPS-PC Guardian Agent Installer
+echo SIGAP Agent Installer
 echo ========================================================
 echo.
 
@@ -14,7 +14,7 @@ if %errorLevel% neq 0 (
 
 :: Konfigurasi Path
 set "AGENT_DIR=C:\BPS-Guardian"
-set "PS1_FILE=bps-pc-guardian-agent.ps1"
+set "PS1_FILE=sigap-agent.ps1"
 set "SOURCE_PATH=%~dp0%PS1_FILE%"
 
 echo [*] Mengecek direktori %AGENT_DIR%...
@@ -51,7 +51,7 @@ schtasks /Create /TN "BPS-PC-Guardian-Agent" /RU "SYSTEM" /SC ONSTART /TR "wscri
 
 echo.
 echo ========================================================
-echo [SUCCESS] Agent BPS-PC Guardian berhasil diinstall!
+echo [SUCCESS] Agent SIGAP berhasil diinstall!
 echo Agent kini akan berjalan setiap kali PC di restart.
 echo.
 echo Untuk mengetes menjalankannya sekarang secara manual via Task Scheduler:
