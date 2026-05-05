@@ -19,7 +19,7 @@ Sistem monitoring dan manajemen aset PC berbasis web untuk **Badan Pusat Statist
 | **Anomaly Detection** | Deteksi otomatis PC bermasalah berdasarkan threshold yang dapat dikonfigurasi |
 | **Ticketing System** | Sistem tiket untuk perbaikan aset BMN dan troubleshooting umum |
 | **Asset Management** | Manajemen aset dengan nomor BMN, pengelola ruangan, dan alokasi pengguna |
-| **Role-based Access** | 6 peran: Pimpinan, Admin, Teknisi, Pengelola Barang, Pengelola Ruangan, User |
+| **Role-based Access** | 7 peran: Pimpinan, Admin, Teknisi, Pengelola Barang, Pengelola Ruangan, Ketua Tim, User |
 | **Windows Agent** | Script PowerShell untuk pelaporan otomatis dari PC client |
 | **Export Excel** | Ekspor data PC ke `.xlsx` dengan filter dan styling otomatis |
 | **Settings Panel** | Konfigurasi API key, threshold anomali, retensi log, dan whitelist IP |
@@ -29,21 +29,23 @@ Sistem monitoring dan manajemen aset PC berbasis web untuk **Badan Pusat Statist
 ## 🏗️ Arsitektur
 
 ```
-sigap/
+bps-pc-guardian/
+├── agent-deploy/         # Script instalasi & Windows Agent
+│   ├── sigap-agent.ps1
+│   └── install-agent.ps1
 ├── app/
 │   ├── Exports/          # Maatwebsite Excel exports
 │   ├── Http/
 │   │   ├── Controllers/  # Web & API controllers
-│   │   └── Middleware/   # IsAdmin, dll.
+│   │   └── Middleware/   # CekPeran, dll.
 │   └── Models/           # Eloquent models
 ├── database/
 │   ├── migrations/       # Skema database
 │   └── seeders/          # Data awal (roles, admin)
 ├── resources/views/      # Blade templates (Tailwind CSS)
-├── routes/
-│   ├── web.php           # Web routes (auth + RBAC)
-│   └── api.php           # API endpoint untuk Windows Agent
-└── sigap-agent.ps1  # Windows Agent script
+└── routes/
+    ├── web.php           # Web routes (auth + RBAC)
+    └── api.php           # API endpoint untuk Windows Agent
 ```
 
 ---
@@ -60,8 +62,8 @@ sigap/
 
 ```bash
 # 1. Clone repository
-git clone https://github.com/YOUR_USERNAME/sigap.git
-cd sigap
+git clone https://github.com/DinzCoy/bps-pc-guardian.git
+cd bps-pc-guardian
 
 # 2. Install dependencies
 composer install
@@ -93,9 +95,9 @@ php artisan serve
 
 ## 🤖 Windows Agent
 
-Deploy `sigap-agent.ps1` ke setiap PC client. Agent akan mengirim laporan secara periodik ke endpoint `/api/pc-report` menggunakan `X-API-KEY` header.
+Deploy file yang ada di dalam folder `agent-deploy` ke setiap PC client. Agent (`sigap-agent.ps1`) akan mengirim laporan secara periodik ke endpoint `/api/pc-report` menggunakan `X-API-KEY` header.
 
-Gunakan `install-agent.bat` untuk instalasi otomatis sebagai Windows Scheduled Task.
+Gunakan `install-agent.ps1` atau file batch/vbs terkait untuk instalasi otomatis sebagai Windows Scheduled Task.
 
 ---
 
