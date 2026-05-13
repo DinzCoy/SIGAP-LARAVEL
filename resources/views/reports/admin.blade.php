@@ -115,6 +115,7 @@
                         class="focus-ring-bps block w-full pl-3 pr-10 py-2 text-base border-gray-300 sm:text-sm rounded-md border">
                         <option value="">-- Semua PC --</option>
                         <option value="bit_defender" {{ request('filter_spesifik') == 'bit_defender' ? 'selected' : '' }}>Bit Defender</option>
+                        <option value="no_bit_defender" {{ request('filter_spesifik') == 'no_bit_defender' ? 'selected' : '' }}>Belum terinstal Bit Defender</option>
                         <option value="office_365" {{ request('filter_spesifik') == 'office_365' ? 'selected' : '' }}>Microsoft Office 365</option>
                         <option value="no_bmn" {{ request('filter_spesifik') == 'no_bmn' ? 'selected' : '' }}>Belum Link Nomor BMN</option>
                     </select>

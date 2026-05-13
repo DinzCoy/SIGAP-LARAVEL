@@ -188,15 +188,26 @@
                                             onclick="prepareUserEditModal(this)"
                                             data-user="{{ json_encode($user) }}"
                                             data-roles="{{ json_encode($user->roles->pluck('id')) }}"
-                                            class="p-2 text-gray-400 hover:text-bps-blue hover:bg-blue-50 rounded-lg transition-colors border border-gray-200 hover:border-blue-200"
+                                            class="p-2 text-blue-500 bg-blue-50 hover:text-blue-700 hover:bg-blue-100 rounded-lg transition-colors border border-blue-200 hover:border-blue-300 shadow-sm"
                                             title="Edit Pengguna">
                                             <x-lucide-edit class="w-4 h-4" />
+                                        </button>
+
+                                        {{-- Tombol Reset Password --}}
+                                        <form id="reset-pw-{{ $user->id }}" action="{{ route('users.resetPassword', $user->id) }}" method="POST" class="hidden">
+                                            @csrf
+                                        </form>
+                                        <button type="button"
+                                            onclick="confirmResetPassword('reset-pw-{{ $user->id }}', '{{ addslashes($user?->name ?? 'User') }}')"
+                                            class="p-2 text-orange-500 bg-orange-50 hover:text-orange-700 hover:bg-orange-100 rounded-lg transition-colors border border-orange-200 hover:border-orange-300 shadow-sm"
+                                            title="Reset Password ke Default">
+                                            <x-lucide-key-round class="w-4 h-4" />
                                         </button>
 
                                         @if(auth()->id() !== $user->id)
                                         <form id="del-{{ $user->id }}" action="{{ route('users.destroy', $user->id) }}" method="POST">
                                             @csrf @method('DELETE')
-                                            <button type="button" onclick="confirmDelete('del-{{ $user->id }}', 'Yakin menghapus akun {{ addslashes($user?->name ?? 'User') }} secara permanen?')" class="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors border border-gray-200 hover:border-red-200" title="Hapus Pengguna">
+                                            <button type="button" onclick="confirmDelete('del-{{ $user->id }}', 'Yakin menghapus akun {{ addslashes($user?->name ?? 'User') }} secara permanen?')" class="p-2 text-red-500 bg-red-50 hover:text-red-700 hover:bg-red-100 rounded-lg transition-colors border border-red-200 hover:border-red-300 shadow-sm" title="Hapus Pengguna">
                                                 <x-lucide-trash-2 class="w-4 h-4" />
                                             </button>
                                         </form>
@@ -415,5 +426,26 @@
             </div>
         </div>
     </div>
+
+    <script>
+        // Konfirmasi reset password pakai SweetAlert2 yang sudah ada di layout
+        function confirmResetPassword(formId, userName) {
+            Swal.fire({
+                title: 'Reset Password?',
+                html: `Password akun <strong>${userName}</strong> akan direset ke sandi default: <br><br><code style="background:#fff7ed;padding:6px 16px;border-radius:8px;font-size:1.1em;font-weight:bold;color:#c2410c;letter-spacing:2px;">password</code><br><br><small style="color:#6b7280;">Pengguna bisa mengganti sandi sendiri setelah login.</small>`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#f97316',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: '🔑 Ya, Reset!',
+                cancelButtonText: 'Batal',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById(formId).submit();
+                }
+            });
+        }
+    </script>
 
 </x-app-layout>

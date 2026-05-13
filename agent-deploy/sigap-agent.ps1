@@ -10,8 +10,8 @@ param(
 [System.Net.ServicePointManager]::ServerCertificateValidationCallback = {$true}
 
 # Konfigurasi dasar agent.
-$ApiUrl      = "http://192.168.20.24/api/pc-report"
-$ConfigUrl   = "http://192.168.20.24/api/agent-config"
+$ApiUrl      = "http://192.168.20.69/api/pc-report"
+$ConfigUrl   = "http://192.168.20.69/api/agent-config"
 $ApiKey      = "BPS-SULSEL-SECRET-2026"
 $RoomName    = "Ruangan Server BPS"
 $LogPath     = "$env:TEMP\bps_guardian_v2.log"
@@ -107,7 +107,8 @@ try {
     
     # Pengecekan kesehatan hardware disk.
     $DiskHealthObj = Get-CimInstance -Namespace root\wmi -ClassName MSStorageDriver_FailurePredictStatus -ErrorAction SilentlyContinue
-    $DiskStatus = if ($DiskHealthObj.PredictFailure) { "KRITIS (Segera Ganti)" } else { "SEHAT" }
+    $IsDiskCritical = @($DiskHealthObj.PredictFailure) -contains $true
+    $DiskStatus = if ($IsDiskCritical) { "KRITIS (Segera Ganti)" } else { "SEHAT" }
 
     # Logika deteksi anomali sistem.
     $IsTrouble = $false
@@ -121,7 +122,7 @@ try {
         $IsTrouble = $true
         $TroubleReasons += "RAM kritis ($UsedRamPercent% terpakai)"
     }
-    if ($DiskHealthObj.PredictFailure -eq $true) {
+    if ($IsDiskCritical) {
         $IsTrouble = $true
         $TroubleReasons += "Prediksi kegagalan Disk C!"
     }
@@ -182,7 +183,7 @@ try {
     $SoftwareList = $SoftwareList | Select-Object name, version, publisher
 
     # Menyusun payload data untuk dikirim ke server.
-    $Payload = @{
+    $PayloadHashtable = @{
         hostname      = $Hostname
         ip_address    = $IpAddress
         mac_address   = $MacAddress
@@ -197,18 +198,24 @@ try {
         disk_status   = $DiskStatus
         is_trouble    = $IsTrouble
         trouble_note  = $TroubleNote
-        software_list = $SoftwareList
-    } | ConvertTo-Json -Depth 3
+        software_list = @($SoftwareList)
+    }
+
+    $PayloadJson = $PayloadHashtable | ConvertTo-Json -Depth 3
+
+    # Memaksa penggunaan encoding UTF-8 untuk Invoke-RestMethod
+    # Pada versi PowerShell lama (seperti 5.1), mengirim string ke -Body akan menggunakan format ISO-8859-1
+    # yang dapat menyebabkan fungsi json_decode pada PHP gagal jika ada karakter seperti '®' di nama software.
+    $PayloadBytes = [System.Text.Encoding]::UTF8.GetBytes($PayloadJson)
 
     # Pengiriman data ke endpoint API server.
     $Headers = @{
         "Accept"       = "application/json"
-        "Content-Type" = "application/json"
         "X-API-KEY"    = $ApiKey
     }
 
     Write-Log "Mengirim laporan ke server... (Identitas: $Hostname | MAC: $MacAddress)" "Yellow"
-    $Response = Invoke-RestMethod -Uri $ApiUrl -Method Post -Headers $Headers -Body $Payload -ErrorAction Stop
+    $Response = Invoke-RestMethod -Uri $ApiUrl -Method Post -Headers $Headers -Body $PayloadBytes -ContentType "application/json; charset=utf-8" -ErrorAction Stop
     Write-Log "Status: $($Response.status) - $($Response.message)" "Green"
 
 } catch {

@@ -145,6 +145,7 @@ Route::middleware(['auth', 'role:2'])->prefix('user-management')->group(function
     Route::post('/', [UserManagementController::class, 'store'])->name('users.store');
     Route::put('/{user}', [UserManagementController::class, 'update'])->name('users.update');
     Route::delete('/{user}', [UserManagementController::class, 'destroy'])->name('users.destroy');
+    Route::post('/{user}/reset-password', [UserManagementController::class, 'resetPassword'])->name('users.resetPassword');
 });
 
 //FAQ / Knowledge Base (Semua Authenticated Users)

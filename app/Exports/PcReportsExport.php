@@ -32,10 +32,11 @@ class PcReportsExport implements FromQuery, WithHeadings, WithMapping, ShouldAut
 
         if (!empty($this->softwareFilter)) {
             $query = match ($this->softwareFilter) {
-                'bit_defender' => $query->whereHas('installedSoftware', fn ($q) => $q->where('software_name', 'like', '%Bitdefender%')),
-                'office_365'   => $query->whereHas('installedSoftware', fn ($q) => $q->where('software_name', 'like', '%Office 365%')->orWhere('software_name', 'like', '%Microsoft 365%')),
-                'no_bmn'       => $query->where(fn ($q) => $q->whereDoesntHave('asset')->orWhereHas('asset', fn ($q2) => $q2->whereNull('bmn_number')->orWhere('bmn_number', ''))),
-                default        => $query,
+                'bit_defender'    => $query->whereHas('installedSoftware', fn ($q) => $q->where('software_name', 'like', '%Bitdefender%')),
+                'no_bit_defender' => $query->whereDoesntHave('installedSoftware', fn ($q) => $q->where('software_name', 'like', '%Bitdefender%')),
+                'office_365'      => $query->whereHas('installedSoftware', fn ($q) => $q->where('software_name', 'like', '%Office 365%')->orWhere('software_name', 'like', '%Microsoft 365%')),
+                'no_bmn'          => $query->where(fn ($q) => $q->whereDoesntHave('asset')->orWhereHas('asset', fn ($q2) => $q2->whereNull('bmn_number')->orWhere('bmn_number', ''))),
+                default           => $query,
             };
         }
 

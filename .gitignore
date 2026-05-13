@@ -24,6 +24,10 @@ tests_output.txt
 test_roles.php
 help.txt
 verify_checklist.php
+test_json.php
+test_validation.php
+test_validation2.php
+
 
 # ─── Dependencies (reinstallable) ────────────────────────────────────
 /vendor

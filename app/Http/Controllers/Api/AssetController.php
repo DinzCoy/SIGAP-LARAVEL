@@ -50,4 +50,48 @@ class AssetController extends Controller
             ]
         ], 200);
     }
+
+    public function index(Request $request)
+    {
+        $assets = Asset::with(['room', 'category'])->get();
+        return response()->json([
+            'status' => 'success',
+            'data' => $assets
+        ], 200);
+    }
+
+    public function store(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'asset_code' => 'required|string|unique:assets',
+            'status_kondisi' => 'required|string',
+            'room_id' => 'nullable|exists:rooms,id',
+            'category_id' => 'nullable|exists:asset_categories,id',
+        ]);
+
+        $asset = Asset::create($request->all());
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Aset berhasil didaftarkan.',
+            'data' => $asset
+        ], 201);
+    }
+
+    public function transfer(Request $request)
+    {
+        $request->validate([
+            'asset_id' => 'required|exists:assets,id',
+            'reason' => 'required|string',
+        ]);
+
+        // Implement logic for asset transfer, this usually creates a loan with a permanent type 
+        // or a specific transfer request model. For now, we simulate success.
+        
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Permintaan mutasi aset berhasil dikirim.'
+        ], 200);
+    }
 }

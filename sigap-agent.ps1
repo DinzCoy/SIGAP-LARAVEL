@@ -20,8 +20,8 @@ param(
 # ═══════════════════════════════════════════════════════════════════════════════
 # CONFIGURATION — Sesuaikan per PC saat deploy
 # ═══════════════════════════════════════════════════════════════════════════════
-$ApiUrl      = "http://192.168.20.24/api/pc-report"
-$ConfigUrl   = "http://192.168.20.24/api/agent-config"
+$ApiUrl      = "http://192.168.20.69/api/pc-report"
+$ConfigUrl   = "http://192.168.20.69/api/agent-config"
 $ApiKey      = "BPS-SULSEL-SECRET-2026"
 $RoomName    = "Ruangan Server BPS"
 $LogPath     = "$env:TEMP\bps_guardian_v2.log"
@@ -98,20 +98,21 @@ try {
     $LastPatch = Get-HotFix | Sort-Object InstalledOn -Descending | Select-Object -First 1
     $LastPatchDate = if ($LastPatch) { $LastPatch.InstalledOn.ToString("yyyy-MM-dd") } else { "Unknown" }
 
-    # RAM: Total & Usage Analysis
+    # RAM: Analisis Total & Penggunaan
     $TotalRamKb = $OsInfo.TotalVisibleMemorySize
     $FreeRamKb = $OsInfo.FreePhysicalMemory
     $UsedRamPercent = [Math]::Round((($TotalRamKb - $FreeRamKb) / $TotalRamKb) * 100, 2)
 
-    # DISK C: Total & Health S.M.A.R.T 
+    # DISK C: Total & Kesehatan S.M.A.R.T 
     $DiskInfo = Get-CimInstance Win32_LogicalDisk | Where-Object { $_.DeviceID -eq "C:" }
     $TotalDiskB = $DiskInfo.Size
     $FreeDiskB = $DiskInfo.FreeSpace
     # Cek Kesehatan via S.M.A.R.T (Failure Predict)
     $DiskHealthObj = Get-CimInstance -Namespace root\wmi -ClassName MSStorageDriver_FailurePredictStatus -ErrorAction SilentlyContinue
-    $DiskStatus = if ($DiskHealthObj.PredictFailure) { "CRITICAL (Replace Soon)" } else { "HEALTHY" }
+    $IsDiskCritical = @($DiskHealthObj.PredictFailure) -contains $true
+    $DiskStatus = if ($IsDiskCritical) { "CRITICAL (Replace Soon)" } else { "HEALTHY" }
 
-    # SMART TROUBLESHOOTING LOGIC 
+    # LOGIKA DETEKSI MASALAH (SMART TROUBLESHOOTING)
     # Deteksi Anomali: RAM > 90% atau Disk Terancam Rusak
     $IsTrouble = $false
     $TroubleNote = "Normal"
@@ -120,7 +121,7 @@ try {
         $IsTrouble = $true
         $TroubleNote = "High RAM Usage Anomaly detected ($UsedRamPercent%)"
     }
-    if ($DiskHealthObj.PredictFailure) {
+    if ($IsDiskCritical) {
         $IsTrouble = $true
         $TroubleNote = "Hardware Alert: Disk C Health Failure Predicted!"
     }
@@ -184,7 +185,7 @@ try {
 
 
     # MENYUSUN PAYLOAD
-    $Payload = @{
+    $PayloadHashtable = @{
         hostname      = $Hostname
         username      = $env:USERNAME
         ip_address    = $IpAddress
@@ -200,18 +201,24 @@ try {
         disk_status   = $DiskStatus
         is_trouble    = $IsTrouble
         trouble_note  = $TroubleNote
-        software_list = $SoftwareList
-    } | ConvertTo-Json -Depth 3
+        software_list = @($SoftwareList)
+    }
+
+    $PayloadJson = $PayloadHashtable | ConvertTo-Json -Depth 3
+
+    # Memaksa penggunaan encoding UTF-8 untuk Invoke-RestMethod
+    # Pada versi PowerShell lama (seperti 5.1), mengirim string ke -Body akan menggunakan format ISO-8859-1
+    # yang dapat menyebabkan fungsi json_decode pada PHP gagal jika ada karakter seperti '®' di nama software.
+    $PayloadBytes = [System.Text.Encoding]::UTF8.GetBytes($PayloadJson)
 
     # PENGIRIMAN DATA KE SERVER
     $Headers = @{
         "Accept"       = "application/json"
-        "Content-Type" = "application/json"
         "X-API-KEY"    = $ApiKey
     }
 
     Write-Log "Mengirim laporan ke server ($Mode mode)..." "Yellow"
-    $Response = Invoke-RestMethod -Uri $ApiUrl -Method Post -Headers $Headers -Body $Payload -ErrorAction Stop
+    $Response = Invoke-RestMethod -Uri $ApiUrl -Method Post -Headers $Headers -Body $PayloadBytes -ContentType "application/json; charset=utf-8" -ErrorAction Stop
     Write-Log "Status: $($Response.status) - $($Response.message)" "Green"
 
 } catch {

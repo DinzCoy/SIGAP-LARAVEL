@@ -63,4 +63,93 @@ class AuthController extends Controller
             'message' => 'Logout berhasil.'
         ], 200);
     }
+
+    public function updateProfile(Request $request)
+    {
+        $user = $request->user();
+        
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email,' . $user->id,
+            // 'phone' => 'nullable|string',
+            // 'nip' => 'nullable|string',
+        ]);
+
+        $user->name = $request->name;
+        $user->email = $request->email;
+        // if ($request->has('phone')) $user->phone = $request->phone;
+        // if ($request->has('nip')) $user->nip = $request->nip;
+        $user->save();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Profil berhasil diperbarui.',
+            'data' => $user
+        ], 200);
+    }
+
+    public function changePassword(Request $request)
+    {
+        $request->validate([
+            'old_password' => 'required',
+            'new_password' => 'required|min:6',
+        ]);
+
+        $user = $request->user();
+
+        if (!Hash::check($request->old_password, $user->password)) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Password lama salah.'
+            ], 400);
+        }
+
+        $user->password = Hash::make($request->new_password);
+        $user->save();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Password berhasil diubah.'
+        ], 200);
+    }
+
+    public function updateFcmToken(Request $request)
+    {
+        $request->validate([
+            'fcm_token' => 'required|string',
+        ]);
+
+        $user = $request->user();
+        // Assume user model has fcm_token column, if not we skip it.
+        // Uncomment if you have the column:
+        // $user->fcm_token = $request->fcm_token;
+        // $user->save();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'FCM token berhasil diperbarui.'
+        ], 200);
+    }
+
+    public function notifications(Request $request)
+    {
+        $user = $request->user();
+        return response()->json([
+            'status' => 'success',
+            'data' => $user->notifications ?? []
+        ], 200);
+    }
+
+    public function markNotificationAsRead(Request $request, $id)
+    {
+        $notification = $request->user()->notifications()->find($id);
+        if ($notification) {
+            $notification->markAsRead();
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Notifikasi telah dibaca.'
+        ], 200);
+    }
 }

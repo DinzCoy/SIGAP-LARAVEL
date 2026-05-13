@@ -140,6 +140,21 @@ class UserManagementController extends Controller
         return redirect()->back()->with('success', 'Data akun dan role pengguna berhasil diperbarui.');
     }
 
+    // reset password akun ke sandi default "password" — buat admin kalau user lupa sandi
+    public function resetPassword(User $user)
+    {
+        // hak eksklusif Admin, jangan coba-coba kalau bukan Admin!
+        if ((int) session('active_role_id') !== User::ROLE_ADMIN) {
+            abort(403, 'Akses ditolak! Hanya Admin yang bisa mereset password.');
+        }
+
+        $user->update([
+            'password' => Hash::make('password'),
+        ]);
+
+        return redirect()->back()->with('success', 'Password akun ' . $user->name . ' berhasil direset ke sandi default.');
+    }
+
     // pecat user dari sistem biar ga bisa macem-macem lagi
     public function destroy(User $user)
     {

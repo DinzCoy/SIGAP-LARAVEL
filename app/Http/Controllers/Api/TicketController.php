@@ -50,4 +50,57 @@ class TicketController extends Controller
             ]
         ], 201);
     }
+
+    public function index(Request $request)
+    {
+        $status = $request->query('status');
+        $query = Ticket::with(['asset', 'reporter', 'technician']);
+        
+        if ($status) {
+            $query->where('status', $status);
+        }
+
+        $tickets = $query->orderBy('created_at', 'desc')->get();
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $tickets
+        ], 200);
+    }
+
+    public function myTickets(Request $request)
+    {
+        $tickets = Ticket::where('reported_by', $request->user()->id)
+            ->with(['asset'])
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $tickets
+        ], 200);
+    }
+
+    public function updateStatus(Request $request, $id)
+    {
+        $request->validate([
+            'status' => 'required|string',
+            'tanggapan' => 'nullable|string',
+        ]);
+
+        $ticket = Ticket::find($id);
+        if (!$ticket) {
+            return response()->json(['status' => 'error', 'message' => 'Tiket tidak ditemukan'], 404);
+        }
+
+        $ticket->status = $request->status;
+        // Optionally save tanggapan if column exists
+        // $ticket->response = $request->tanggapan;
+        $ticket->save();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Status tiket berhasil diupdate.'
+        ], 200);
+    }
 }

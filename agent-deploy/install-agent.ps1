@@ -208,5 +208,5 @@ Write-Host "=================================================="
 Write-Host "   INSTALASI SELESAI!" -ForegroundColor Green
 Write-Host "=================================================="
 Write-Host "  PC ini akan otomatis melapor ke $BaseUrl"
-Write-Host "  setiap jam $StartHour.00 - $EndHour.00 dan saat logon."
+Write-Host "  setiap jam $StartHour.00 - $EndHour.00"
 Write-Host ""

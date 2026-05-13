@@ -86,4 +86,68 @@ class LoanController extends Controller
             ]
         ], 200);
     }
+
+    public function index(Request $request)
+    {
+        $status = $request->query('status');
+        $query = AssetLoan::with(['asset', 'borrower']);
+        
+        if ($status) {
+            $query->where('status', $status);
+        }
+
+        $loans = $query->orderBy('created_at', 'desc')->get();
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $loans
+        ], 200);
+    }
+
+    public function approve(Request $request, $id)
+    {
+        $request->validate([
+            'status' => 'required|in:disetujui,ditolak',
+            'catatan_admin' => 'nullable|string'
+        ]);
+
+        $loan = AssetLoan::find($id);
+        if (!$loan) {
+            return response()->json(['status' => 'error', 'message' => 'Pinjaman tidak ditemukan'], 404);
+        }
+
+        $loan->status = $request->status == 'disetujui' ? AssetLoan::STATUS_ACTIVE : AssetLoan::STATUS_REJECTED;
+        $loan->lender_id = $request->user()->id;
+        // Optionally save catatan_admin if column exists
+        // $loan->admin_note = $request->catatan_admin;
+        $loan->save();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Status pinjaman berhasil diupdate.'
+        ], 200);
+    }
+
+    public function returnAsset(Request $request, $id)
+    {
+        $request->validate([
+            'kondisi_kembali' => 'required|string',
+        ]);
+
+        $loan = AssetLoan::find($id);
+        if (!$loan) {
+            return response()->json(['status' => 'error', 'message' => 'Pinjaman tidak ditemukan'], 404);
+        }
+
+        $loan->status = AssetLoan::STATUS_RETURNED;
+        $loan->return_date = Carbon::now();
+        // Optionally save return condition if column exists
+        // $loan->return_condition = $request->kondisi_kembali;
+        $loan->save();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Aset berhasil dikembalikan.'
+        ], 200);
+    }
 }
