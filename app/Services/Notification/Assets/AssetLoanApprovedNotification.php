@@ -3,6 +3,7 @@
 namespace App\Services\Notification\Assets;
 
 use App\Models\AssetLoan;
+use App\Services\FcmService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
 
@@ -48,5 +49,23 @@ class AssetLoanApprovedNotification extends Notification
             'nama_pemilik'  => $namaPemilik,
             'waktu_setujui' => $this->peminjaman->approved_at?->toDateTimeString(),
         ];
+    }
+
+    // Kirim in-app + push FCM ke peminjam saat disetujui.
+    public static function kirim(AssetLoan $peminjaman): void
+    {
+        $peminjaman->load(['asset.deviceName', 'borrower', 'lender']);
+        if (!$peminjaman->borrower) return;
+
+        $namaAset  = trim(($peminjaman->asset?->deviceName?->brand ?? '') . ' ' . ($peminjaman->asset?->bmn_number ?? '-'));
+        $approver  = $peminjaman->lender?->name ?? 'Admin/Pengelola Aset';
+
+        $peminjaman->borrower->notify(new self($peminjaman));
+        FcmService::send(
+            $peminjaman->borrower,
+            'Peminjaman Disetujui ✓',
+            "Permintaan pinjam aset {$namaAset} telah disetujui oleh {$approver}.",
+            ['tipe' => 'peminjaman_disetujui', 'loan_id' => (string) $peminjaman->id]
+        );
     }
 }

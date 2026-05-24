@@ -22,13 +22,24 @@ class ProfileController extends Controller
     // simpan perubahan profil biar ga ilang
     public function update(CekUpdateProfil $request): RedirectResponse
     {
-        $request->user()->fill($request->validated());
+        $user = $request->user();
+        
+        $user->fill($request->safe()->only(['name', 'email']));
 
-        if ($request->user()->isDirty('email')) {
-            $request->user()->email_verified_at = null;
+        if ($user->isDirty('email')) {
+            $user->email_verified_at = null;
         }
 
-        $request->user()->save();
+        if ($request->hasFile('foto_profil') && $request->file('foto_profil')->isValid()) {
+            // Hapus foto lama jika ada
+            if ($user->photo_path) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($user->photo_path);
+            }
+            // Simpan foto baru
+            $user->photo_path = $request->file('foto_profil')->store('profile-photos', 'public');
+        }
+
+        $user->save();
 
         return Redirect::route('profile.edit')->with('status', 'profile-updated');
     }

@@ -45,7 +45,7 @@ class TicketNotificationService
     }
 
     // Notifikasi berdasarkan role aktif user — menampilkan tiket yang butuh tindakan.
-    protected function tambahNotifBerdasarkanRole(Collection $notifications, $roleId): void
+    protected function tambahNotifBerdasarkanRole(Collection $notifications, ?int $roleId): void
     {
         if ($roleId == User::ROLE_TEKNISI) {
             $pending = Ticket::whereIn('status', [

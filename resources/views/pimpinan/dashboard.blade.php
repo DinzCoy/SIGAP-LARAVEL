@@ -144,39 +144,95 @@
                 <div class="p-5 border-b border-gray-200 bg-gray-50/80">
                     <h3 class="text-lg font-semibold text-gray-800">Performa Teknisi</h3>
                 </div>
-                <div class="p-3">
-                    <ul class="space-y-1">
+                    <ul class="space-y-2">
                         @forelse($technicianStats as $tech)
                         @php
                         $total = $tech->total_count > 0 ? $tech->total_count : 1;
                         $pct = round(($tech->completed_count / $total) * 100);
+                        
+                        // Dynamic glow styling for Top 3
+                        $glowClass = '';
+                        $rankBadge = '';
+                        if ($tech->is_top_three) {
+                            if ($tech->rank === 1) {
+                                $glowClass = 'ring-4 ring-amber-400 shadow-[0_0_12px_rgba(245,158,11,0.5)]';
+                                $rankBadge = '🏆';
+                            } elseif ($tech->rank === 2) {
+                                $glowClass = 'ring-4 ring-slate-300 shadow-[0_0_12px_rgba(148,163,184,0.5)]';
+                                $rankBadge = '🥈';
+                            } else {
+                                $glowClass = 'ring-4 ring-amber-600 shadow-[0_0_12px_rgba(217,119,6,0.5)]';
+                                $rankBadge = '🥉';
+                            }
+                        } else {
+                            $glowClass = 'ring-2 ring-gray-100';
+                        }
                         @endphp
                         <li>
-                            <div
-                                class="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg transition-colors group cursor-default">
-                                <div class="flex items-center gap-3">
-                                    <div
-                                        class="w-9 h-9 rounded-full bg-blue-50 text-bps-blue flex items-center justify-center font-bold text-sm ring-2 ring-white group-hover:bg-bps-blue group-hover:text-white transition-colors">
-                                        {{ strtoupper(substr($tech?->name ?? 'T', 0, 1)) }}
+                            <div class="flex flex-col md:flex-row md:items-center justify-between p-4 hover:bg-slate-50 rounded-xl transition-all duration-300 border border-transparent hover:border-slate-100 gap-3 group cursor-default">
+                                <div class="flex items-center gap-4 flex-1">
+                                    <!-- Avatar dengan Ring Glowing -->
+                                    <div class="relative">
+                                        @if($tech->photo_url)
+                                            <img src="{{ $tech->photo_url }}" class="w-12 h-12 rounded-full object-cover {{ $glowClass }}" alt="{{ $tech->name }}">
+                                        @else
+                                            <div class="w-12 h-12 rounded-full bg-blue-50 text-bps-blue flex items-center justify-center font-bold text-base {{ $glowClass }} group-hover:bg-bps-blue group-hover:text-white transition-colors">
+                                                {{ strtoupper(substr($tech->name ?? 'T', 0, 1)) }}
+                                            </div>
+                                        @endif
+                                        @if($tech->is_top_three)
+                                            <span class="absolute -top-2 -right-2 text-base animate-bounce" style="animation-duration: 3s;">
+                                                {{ $rankBadge }}
+                                            </span>
+                                        @endif
                                     </div>
-                                    <div>
-                                        <p
-                                            class="text-sm font-medium text-gray-900 group-hover:text-bps-blue transition-colors">
-                                            {{ $tech?->name }}
+
+                                    <!-- Informasi Teknisi & Badges -->
+                                    <div class="space-y-1 flex-1">
+                                        <div class="flex flex-wrap items-center gap-2">
+                                            <h4 class="text-sm font-semibold text-gray-900 group-hover:text-bps-blue transition-colors">
+                                                {{ $tech->name }}
+                                            </h4>
+                                            <span class="px-2 py-0.5 bg-indigo-50 text-indigo-700 text-[10px] font-bold rounded-full border border-indigo-100">
+                                                Lv. {{ $tech->level }} - {{ $tech->level_name }}
+                                            </span>
+                                        </div>
+
+                                        <p class="text-[11px] text-gray-500 flex items-center gap-1.5">
+                                            <span class="text-green-600 font-semibold">{{ $tech->completed_count }} Selesai</span>
+                                            <span class="text-gray-300">•</span>
+                                            <span class="text-indigo-600 font-semibold">{{ $tech->in_progress_count }} Aktif</span>
+                                            <span class="text-gray-300">•</span>
+                                            <span class="text-gray-500">{{ $pct }}% Success</span>
                                         </p>
-                                        <p class="text-[11px] text-gray-500 mt-0.5">
-                                            <span class="text-green-600 font-medium">{{ $tech->completed_count }}
-                                                Selesai</span>
-                                            <span class="mx-1 text-gray-300">•</span>
-                                            <span class="text-indigo-600 font-medium">{{ $tech->in_progress_count }}
-                                                Aktif</span>
-                                        </p>
+
+                                        <!-- Badge List Spesialisasi -->
+                                        @if(!empty($tech->earned_badges))
+                                            <div class="flex flex-wrap gap-1 mt-1">
+                                                @foreach($tech->earned_badges as $badge)
+                                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold text-white shadow-sm transition-transform hover:scale-105 cursor-help" 
+                                                          :style="{ backgroundColor: '{{ $badge['color'] }}' }" 
+                                                          title="{{ $badge['description'] }}">
+                                                        @if($badge['icon'] === 'zap') ⚡ @elseif($badge['icon'] === 'globe') 🌐 @elseif($badge['icon'] === 'monitor') 🖥️ @elseif($badge['icon'] === 'star') 🌟 @else 🛡️ @endif
+                                                        {{ $badge['name'] }}
+                                                    </span>
+                                                @endforeach
+                                            </div>
+                                        @endif
                                     </div>
                                 </div>
-                                <div class="text-right">
-                                    <span
-                                        class="inline-block px-2.5 py-1 bg-gray-100 text-gray-700 text-xs font-bold rounded-md shadow-sm group-hover:bg-bps-blue group-hover:text-white transition-colors">
-                                        {{ $pct }}%
+
+                                <!-- Progress XP -->
+                                <div class="flex flex-col items-end gap-1.5 min-w-[120px]">
+                                    <span class="text-xs font-bold text-gray-700">
+                                        {{ $tech->xp }} <span class="text-[10px] text-gray-400 font-normal">XP</span>
+                                    </span>
+                                    <div class="w-24 bg-gray-100 rounded-full h-1.5 overflow-hidden">
+                                        <div class="bg-indigo-600 h-1.5 rounded-full transition-all duration-500" 
+                                             :style="{ width: '{{ $tech->level_progress_pct }}%' }"></div>
+                                    </div>
+                                    <span class="text-[9px] text-gray-400">
+                                        {{ $tech->level_progress_pct }}% to next level
                                     </span>
                                 </div>
                             </div>
@@ -185,7 +241,6 @@
                         <li class="text-center py-6 text-sm text-gray-500">Belum ada data teknisi.</li>
                         @endforelse
                     </ul>
-                </div>
             </div>
 
             <div
@@ -306,18 +361,13 @@
             </div>
         </div>
 
+    <!-- Pass Laravel data to JS without triggering IDE parser warnings -->
+    <div id="pimpinan-dashboard-data" style="display: none;" data-config="{{ json_encode($dashboardConfig) }}"></div>
+
     <!-- Chart Configuration -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        window.pimpinanDashboardData = <?php echo json_encode([
-            'totalAssets' => $totalAssets,
-            'trendLabels' => $trendLabels,
-            'trendValues' => $trendValues,
-            'baikAssets' => $baikAssets,
-            'rusakRinganAssets' => $rusakRinganAssets,
-            'rusakBeratAssets' => $rusakBeratAssets,
-            'ageDistLabels' => $ageDistData->keys(),
-            'ageDistValues' => $ageDistData->values()
-        ]); ?>;
+        const dashboardDataEl = document.getElementById('pimpinan-dashboard-data');
+        window.pimpinanDashboardData = JSON.parse(dashboardDataEl.getAttribute('data-config'));
     </script>
 </x-app-layout>

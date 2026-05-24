@@ -52,3 +52,9 @@ rtk.exe
 scratch/
 daftar_akun_role.md
 routes.txt
+
+# Firebase Service Account Key (rahasia - jangan di-commit!)
+/storage/app/firebase-service-account.json
+
+/storage/app/projek-magang-bps-d47e4efb4387.json
+

@@ -218,10 +218,16 @@
     Auth::user()->name }}</span>
                             <span class="text-[10px] text-gray-500">Online</span>
                         </div>
-                        <div
-                            class="w-8 h-8 rounded-lg bg-bps-blue text-white flex items-center justify-center font-bold text-xs shadow-sm shadow-blue-200 group-hover:scale-105 transition-transform uppercase">
-                            {{ substr(Auth::user()->name, 0, 1) }}
-                        </div>
+                        @if(Auth::user()->photo_path)
+                            <img class="w-8 h-8 rounded-lg object-cover border border-gray-200 shadow-sm group-hover:scale-105 transition-transform"
+                                src="{{ asset('storage/' . Auth::user()->photo_path) }}"
+                                alt="Avatar {{ Auth::user()->name }}">
+                        @else
+                            <div
+                                class="w-8 h-8 rounded-lg bg-bps-blue text-white flex items-center justify-center font-bold text-xs shadow-sm shadow-blue-200 group-hover:scale-105 transition-transform uppercase">
+                                {{ substr(Auth::user()->name, 0, 1) }}
+                            </div>
+                        @endif
                         <x-lucide-chevron-down class="w-4 h-4 text-gray-400" />
                     </button>
                 </x-slot>

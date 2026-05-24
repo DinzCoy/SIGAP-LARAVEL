@@ -35,4 +35,9 @@ return [
         ],
     ],
 
+    // Firebase Cloud Messaging — untuk push notification ke Flutter app
+    'firebase' => [
+        'server_key' => env('FIREBASE_SERVER_KEY'),
+    ],
+
 ];

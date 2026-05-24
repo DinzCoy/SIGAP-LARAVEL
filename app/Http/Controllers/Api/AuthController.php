@@ -6,23 +6,31 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
 {
     public function login(Request $request)
     {
+        $loginKey = $request->has('login') ? 'login' : 'email';
+
         $request->validate([
-            'email' => 'required|email',
+            $loginKey => 'required|string',
             'password' => 'required',
         ]);
 
-        $user = User::with('roles')->where('email', $request->email)->first();
+        $loginField = trim($request->input($loginKey));
+
+        // Tentukan apakah input berupa email atau username
+        $field = filter_var($loginField, FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
+
+        $user = User::with('roles')->where($field, $loginField)->first();
 
         if (! $user || ! Hash::check($request->password, $user->password)) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'Email atau Password salah.'
+                'message' => 'Email/Username atau Password salah.'
             ], 401);
         }
 
@@ -38,6 +46,7 @@ class AuthController extends Controller
                     'name' => $user->name,
                     'email' => $user->email,
                     'username' => $user->username,
+                    'photo_url' => $user->photo_path ? url('storage/' . $user->photo_path) : null,
                     'roles' => $user->roles->map(function ($role) {
                         return [
                             'id' => $role->id,
@@ -71,20 +80,37 @@ class AuthController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $user->id,
-            // 'phone' => 'nullable|string',
-            // 'nip' => 'nullable|string',
+            'foto_profil' => 'nullable|image|mimes:jpeg,jpg,png,webp|max:2048',
         ]);
+
+        if ($request->boolean('hapus_foto') === true) {
+            if ($user->photo_path) {
+                Storage::disk('public')->delete($user->photo_path);
+            }
+            $user->photo_path = null;
+        } elseif ($request->hasFile('foto_profil') && $request->file('foto_profil')->isValid()) {
+            // Hapus foto lama jika ada
+            if ($user->photo_path) {
+                Storage::disk('public')->delete($user->photo_path);
+            }
+            // Simpan foto baru
+            $user->photo_path = $request->file('foto_profil')->store('profile-photos', 'public');
+        }
 
         $user->name = $request->name;
         $user->email = $request->email;
-        // if ($request->has('phone')) $user->phone = $request->phone;
-        // if ($request->has('nip')) $user->nip = $request->nip;
         $user->save();
 
         return response()->json([
             'status' => 'success',
             'message' => 'Profil berhasil diperbarui.',
-            'data' => $user
+            'data' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'username' => $user->username,
+                'photo_url' => $user->photo_path ? url('storage/' . $user->photo_path) : null,
+            ]
         ], 200);
     }
 
@@ -120,10 +146,8 @@ class AuthController extends Controller
         ]);
 
         $user = $request->user();
-        // Assume user model has fcm_token column, if not we skip it.
-        // Uncomment if you have the column:
-        // $user->fcm_token = $request->fcm_token;
-        // $user->save();
+        $user->fcm_token = $request->fcm_token;
+        $user->save();
 
         return response()->json([
             'status' => 'success',
@@ -140,7 +164,7 @@ class AuthController extends Controller
         ], 200);
     }
 
-    public function markNotificationAsRead(Request $request, $id)
+    public function markNotificationAsRead(Request $request, string $id)
     {
         $notification = $request->user()->notifications()->find($id);
         if ($notification) {
@@ -150,6 +174,16 @@ class AuthController extends Controller
         return response()->json([
             'status' => 'success',
             'message' => 'Notifikasi telah dibaca.'
+        ], 200);
+    }
+
+    public function markAllNotificationsAsRead(Request $request)
+    {
+        $request->user()->unreadNotifications->markAsRead();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Semua notifikasi telah dibaca.'
         ], 200);
     }
 }

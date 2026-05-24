@@ -22,7 +22,7 @@ class User extends Authenticatable
     public const ROLE_USER = 6;
     public const ROLE_KETUA_TIM = 7;
 
-    //Mendapatkan nama role berdasarkan ID.
+    // Mendapatkan nama role berdasarkan ID.
     public static function getRoleName(?int $roleId): string
     {
         return match ($roleId) {
@@ -37,7 +37,19 @@ class User extends Authenticatable
         };
     }
 
-    //Mendapatkan rute dashboard berdasarkan ID Role.
+    public function isAdminOrPengelola(): bool
+    {
+        // Jika ada active role di session (Web mode)
+        $activeRole = session('active_role_id');
+        if ($activeRole) {
+            return in_array((int)$activeRole, [self::ROLE_ADMIN, self::ROLE_PENGELOLA_ASET]);
+        }
+
+        // Jika dipanggil dari API (Stateless)
+        return $this->roles()->whereIn('roles.id', [self::ROLE_ADMIN, self::ROLE_PENGELOLA_ASET])->exists();
+    }
+
+    // Mendapatkan rute dashboard berdasarkan ID Role.
     public static function getDashboardRoute(?int $roleId): ?string
     {
         return match ($roleId) {
@@ -57,6 +69,8 @@ class User extends Authenticatable
         'username',
         'email',
         'password',
+        'fcm_token',
+        'photo_path',
     ];
 
     //Kolom yang disembunyikan saat serialisasi data.

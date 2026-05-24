@@ -30,6 +30,7 @@ class Ticket extends Model
         'team_leader_id',
         'title',
         'description',
+        'photo_path',
         'status',
         'priority',
         'estimated_cost',

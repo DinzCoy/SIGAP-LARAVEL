@@ -3,6 +3,7 @@
 namespace App\Services\Notification\Assets;
 
 use App\Models\AssetLoan;
+use App\Services\FcmService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
 
@@ -48,5 +49,23 @@ class AssetLoanRejectedNotification extends Notification
             'nama_pemilik'  => $namaPemilik,
             'waktu_tolak'   => $this->peminjaman->rejected_at?->toDateTimeString(),
         ];
+    }
+
+    // Kirim in-app + push FCM ke peminjam saat ditolak.
+    public static function kirim(AssetLoan $peminjaman): void
+    {
+        $peminjaman->load(['asset.deviceName', 'borrower', 'lender']);
+        if (!$peminjaman->borrower) return;
+
+        $namaAset = trim(($peminjaman->asset?->deviceName?->brand ?? '') . ' ' . ($peminjaman->asset?->bmn_number ?? '-'));
+        $rejector = $peminjaman->lender?->name ?? 'Admin/Pengelola Aset';
+
+        $peminjaman->borrower->notify(new self($peminjaman));
+        FcmService::send(
+            $peminjaman->borrower,
+            'Peminjaman Ditolak',
+            "Maaf, permintaan pinjam aset {$namaAset} ditolak oleh {$rejector}.",
+            ['tipe' => 'peminjaman_ditolak', 'loan_id' => (string) $peminjaman->id]
+        );
     }
 }

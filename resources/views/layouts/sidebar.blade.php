@@ -293,10 +293,16 @@
         class="shrink-0 p-3 border-t border-white/10 bg-gradient-to-t from-blue-900/60 to-transparent backdrop-blur-sm z-20 px-0">
         <div class="flex items-center overflow-hidden whitespace-nowrap">
             <div class="w-20 shrink-0 flex justify-center items-center">
-                <div
-                    class="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center shrink-0 shadow-lg ring-1 ring-white/10 hover:scale-105 transition-transform cursor-pointer">
-                    <x-lucide-user class="w-4 h-4 text-blue-50" />
-                </div>
+                @if(Auth::user()->photo_path)
+                    <img class="w-9 h-9 rounded-xl object-cover shrink-0 shadow-lg ring-1 ring-white/20 hover:scale-105 transition-transform cursor-pointer"
+                        src="{{ asset('storage/' . Auth::user()->photo_path) }}"
+                        alt="Avatar {{ Auth::user()->name }}">
+                @else
+                    <div
+                        class="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center shrink-0 shadow-lg ring-1 ring-white/10 hover:scale-105 transition-transform cursor-pointer font-bold text-xs text-blue-50 uppercase">
+                        {{ substr(Auth::user()->name, 0, 1) }}
+                    </div>
+                @endif
             </div>
             <div x-show="sidebarOpen" x-transition:enter="transition ease-out duration-[400ms]"
                 x-transition:enter-start="opacity-0 translate-x-4" x-transition:enter-end="opacity-100 translate-x-0"

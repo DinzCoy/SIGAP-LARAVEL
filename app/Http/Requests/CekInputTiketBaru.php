@@ -26,6 +26,7 @@ class CekInputTiketBaru extends FormRequest
             'title'       => 'required|string|max:255',
             'description' => 'required|string',
             'priority'    => 'required|in:Rendah,Sedang,Tinggi',
+            'photo'       => 'nullable|image|mimes:jpeg,jpg,png,webp|max:5120',
         ];
     }
 }

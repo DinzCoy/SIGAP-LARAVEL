@@ -13,6 +13,7 @@ use App\Http\Requests\CekUpdateStatusTiket;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Storage;
 
 class TicketController extends Controller
 {
@@ -95,16 +96,23 @@ class TicketController extends Controller
         $validated = $request->validated();
         $type = !empty($validated['asset_id']) ? 'Asset' : 'General';
 
+        // Simpan foto kerusakan jika diunggah
+        $photoPath = null;
+        if ($request->hasFile('photo') && $request->file('photo')->isValid()) {
+            $photoPath = $request->file('photo')->store('ticket-photos', 'public');
+        }
+
         Ticket::create([
-            'type' => $type,
-            'category' => $validated['category'] ?? null,
-            'asset_id' => $validated['asset_id'] ?? null,
-            'room_id' => $validated['room_id'],
+            'type'        => $type,
+            'category'    => $validated['category'] ?? null,
+            'asset_id'    => $validated['asset_id'] ?? null,
+            'room_id'     => $validated['room_id'],
             'reported_by' => Auth::id(),
-            'title' => $validated['title'],
+            'title'       => $validated['title'],
             'description' => $validated['description'],
-            'priority' => $validated['priority'],
-            'status' => Ticket::STATUS_MENUNGGU_PENGELOLA,
+            'priority'    => $validated['priority'],
+            'status'      => Ticket::STATUS_MENUNGGU_PENGELOLA,
+            'photo_path'  => $photoPath,
         ]);
 
         return redirect()->route('tickets.index')->with('success', 'Tiket berhasil dibuat.');

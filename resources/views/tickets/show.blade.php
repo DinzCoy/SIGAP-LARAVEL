@@ -264,6 +264,33 @@
                     </div>
                 </div>
 
+                {{-- Foto Kerusakan (jika ada) --}}
+                @if($ticket?->photo_path)
+                <div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden shrink-0">
+                    <div class="p-5 border-b border-gray-50 flex items-center gap-3">
+                        <div class="p-2.5 bg-amber-50 text-amber-600 rounded-xl">
+                            <x-lucide-image class="w-5 h-5" />
+                        </div>
+                        <h3 class="font-bold text-gray-900 text-lg">Foto Kerusakan</h3>
+                    </div>
+                    <div class="p-4">
+                        <a href="{{ Storage::url($ticket->photo_path) }}" target="_blank" class="block group relative overflow-hidden rounded-2xl border border-gray-100 shadow-sm">
+                            <img
+                                src="{{ Storage::url($ticket->photo_path) }}"
+                                alt="Foto kerusakan tiket #{{ $ticket->id }}"
+                                class="w-full max-h-96 object-contain bg-gray-50 group-hover:scale-[1.02] transition-transform duration-300"
+                            />
+                            <div class="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300 flex items-center justify-center">
+                                <span class="opacity-0 group-hover:opacity-100 bg-black/60 text-white text-xs font-semibold px-3 py-1.5 rounded-full flex items-center gap-1.5 transition-opacity duration-300">
+                                    <x-lucide-zoom-in class="w-3.5 h-3.5" /> Lihat Penuh
+                                </span>
+                            </div>
+                        </a>
+                        <p class="text-xs text-gray-400 mt-2 text-center">Klik gambar untuk membuka di tab baru</p>
+                    </div>
+                </div>
+                @endif
+
                 <!-- WhatsApp-style Chat Log -->
                 <div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden flex flex-col h-[700px] relative">
                     <!-- Chat Header -->

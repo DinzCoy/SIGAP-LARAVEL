@@ -164,9 +164,9 @@
                                             @endphp
                                             <div class="flex h-3 w-full bg-slate-100 rounded-full overflow-hidden shadow-inner p-[2px] border border-slate-200/50">
                                                 @if($room->assets_count > 0)
-                                                    <div @style(['width' => $baikWidth . '%', 'height' => '100%', 'background-color' => '#10b981']) title="Baik: {{ $room->baik_count }}"></div>
-                                                    <div @style(['width' => $ringanWidth . '%', 'height' => '100%', 'background-color' => '#f59e0b', 'margin-left' => '1px', 'margin-right' => '1px']) title="Rusak Ringan: {{ $room->rusak_ringan_count }}"></div>
-                                                    <div @style(['width' => $beratWidth . '%', 'height' => '100%', 'background-color' => '#ef4444']) title="Rusak Berat: {{ $room->rusak_berat_count }}"></div>
+                                                    <div style="width: {{ $baikWidth }}%; height: 100%; background-color: #10b981;" title="Baik: {{ $room->baik_count }}"></div>
+                                                    <div style="width: {{ $ringanWidth }}%; height: 100%; background-color: #f59e0b; margin-left: 1px; margin-right: 1px;" title="Rusak Ringan: {{ $room->rusak_ringan_count }}"></div>
+                                                    <div style="width: {{ $beratWidth }}%; height: 100%; background-color: #ef4444;" title="Rusak Berat: {{ $room->rusak_berat_count }}"></div>
                                                 @else
                                                     <div class="w-full bg-slate-200 rounded-full"></div>
                                                 @endif

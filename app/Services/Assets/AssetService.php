@@ -10,6 +10,7 @@ use App\Services\Notification\Assets\AssetNotificationService;
 use App\Services\Notification\Assets\AssetLoanApprovedNotification;
 use App\Services\Notification\Assets\AssetLoanRejectedNotification;
 use App\Services\Notification\Assets\AssetReturnedNotification;
+use App\Services\Notification\Assets\AssetTransferNotification;
 use Illuminate\Support\Facades\DB;
 
 class AssetService
@@ -132,9 +133,11 @@ class AssetService
     /**
      * Proses serah terima aset permanen via QR Code (Mutasi).
      */
-    public function takeover(Asset $asset, User $newUser): void
+    public function takeover(Asset $asset, User $newUser, ?string $reason = null): void
     {
-        DB::transaction(function () use ($asset, $newUser) {
+        $oldUser = $asset->user;
+
+        DB::transaction(function () use ($asset, $newUser, $reason) {
             // Tutup peminjaman aktif jika ada
             $activeLoan = $asset->activeLoan;
             if ($activeLoan) {
@@ -144,6 +147,11 @@ class AssetService
                 ]);
             }
 
+            $logReason = 'Serah terima permanen via QR Code oleh ' . $newUser->name;
+            if ($reason) {
+                $logReason .= '. Alasan: ' . $reason;
+            }
+
             AssetMovementLog::create([
                 'asset_id'    => $asset->id,
                 'old_user_id' => $asset->user_id,
@@ -151,7 +159,7 @@ class AssetService
                 'old_room_id' => $asset->room_id,
                 'new_room_id' => $asset->room_id,
                 'action_type' => 'QR Transfer',
-                'reason'      => 'Serah terima permanen via QR Code oleh ' . $newUser->name,
+                'reason'      => $logReason,
             ]);
 
             $asset->update([
@@ -159,5 +167,11 @@ class AssetService
                 'allocated_at' => now(),
             ]);
         });
+
+        try {
+            AssetTransferNotification::kirim($asset, $newUser, $oldUser, $reason);
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('FCM/Database Notification Error in Takeover: ' . $e->getMessage());
+        }
     }
 }

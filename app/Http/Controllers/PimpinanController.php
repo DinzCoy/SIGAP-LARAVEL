@@ -46,16 +46,9 @@ class PimpinanController extends Controller
                                    ->count();
         }
 
-        // 6. performa teknisi
-        $technicianStats = \App\Models\User::withRole(\App\Models\User::ROLE_TEKNISI)->withCount([
-            'ticketsAssigned as in_progress_count' => function ($query) {
-                $query->where('status', Ticket::STATUS_IN_PROGRESS);
-            },
-            'ticketsAssigned as completed_count' => function ($query) {
-                $query->where('status', Ticket::STATUS_SELESAI);
-            },
-            'ticketsAssigned as total_count'
-        ])->get();
+        // 6. performa teknisi (gamifikasi tersinkronisasi)
+        $technicianStats = collect(\App\Services\Gamification\GamificationService::getLeaderboard())
+            ->map(fn($item) => (object) $item);
 
         // 7. analisis umur aset
         $avgAssetAge = DB::table('assets')
@@ -98,13 +91,24 @@ class PimpinanController extends Controller
         $slaFulfilled = $totalSlaTracked - $slaBreached;
         $slaComplianceRate = $totalSlaTracked > 0 ? round(($slaFulfilled / $totalSlaTracked) * 100) : 100;
 
+        $dashboardConfig = [
+            'totalAssets' => $totalAssets,
+            'trendLabels' => $trendLabels,
+            'trendValues' => $trendValues,
+            'baikAssets' => $baikAssets,
+            'rusakRinganAssets' => $rusakRinganAssets,
+            'rusakBeratAssets' => $rusakBeratAssets,
+            'ageDistLabels' => $ageDistData->keys(),
+            'ageDistValues' => $ageDistData->values()
+        ];
+
         return view('pimpinan.dashboard', compact(
             'totalTickets', 'completedTickets', 'completionRate',
             'ticketsByStatus', 'recentTickets',
             'totalAssets', 'baikAssets', 'rusakRinganAssets', 'rusakBeratAssets',
             'trendLabels', 'trendValues', 'technicianStats',
             'avgAssetAge', 'oldestAssets', 'ageDistData',
-            'slaComplianceRate', 'slaFulfilled'
+            'slaComplianceRate', 'slaFulfilled', 'dashboardConfig'
         ));
     }
 }

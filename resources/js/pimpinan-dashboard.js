@@ -161,11 +161,15 @@ window.pimpinanDash = function() {
                 new Chart(condEl.getContext('2d'), {
                     type: 'doughnut',
                     data: {
-                        labels: ['Baik', 'Rusak Ringan', 'Rusak Berat'],
+                        labels: [
+                            `Baik (${data.baikAssets})`,
+                            `Rusak Ringan (${data.rusakRinganAssets})`,
+                            `Rusak Berat (${data.rusakBeratAssets})`
+                        ],
                         datasets: [{
                             data: [data.baikAssets, data.rusakRinganAssets, data.rusakBeratAssets],
                             backgroundColor: ['#10b981', '#f59e0b', '#ef4444'],
-                            borderWidth: isDark ? 3 : 4,
+                            borderWidth: 1.5,
                             borderColor: palette.doughnutBorder,
                             hoverOffset: 12,
                         }]
@@ -183,11 +187,11 @@ window.pimpinanDash = function() {
                 new Chart(ageEl.getContext('2d'), {
                     type: 'doughnut',
                     data: {
-                        labels: data.ageDistLabels,
+                        labels: data.ageDistLabels.map((label, index) => `${label} (${data.ageDistValues[index] ?? 0})`),
                         datasets: [{
                             data: data.ageDistValues,
                             backgroundColor: ['#3b82f6', '#8b5cf6', '#ec4899', '#f97316'],
-                            borderWidth: isDark ? 3 : 4,
+                            borderWidth: 1.5,
                             borderColor: palette.doughnutBorder,
                             hoverOffset: 12,
                         }]

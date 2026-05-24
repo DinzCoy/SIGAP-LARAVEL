@@ -173,7 +173,22 @@
     @if(in_array(session('active_role_id'), [\App\Models\User::ROLE_PIC_RUANGAN, \App\Models\User::ROLE_USER]))
         <x-modal name="createTicketModal" focusable>
             <form method="post" action="{{ route('tickets.store') }}"
-                  x-data="{ priority: 'Sedang' }">
+              enctype="multipart/form-data"
+              x-data="{ priority: 'Sedang', photoPreview: null, photoName: null,
+                        setPhoto(e) {
+                            const file = e.target.files[0];
+                            if (!file) return;
+                            this.photoName = file.name;
+                            const reader = new FileReader();
+                            reader.onload = (ev) => { this.photoPreview = ev.target.result; };
+                            reader.readAsDataURL(file);
+                        },
+                        clearPhoto() {
+                            this.photoPreview = null;
+                            this.photoName = null;
+                            this.$refs.photoInput.value = '';
+                        }
+                      }">
                 @csrf
                 {{-- Hidden priority input — dikontrol Alpine --}}
                 <input type="hidden" name="priority" :value="priority">
@@ -308,6 +323,48 @@
                                     class="w-full rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500 text-sm resize-none"
                                     placeholder="Jelaskan secara rinci kendala yang dialami..."></textarea>
                                 <x-input-error class="mt-1" :messages="$errors->get('description')" />
+                            </div>
+
+                            {{-- Foto Kerusakan (Opsional) --}}
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">
+                                    Foto Kerusakan <span class="text-gray-400 font-normal text-xs">(opsional, maks. 5MB)</span>
+                                </label>
+
+                                {{-- Area Upload --}}
+                                <div
+                                    x-show="!photoPreview"
+                                    class="relative flex flex-col items-center justify-center gap-2 border-2 border-dashed border-gray-200 rounded-xl py-6 px-4 cursor-pointer hover:border-blue-400 hover:bg-blue-50/30 transition-all"
+                                    @click="$refs.photoInput.click()">
+                                    <div class="p-3 bg-gray-50 rounded-xl">
+                                        <svg class="w-6 h-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/>
+                                        </svg>
+                                    </div>
+                                    <div class="text-center">
+                                        <p class="text-sm font-medium text-gray-600">Klik untuk pilih foto</p>
+                                        <p class="text-xs text-gray-400 mt-0.5">JPG, PNG, WEBP — maks. 5MB</p>
+                                    </div>
+                                </div>
+
+                                {{-- Preview Foto --}}
+                                <div x-show="photoPreview" class="relative rounded-xl overflow-hidden border border-gray-200">
+                                    <img :src="photoPreview" class="w-full max-h-48 object-cover" alt="Preview foto">
+                                    <div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
+                                    <div class="absolute bottom-0 left-0 right-0 p-2 flex items-center justify-between">
+                                        <span x-text="photoName" class="text-white text-xs font-medium truncate max-w-[70%]"></span>
+                                        <button type="button" @click.stop="clearPhoto()"
+                                            class="flex items-center gap-1 bg-red-500 hover:bg-red-600 text-white text-xs font-semibold px-2.5 py-1 rounded-lg transition-colors">
+                                            <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/>
+                                            </svg>
+                                            Hapus
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <input type="file" name="photo" accept="image/*" x-ref="photoInput" class="hidden" @change="setPhoto($event)">
+                                <x-input-error class="mt-1" :messages="$errors->get('photo')" />
                             </div>
 
                         </div>
