@@ -4,8 +4,8 @@ param(
     [string]$Mode = "startup"
 )
 
-$ApiUrl      = "http://192.168.20.69/api/pc-report"
-$ConfigUrl   = "http://192.168.20.69/api/agent-config"
+$ApiUrl      = "https://sigap.makagang.stat7300.net/api/pc-report"
+$ConfigUrl   = "https://sigap.makagang.stat7300.net/api/agent-config"
 $ApiKey      = "BPS-SULSEL-SECRET-2026"
 $RoomName    = "Ruangan Server BPS"
 $LogPath     = "$env:TEMP\bps_guardian_v2.log"
