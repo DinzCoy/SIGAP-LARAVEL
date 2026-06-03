@@ -1,6 +1,6 @@
 # Rooms Index Page Overrides
 
-> **PROJECT:** BPulSe
+> **PROJECT:** SIGAP
 > **Generated:** 2026-05-06 00:19:10
 > **Page Type:** Dashboard / Data View
 

@@ -6,21 +6,16 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
+
     public function up(): void
     {
         Schema::table('asset_loans', function (Blueprint $table) {
-            // Create a plain index first so the foreign key doesn't get "orphaned"
+
             $table->index('asset_id', 'asset_loans_asset_id_index');
             $table->dropUnique('unique_active_loan');
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::table('asset_loans', function (Blueprint $table) {

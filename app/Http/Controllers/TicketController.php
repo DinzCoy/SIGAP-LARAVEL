@@ -11,77 +11,38 @@ use App\Http\Requests\CekInputTiketBaru;
 use App\Http\Requests\CekInputBalasanTiket;
 use App\Http\Requests\CekUpdateStatusTiket;
 use Illuminate\Http\Request;
+use App\Services\ImageService;
+use App\Jobs\CompressImageJob;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
 
 class TicketController extends Controller
 {
+    public function __construct(protected \App\Services\Ticket\TicketService $ticketService) {}
+
     public function index()
     {
         $user = Auth::user();
         $activeRole = session('active_role_id');
 
-        // Pimpinan, Admin, & Pengelola Aset: akses semua tiket
-        if (in_array($activeRole, [User::ROLE_PIMPINAN, User::ROLE_ADMIN, User::ROLE_PENGELOLA_ASET])) {
-            $tickets = Ticket::with(['asset.deviceName', 'reporter', 'technician', 'teamLeader'])
-                ->latest()
-                ->paginate(25);
-        }
-        // Ketua Tim: akses tiket yang diteruskan atau ditugaskan
-        elseif ($activeRole == User::ROLE_KETUA_TIM) {
-            $tickets = Ticket::with(['asset.deviceName', 'reporter', 'technician', 'teamLeader'])
-                ->where(function ($q) use ($user) {
-                    $q->where('status', Ticket::STATUS_KE_KETUA_TIM)
-                        ->orWhere('team_leader_id', $user->id);
-                })
-                ->latest()
-                ->paginate(25);
-        }
-        // Teknisi: akses tiket yang ditugaskan kepada yang bersangkutan
-        elseif ($activeRole == User::ROLE_TEKNISI) {
-            $tickets = Ticket::with(['asset.deviceName', 'reporter', 'technician', 'teamLeader'])
-                ->where('technician_id', $user->id)
-                ->latest()
-                ->paginate(25);
-        }
-        // PIC Ruangan: tiket yang berasal dari aset di ruangan yang dikelolanya
-        // (termasuk tiket yang dilaporkan orang lain dari ruangan tersebut)
-        elseif ($activeRole == User::ROLE_PIC_RUANGAN) {
-            $roomIds   = Room::where('pic_id', $user->id)->pluck('id');
-            $assetIds  = Asset::whereIn('room_id', $roomIds)->pluck('id');
+        $tickets = Ticket::forRole($user, (int) $activeRole)
+            ->with(['asset.deviceName', 'reporter', 'technician', 'teamLeader'])
+            ->latest()
+            ->paginate(25);
 
-            $tickets = Ticket::with(['asset.deviceName', 'reporter', 'technician', 'teamLeader'])
-                ->where(function ($q) use ($user, $assetIds) {
-                    // Tiket yang dilaporkan sendiri ATAU yang asetnya ada di ruangannya
-                    $q->where('reported_by', $user->id)
-                        ->orWhereIn('asset_id', $assetIds);
-                })
-                ->latest()
-                ->paginate(25);
-        }
-        // Pelapor (User Biasa): akses tiket yang dibuat sendiri
-        else {
-            $tickets = Ticket::where('reported_by', $user->id)
-                ->with(['asset.deviceName', 'reporter', 'technician', 'teamLeader'])
-                ->latest()
-                ->paginate(25);
-        }
-
-        // Data pendukung untuk modal pembuatan tiket
         $userAssets = Asset::where('user_id', $user->id)->get();
         $rooms = Room::orderBy('name')->get();
 
         return view('tickets.index', compact('tickets', 'userAssets', 'rooms'));
     }
 
-    public function show($id)
+    public function show(int $id)
     {
         $ticket = Ticket::with(['asset.deviceName', 'reporter', 'technician', 'teamLeader', 'replies.user'])->findOrFail($id);
 
         Gate::authorize('view', $ticket);
 
-        // Data teknisi untuk modal penugasan oleh Ketua Tim/Admin
         $technicians = collect();
         $activeRole = session('active_role_id');
         if (in_array($activeRole, [User::ROLE_ADMIN, User::ROLE_KETUA_TIM])) {
@@ -93,102 +54,30 @@ class TicketController extends Controller
 
     public function store(CekInputTiketBaru $request)
     {
-        $validated = $request->validated();
-        $type = !empty($validated['asset_id']) ? 'Asset' : 'General';
-
-        // Simpan foto kerusakan jika diunggah
-        $photoPath = null;
-        if ($request->hasFile('photo') && $request->file('photo')->isValid()) {
-            $photoPath = $request->file('photo')->store('ticket-photos', 'public');
-        }
-
-        Ticket::create([
-            'type'        => $type,
-            'category'    => $validated['category'] ?? null,
-            'asset_id'    => $validated['asset_id'] ?? null,
-            'room_id'     => $validated['room_id'],
-            'reported_by' => Auth::id(),
-            'title'       => $validated['title'],
-            'description' => $validated['description'],
-            'priority'    => $validated['priority'],
-            'status'      => Ticket::STATUS_MENUNGGU_PENGELOLA,
-            'photo_path'  => $photoPath,
-        ]);
+        $this->ticketService->createTicket(
+            $request->validated(),
+            Auth::user(),
+            $request->file('photo')
+        );
 
         return redirect()->route('tickets.index')->with('success', 'Tiket berhasil dibuat.');
     }
 
-    public function updateStatus(CekUpdateStatusTiket $request, $id)
+    public function updateStatus(CekUpdateStatusTiket $request, int $id)
     {
-        $validated = $request->validated();
         $ticket = Ticket::findOrFail($id);
-        $activeRole = session('active_role_id');
 
-        $ticket->status = $validated['status'];
-
-        if (array_key_exists('estimated_cost', $validated)) {
-            $ticket->estimated_cost = $validated['estimated_cost'];
-        }
-
-        if (array_key_exists('category', $validated)) {
-            $ticket->category = $validated['category'];
-        }
-
-        // SLA Tracking: Catat waktu respons pertama kali
-        if (in_array($validated['status'], [Ticket::STATUS_KE_TEKNISI, Ticket::STATUS_IN_PROGRESS]) && is_null($ticket->responded_at)) {
-            $ticket->responded_at = now();
-        }
-
-        // SLA Tracking: Catat waktu selesai
-        if ($validated['status'] === Ticket::STATUS_SELESAI && is_null($ticket->resolved_at)) {
-            $ticket->resolved_at = now();
-            // Jika teknisi langsung bypass ke Selesai tanpa In Progress
-            if (is_null($ticket->responded_at)) {
-                $ticket->responded_at = now();
-            }
-        }
-
-        // Penugasan teknisi oleh Ketua Tim atau Admin
-        if ($validated['status'] === Ticket::STATUS_KE_TEKNISI && in_array($activeRole, [User::ROLE_ADMIN, User::ROLE_KETUA_TIM])) {
-            if (!empty($validated['technician_id'])) {
-                $ticket->technician_id = $validated['technician_id'];
-                $ticket->team_leader_id = Auth::id();
-            }
-        }
-
-        // Penugasan otomatis jika Teknisi langsung mengubah status menjadi In Progress
-        if ($validated['status'] === Ticket::STATUS_IN_PROGRESS && $activeRole == User::ROLE_TEKNISI) {
-            if (!$ticket->technician_id) {
-                $ticket->technician_id = Auth::id();
-            }
-        }
-
-        $ticket->save();
-
-        // Jika tiket Selesai dan terkait aset → kembalikan kondisi aset ke Baik
-        if ($validated['status'] === Ticket::STATUS_SELESAI && $ticket->asset_id) {
-            Asset::where('id', $ticket->asset_id)
-                ->update(['status_kondisi' => Asset::KONDISI_BAIK]);
-        }
-
-        // Catat perubahan status ke riwayat diskusi (System Message)
-        $statusMsg = "⚙️ Status tiket diubah menjadi: ({$validated['status']}) oleh " . Auth::user()->name;
-        if (!empty($validated['technician_id'])) {
-            $tech = User::find($validated['technician_id']);
-            if ($tech) {
-                $statusMsg .= "\n👨‍🔧 Teknisi ditugaskan: ({$tech->name})";
-            }
-        }
-        TicketReply::create([
-            'ticket_id' => $ticket->id,
-            'user_id' => Auth::id(), // Mencatat ID pengubah untuk akuntabilitas
-            'message' => $statusMsg,
-        ]);
+        $this->ticketService->updateStatus(
+            $ticket,
+            $request->validated(),
+            Auth::user(),
+            session('active_role_id')
+        );
 
         return back()->with('success', 'Status tiket berhasil diupdate.');
     }
 
-    public function addReply(CekInputBalasanTiket $request, $id)
+    public function addReply(CekInputBalasanTiket $request, int $id)
     {
         $ticket = Ticket::findOrFail($id);
 
@@ -208,25 +97,21 @@ class TicketController extends Controller
         return back()->with('success', $message);
     }
 
-    // Form pelaporan kerusakan oleh PIC Ruangan — aset ditampilkan berdasarkan ruangan yang dikelola
     public function createRuangan()
     {
         $user    = Auth::user();
         $roomIds = Room::where('pic_id', $user->id)->pluck('id');
 
-        // Semua aset yang berada di ruangan yang dipertanggungjawabkan PIC ini
         $roomAssets = Asset::with(['deviceName', 'room'])
             ->whereIn('room_id', $roomIds)
             ->orderBy('room_id')
             ->get();
 
-        // Daftar ruangan untuk fallback pilihan lokasi (jika aset tidak dipilih)
         $myRooms = Room::whereIn('id', $roomIds)->orderBy('name')->get();
 
         return view('rooms.lapor', compact('roomAssets', 'myRooms'));
     }
 
-    // Simpan tiket dari pelaporan PIC Ruangan
     public function storeRuangan(Request $request)
     {
         $validated = $request->validate([
@@ -237,20 +122,14 @@ class TicketController extends Controller
             'category'    => 'required|in:Service,Troubleshooting',
         ]);
 
-        // Ambil ID ruangan yang SAAT INI dikelola oleh PIC ini (real-time, bukan cache)
-        // Ini secara otomatis menangani kasus mutasi — jika PIC sudah dipindah,
-        // aset dari ruangan lama tidak akan lolos validasi ini.
         $roomIds = Room::where('pic_id', Auth::id())->pluck('id');
 
-        // Pastikan aset yang dilaporkan memang berada di ruangan yang masih dikelola PIC ini.
-        // Jika tidak (misal: manipulasi POST atau sudah dimutasi), kembalikan 403.
         $asset = Asset::whereIn('room_id', $roomIds)->find($validated['asset_id']);
 
         if (!$asset) {
             abort(403, 'Anda tidak memiliki wewenang untuk melaporkan aset dari ruangan tersebut.');
         }
 
-        // Update status kondisi aset sesuai tingkat prioritas laporan
         $kondisiBaru = $validated['priority'] === 'Tinggi'
             ? Asset::KONDISI_RUSAK_BERAT
             : Asset::KONDISI_RUSAK_RINGAN;

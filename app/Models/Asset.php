@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Asset extends Model
 {
-    // Konstanta Kondisi Aset
+
     public const KONDISI_BAIK         = 'Baik';
     public const KONDISI_RUSAK_RINGAN = 'Rusak Ringan';
     public const KONDISI_RUSAK_BERAT  = 'Rusak Berat';
@@ -61,7 +61,6 @@ class Asset extends Model
         return $this->belongsTo(User::class);
     }
 
-    // Relasi Peminjaman
     public function loans(): HasMany
     {
         return $this->hasMany(AssetLoan::class);
@@ -77,7 +76,6 @@ class Asset extends Model
         return $this->hasOne(AssetLoan::class)->where('status', AssetLoan::STATUS_PENDING);
     }
 
-    //Helper Peminjaman
     public function isOnLoan(): bool
     {
         return $this->activeLoan()->exists();
@@ -94,7 +92,6 @@ class Asset extends Model
         return $loan ? $loan->borrower : null;
     }
 
-    // Scope untuk filter pencarian aset.
     public function scopeFilter(Builder $query, array $filters = []): Builder
     {
         $query->when($filters['device_name_id'] ?? null, function ($q, $deviceId) {

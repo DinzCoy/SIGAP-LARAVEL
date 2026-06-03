@@ -11,7 +11,7 @@ use App\Models\Room;
 
 class Ticket extends Model
 {
-    // Konstanta Status Tiket
+
     public const STATUS_MENUNGGU_PENGELOLA = 'Menunggu Pengecekan Pengelola';
     public const STATUS_KE_KETUA_TIM = 'Diteruskan ke Ketua Tim';
     public const STATUS_KE_TEKNISI = 'Diteruskan ke Teknisi';
@@ -20,6 +20,44 @@ class Ticket extends Model
     public const STATUS_APPROVED = 'Approved';
     public const STATUS_SELESAI = 'Selesai';
     public const STATUS_DIBATALKAN = 'Dibatalkan';
+
+    public static function getSelesaiStatuses(): array
+    {
+        return [
+            self::STATUS_SELESAI,
+            self::STATUS_DIBATALKAN,
+            'Selesai', 'Completed', 'completed',
+            'Dibatalkan', 'Canceled', 'canceled'
+        ];
+    }
+
+    public static function getSuccessCompletedStatuses(): array
+    {
+        return [
+            self::STATUS_SELESAI,
+            'Selesai', 'Completed', 'completed'
+        ];
+    }
+
+    public static function getPendingStatuses(): array
+    {
+        return [
+            self::STATUS_MENUNGGU_PENGELOLA,
+            'Menunggu Pengecekan Pengelola', 'Pending', 'pending',
+            self::STATUS_KE_KETUA_TIM,
+            self::STATUS_KE_TEKNISI,
+            self::STATUS_MENUNGGU_BIAYA,
+            self::STATUS_APPROVED
+        ];
+    }
+
+    public static function getInProgressStatuses(): array
+    {
+        return [
+            self::STATUS_IN_PROGRESS,
+            'Sedang Dikerjakan', 'In Progress', 'in_progress'
+        ];
+    }
 
     protected $fillable = [
         'type',
@@ -72,10 +110,6 @@ class Ticket extends Model
         return $this->hasMany(TicketReply::class);
     }
 
-    //UI Accessors
-
-    //Class CSS untuk badge status tiket.
-    //Penggunaan di Blade: {{ $ticket->status_badge_class }}
     protected function statusBadgeClass(): Attribute
     {
         return Attribute::make(
@@ -93,8 +127,6 @@ class Ticket extends Model
         );
     }
 
-    //Class CSS untuk badge prioritas tiket.
-    //Penggunaan di Blade: {{ $ticket->priority_badge_class }}
     protected function priorityBadgeClass(): Attribute
     {
         return Attribute::make(
@@ -106,8 +138,6 @@ class Ticket extends Model
         );
     }
 
-    //Class CSS untuk badge tipe tiket (Asset/Layanan).
-    //Penggunaan di Blade: {{ $ticket->type_badge_class }}
     protected function typeBadgeClass(): Attribute
     {
         return Attribute::make(
@@ -117,8 +147,6 @@ class Ticket extends Model
         );
     }
 
-    //Label teks yang ramah pengguna untuk tipe tiket.
-    //Penggunaan di Blade: {{ $ticket->type_label }}
     protected function typeLabel(): Attribute
     {
         return Attribute::make(
@@ -126,8 +154,6 @@ class Ticket extends Model
         );
     }
 
-    //Nama icon Lucide berdasarkan tipe tiket.
-    //Penggunaan di Blade: <x-dynamic-component :component="'lucide-' . $ticket->type_icon" />
     protected function typeIcon(): Attribute
     {
         return Attribute::make(
@@ -135,8 +161,6 @@ class Ticket extends Model
         );
     }
 
-    //Class CSS untuk badge kategori tiket.
-    //Penggunaan di Blade: {{ $ticket->category_badge_class }}
     protected function categoryBadgeClass(): Attribute
     {
         return Attribute::make(
@@ -148,8 +172,6 @@ class Ticket extends Model
         );
     }
 
-    //Nama icon Lucide berdasarkan kategori tiket.
-    //Penggunaan di Blade: <x-dynamic-component :component="'lucide-' . $ticket->category_icon" />
     protected function categoryIcon(): Attribute
     {
         return Attribute::make(
@@ -160,8 +182,6 @@ class Ticket extends Model
             }
         );
     }
-
-    // --- SLA Tracking Accessors ---
 
     protected function responseTimeHours(): Attribute
     {
@@ -245,12 +265,32 @@ class Ticket extends Model
                      ->when($endDate, fn($q) => $q->whereDate('created_at', '<=', $endDate));
     }
 
-    /**
-     * Scope: tiket yang masih aktif (belum Selesai atau Dibatalkan).
-     * Mengganti pola whereNotIn([STATUS_SELESAI, STATUS_DIBATALKAN]) yang berulang.
-     */
     public function scopeActive(Builder $query): Builder
     {
         return $query->whereNotIn('status', [self::STATUS_SELESAI, self::STATUS_DIBATALKAN]);
+    }
+
+    public function scopeForRole(Builder $query, User $user, int $roleId): Builder
+    {
+        return match ($roleId) {
+            User::ROLE_PIMPINAN, User::ROLE_ADMIN, User::ROLE_PENGELOLA_ASET => $query,
+
+            User::ROLE_KETUA_TIM => $query->where(function ($q) use ($user) {
+                $q->where('status', self::STATUS_KE_KETUA_TIM)
+                  ->orWhere('team_leader_id', $user->id);
+            }),
+
+            User::ROLE_TEKNISI => $query->where('technician_id', $user->id),
+
+            User::ROLE_PIC_RUANGAN => $query->where(function ($q) use ($user) {
+                $roomIds = Room::where('pic_id', $user->id)->pluck('id');
+                $assetIds = Asset::whereIn('room_id', $roomIds)->pluck('id');
+
+                $q->where('reported_by', $user->id)
+                  ->orWhereIn('asset_id', $assetIds);
+            }),
+
+            default => $query->where('reported_by', $user->id),
+        };
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\PcReport;
+use App\Services\Dashboard\DashboardStatsService;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
@@ -11,7 +12,8 @@ use Illuminate\View\View;
 
 class WebReportController extends Controller
 {
-    // spill data pc buat user umum, no cepu-cepu
+    public function __construct(protected DashboardStatsService $layananDashboard) {}
+
     public function index(Request $request): View
     {
         $query = $this->applyPcFilters(PcReport::query(), $request);
@@ -22,7 +24,6 @@ class WebReportController extends Controller
 
         $reports = $query->orderByDesc('last_seen')->paginate(20)->withQueryString();
 
-        // sensor data sensitif buat yg bukan admin
         $reports->getCollection()->transform(function ($report) {
             $report->ip_address  = preg_replace('/(\d+\.\d+\.\d+\.)\d+/', '$1***', $report->ip_address);
             $report->mac_address = 'XX:XX:XX:XX:XX:XX';
@@ -32,36 +33,13 @@ class WebReportController extends Controller
         return view('reports.index', compact('reports'));
     }
 
-    // dashboard khusus admin buat mantau kesehatan semua pc
     public function adminIndex(Request $request): View
     {
-        $query = $this->applyPcFilters(PcReport::query(), $request);
+        $stats = $this->layananDashboard->getAdminWebStats($request);
 
-        if ($request->filled('search')) {
-            $search = $request->search;
-            $query->where(fn ($q) => $q->where('hostname', 'like', "%{$search}%")
-                                       ->orWhere('ip_address', 'like', "%{$search}%"));
-        }
-
-        // Ambil setting interval laporan (default 7 hari jika tidak ada)
-        $reportIntervalDays = (int) \App\Models\SystemSetting::getValue('report_interval_days', 7);
-        $reportingDeadline  = now()->subDays($reportIntervalDays);
-
-        $totalPcs   = PcReport::count();
-        $onlinePcs  = PcReport::online()->count();
-        $offlinePcs = PcReport::offline()->count();
-        
-        // PC dianggap Anomali jika: is_trouble manual = true ATAU telat melapor sesuai interval settings
-        $anomalyPcs = PcReport::where('is_trouble', true)
-            ->orWhere(fn ($q) => $q->where('last_seen', '<', $reportingDeadline)->orWhereNull('last_seen'))
-            ->count();
-
-        $reports = $query->with('asset')->orderByDesc('last_seen')->paginate(20)->withQueryString();
-
-        return view('reports.admin', compact('reports', 'totalPcs', 'onlinePcs', 'offlinePcs', 'anomalyPcs', 'reportIntervalDays', 'reportingDeadline'));
+        return view('reports.admin', $stats);
     }
 
-    // kepoin detail spek satu pc sampe ke akar-akarnya
     public function show(string $id): View
     {
         $report    = PcReport::with(['installedSoftware', 'asset'])->findOrFail($id);
@@ -92,7 +70,6 @@ class WebReportController extends Controller
             ->with('success', "Device {$hostname} berhasil dihapus dari sistem.");
     }
 
-    // bungkus semua data ke excel biar bisa buat laporan ke bos
     public function export(Request $request)
     {
         $fileName = 'Laporan_Aset_BPS_' . date('Y-m-d_H-i-s') . '.xlsx';

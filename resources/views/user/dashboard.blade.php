@@ -6,12 +6,12 @@
     </x-slot>
 
     <div class="py-8 space-y-8">
-        <!-- Hero Header -->
+
         <div class="relative overflow-hidden bg-gradient-to-br from-blue-700 via-blue-600 to-indigo-800 rounded-3xl shadow-2xl p-8 border border-white/10 group">
-            <!-- Decorative Elements -->
+
             <div class="absolute top-0 right-0 -mt-12 -mr-12 w-64 h-64 bg-white/10 rounded-full blur-3xl transition-transform duration-700 group-hover:scale-110"></div>
             <div class="absolute bottom-0 left-0 -mb-12 -ml-12 w-48 h-48 bg-blue-400/20 rounded-full blur-2xl transition-transform duration-700 group-hover:scale-125"></div>
-            
+
             <div class="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
                 <div>
                     @php
@@ -37,9 +37,8 @@
             </div>
         </div>
 
-        <!-- Summary Cards -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <!-- User Reports Stats -->
+
             <div class="bg-white rounded-3xl shadow-sm hover:shadow-md border border-gray-100 p-1 flex items-stretch transition-all duration-300 transform hover:-translate-y-1 cursor-default group">
                 <div class="flex-1 p-6">
                     <p class="text-xs font-bold text-gray-400 uppercase tracking-[0.2em] mb-3 group-hover:text-blue-500 transition-colors">Statistik Laporan</p>
@@ -53,7 +52,6 @@
                 </div>
             </div>
 
-            <!-- Assigned Assets Stats -->
             <div class="bg-white rounded-3xl shadow-sm hover:shadow-md border border-gray-100 p-1 flex items-stretch transition-all duration-300 transform hover:-translate-y-1 cursor-default group">
                 <div class="flex-1 p-6">
                     <p class="text-xs font-bold text-gray-400 uppercase tracking-[0.2em] mb-3 group-hover:text-bps-orange transition-colors">Aset Dipertanggungjawabkan</p>
@@ -68,9 +66,8 @@
             </div>
         </div>
 
-        <!-- Main Content -->
         <div class="flex flex-col space-y-8 pb-8">
-            <!-- Recent Tickets -->
+
             <div class="flex flex-col space-y-4">
                 <div class="flex justify-between items-end px-2">
                     <div>
@@ -81,7 +78,7 @@
                         Lihat Semua <x-lucide-chevron-right class="w-4 h-4 transition-transform group-hover:translate-x-1" />
                     </a>
                 </div>
-                
+
                 <div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden flex-1 group/table">
                     <div class="overflow-x-auto">
                         <table class="w-full text-left border-collapse">
@@ -121,7 +118,7 @@
                                             <x-lucide-chevron-right class="w-5 h-5 text-gray-300 group-hover/row:text-blue-500 group-hover/row:translate-x-1 transition-all" />
                                         </div>
                                     </td>
-                                    <!-- Hover Highlight Overlay -->
+
                                     <div class="absolute inset-0 bg-blue-50/0 group-hover/row:bg-blue-50/50 pointer-events-none transition-colors duration-200"></div>
                                 </tr>
                                 @empty
@@ -143,7 +140,6 @@
                 </div>
             </div>
 
-            <!-- Recent Assets -->
             <div class="flex flex-col space-y-4">
                 <div class="flex justify-between items-end px-2">
                     <div>
@@ -151,7 +147,7 @@
                         <p class="text-sm text-gray-500">Daftar inventaris di tangan Anda</p>
                     </div>
                 </div>
-                
+
                 <div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden flex-1">
                     <div class="overflow-x-auto">
                         <table class="w-full text-left border-collapse">
@@ -186,7 +182,7 @@
                                                     Pinjamkan
                                                 </button>
                                             @endif
-                                            
+
                                             <button type="button" onclick="openQrModal('{{ route('assets.scan', $asset?->id ?? 0) }}?mode=transfer', '{{ $asset?->deviceName?->name ?? 'Device' }}', 'transfer')" class="inline-flex items-center px-3 py-1.5 rounded-xl text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-200 hover:bg-indigo-100 transition-colors shadow-sm" title="Serah Terima Permanen">
                                                 <x-lucide-send class="w-4 h-4 mr-1.5" />
                                                 Serahkan
@@ -218,7 +214,6 @@
                 </div>
             </div>
 
-            <!-- Borrowed Assets Section -->
             <div class="flex flex-col space-y-4">
                 <div class="flex justify-between items-end px-2">
                     <div>
@@ -226,7 +221,7 @@
                         <p class="text-sm text-gray-500">Daftar perangkat yang sedang Anda pinjam</p>
                     </div>
                 </div>
-                
+
                 <div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden flex-1">
                     <div class="overflow-x-auto">
                         <table class="w-full text-left border-collapse">
@@ -284,11 +279,10 @@
         </div>
     </div>
 
-    <!-- QR Code Modal (WA Web Style) -->
     <div id="qrModal" class="hidden fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
         <div class="flex items-center justify-center min-h-screen p-4 text-center">
             <div class="fixed inset-0 bg-gray-900 bg-opacity-75 backdrop-blur-sm transition-opacity" aria-hidden="true" onclick="closeQrModal()"></div>
-            
+
             <div class="relative bg-white rounded-3xl text-left overflow-hidden shadow-2xl transform transition-all sm:max-w-md sm:w-full border border-gray-100 z-10">
                 <div class="px-6 py-6 text-center" id="qrHeaderBg">
                     <h3 class="text-xl leading-6 font-bold text-white flex items-center justify-center gap-2" id="modal-title">

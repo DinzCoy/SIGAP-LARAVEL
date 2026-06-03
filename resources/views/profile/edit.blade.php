@@ -6,20 +6,18 @@
         </h2>
     </x-slot>
 
-    <!-- Alpine Wrapper for Tab Navigation -->
     <div x-data="{ activeTab: 'personal-info' }" class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-        <!-- Left Sidebar: Profile Summary & Navigation -->
+
         <div class="lg:col-span-4 space-y-6">
-            <!-- Profile Card -->
+
             <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
-                <!-- Cover Mesh Background -->
+
                 <div class="h-28 bg-gradient-to-r from-indigo-600 to-purple-600 relative overflow-hidden">
                     <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-white/10 via-transparent to-transparent"></div>
                     <div class="absolute -right-10 -top-10 w-32 h-32 rounded-full bg-white/5 blur-xl"></div>
                     <div class="absolute -left-10 -bottom-10 w-28 h-28 rounded-full bg-white/5 blur-lg"></div>
                 </div>
-                
-                <!-- User Profile Details -->
+
                 <div class="px-6 pb-6 text-center relative -mt-12">
                     <div class="inline-block relative">
                         @if ($user->photo_path)
@@ -34,8 +32,7 @@
 
                     <h3 class="mt-4 font-black text-xl text-slate-800 tracking-tight leading-tight">{{ $user->name }}</h3>
                     <p class="text-xs text-slate-400 font-semibold mt-1 tracking-wide">{{ $user->email }}</p>
-                    
-                    <!-- Quick Badges -->
+
                     <div class="mt-4 flex flex-wrap justify-center gap-2">
                         <span class="inline-flex px-3 py-1 bg-indigo-50 text-indigo-700 rounded-full text-[10px] font-black border border-indigo-100/50 uppercase tracking-wider">
                             {{ \App\Models\User::getRoleName(session('active_role_id')) }}
@@ -45,28 +42,27 @@
                         </span>
                     </div>
 
-                    <!-- Navigation Shortcuts -->
                     <div class="mt-6 border-t border-slate-100 pt-5 text-left">
                         <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-3 px-3">Menu Profil</span>
                         <nav class="space-y-1.5">
-                            <button @click="activeTab = 'personal-info'" 
-                                :class="activeTab === 'personal-info' ? 'bg-indigo-50/50 text-indigo-600 border-indigo-100/30' : 'text-slate-600 hover:bg-slate-50 border-transparent'" 
+                            <button @click="activeTab = 'personal-info'"
+                                :class="activeTab === 'personal-info' ? 'bg-indigo-50/50 text-indigo-600 border-indigo-100/30' : 'text-slate-600 hover:bg-slate-50 border-transparent'"
                                 class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-bold border transition-all text-left focus:outline-none">
                                 <span :class="activeTab === 'personal-info' ? 'text-indigo-500' : 'text-slate-400'" class="flex items-center justify-center shrink-0">
                                     <x-lucide-user class="w-5 h-5" />
                                 </span>
                                 Informasi Personal
                             </button>
-                            <button @click="activeTab = 'update-password'" 
-                                :class="activeTab === 'update-password' ? 'bg-indigo-50/50 text-indigo-600 border-indigo-100/30' : 'text-slate-600 hover:bg-slate-50 border-transparent'" 
+                            <button @click="activeTab = 'update-password'"
+                                :class="activeTab === 'update-password' ? 'bg-indigo-50/50 text-indigo-600 border-indigo-100/30' : 'text-slate-600 hover:bg-slate-50 border-transparent'"
                                 class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-bold border transition-all text-left focus:outline-none">
                                 <span :class="activeTab === 'update-password' ? 'text-indigo-500' : 'text-slate-400'" class="flex items-center justify-center shrink-0">
                                     <x-lucide-key-round class="w-5 h-5" />
                                 </span>
                                 Ubah Password
                             </button>
-                            <button @click="activeTab = 'danger-zone'" 
-                                :class="activeTab === 'danger-zone' ? 'bg-red-50 text-red-700 border-red-100/30' : 'text-slate-600 hover:bg-red-50/50 border-transparent'" 
+                            <button @click="activeTab = 'danger-zone'"
+                                :class="activeTab === 'danger-zone' ? 'bg-red-50 text-red-700 border-red-100/30' : 'text-slate-600 hover:bg-red-50/50 border-transparent'"
                                 class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-bold border transition-all text-left focus:outline-none">
                                 <span :class="activeTab === 'danger-zone' ? 'text-red-500' : 'text-slate-400'" class="flex items-center justify-center shrink-0">
                                     <x-lucide-trash-2 class="w-5 h-5" />
@@ -79,10 +75,9 @@
             </div>
         </div>
 
-        <!-- Right Content Area: Detailed Forms -->
         <div class="lg:col-span-8">
-            <!-- Card: Personal Information -->
-            <div x-show="activeTab === 'personal-info'" 
+
+            <div x-show="activeTab === 'personal-info'"
                 x-transition:enter="transition ease-out duration-300"
                 x-transition:enter-start="opacity-0 translate-y-4"
                 x-transition:enter-end="opacity-100 translate-y-0"
@@ -92,8 +87,7 @@
                 </div>
             </div>
 
-            <!-- Card: Security / Password -->
-            <div x-show="activeTab === 'update-password'" 
+            <div x-show="activeTab === 'update-password'"
                 x-transition:enter="transition ease-out duration-300"
                 x-transition:enter-start="opacity-0 translate-y-4"
                 x-transition:enter-end="opacity-100 translate-y-0"
@@ -104,8 +98,7 @@
                 </div>
             </div>
 
-            <!-- Card: Danger Zone -->
-            <div x-show="activeTab === 'danger-zone'" 
+            <div x-show="activeTab === 'danger-zone'"
                 x-transition:enter="transition ease-out duration-300"
                 x-transition:enter-start="opacity-0 translate-y-4"
                 x-transition:enter-end="opacity-100 translate-y-0"

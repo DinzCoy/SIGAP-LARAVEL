@@ -12,7 +12,6 @@ window.pimpinanDash = function() {
             const data   = window.pimpinanDashboardData;
             const isDark = document.documentElement.classList.contains('dark');
 
-            // ---- Palette berdasarkan mode ----
             const palette = {
                 text:        isDark ? '#94a3b8' : '#6b7280',
                 grid:        isDark ? 'rgba(51,65,85,0.5)' : '#f3f4f6',
@@ -26,7 +25,6 @@ window.pimpinanDash = function() {
             Chart.defaults.font.family = "Inter, ui-sans-serif, system-ui, sans-serif";
             Chart.defaults.color       = palette.text;
 
-            // ---- Helper gradien ----
             const getGradient = (ctx, chartArea, colorStart, colorEnd) => {
                 const gradient = ctx.createLinearGradient(0, chartArea.bottom, 0, chartArea.top);
                 gradient.addColorStop(0, colorStart);
@@ -34,7 +32,6 @@ window.pimpinanDash = function() {
                 return gradient;
             };
 
-            // ---- Plugin teks tengah doughnut ----
             const centerTextPlugin = {
                 id: 'centerText',
                 beforeDraw: function(chart) {
@@ -60,7 +57,6 @@ window.pimpinanDash = function() {
                 }
             };
 
-            // ---- Opsi umum doughnut ----
             const doughnutOptions = {
                 responsive: true,
                 maintainAspectRatio: false,
@@ -87,9 +83,6 @@ window.pimpinanDash = function() {
                 }
             };
 
-            // ====================================================
-            // TREND BAR CHART
-            // ====================================================
             const trendEl = document.getElementById('trendChart');
             if (trendEl) {
                 new Chart(trendEl.getContext('2d'), {
@@ -153,9 +146,6 @@ window.pimpinanDash = function() {
                 });
             }
 
-            // ====================================================
-            // CONDITION DOUGHNUT
-            // ====================================================
             const condEl = document.getElementById('conditionChart');
             if (condEl) {
                 new Chart(condEl.getContext('2d'), {
@@ -179,9 +169,6 @@ window.pimpinanDash = function() {
                 });
             }
 
-            // ====================================================
-            // AGE DISTRIBUTION DOUGHNUT
-            // ====================================================
             const ageEl = document.getElementById('ageChart');
             if (ageEl) {
                 new Chart(ageEl.getContext('2d'), {

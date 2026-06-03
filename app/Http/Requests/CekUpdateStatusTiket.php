@@ -8,10 +8,11 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class CekUpdateStatusTiket extends FormRequest
 {
-    //Menentukan apakah user diizinkan mengubah status tiket.
+
     public function authorize(): bool
     {
-        return in_array(session('active_role_id'), [
+        $activeRole = request()->header('X-Active-Role-ID') ?? session('active_role_id');
+        return in_array($activeRole, [
             User::ROLE_ADMIN,
             User::ROLE_PENGELOLA_ASET,
             User::ROLE_KETUA_TIM,
@@ -21,7 +22,7 @@ class CekUpdateStatusTiket extends FormRequest
 
     public function rules(): array
     {
-        $activeRole = session('active_role_id');
+        $activeRole = request()->header('X-Active-Role-ID') ?? session('active_role_id');
         $validStatuses = [];
 
         if ($activeRole == User::ROLE_ADMIN) {
@@ -63,6 +64,7 @@ class CekUpdateStatusTiket extends FormRequest
             'technician_id' => 'nullable|exists:users,id',
             'estimated_cost' => 'nullable|numeric|min:0',
             'category'      => 'nullable|string',
+            'tanggapan'     => 'nullable|string',
         ];
     }
 }

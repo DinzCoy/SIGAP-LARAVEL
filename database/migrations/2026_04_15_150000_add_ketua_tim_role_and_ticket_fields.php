@@ -7,18 +7,15 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
+
     public function up(): void
     {
-        // 1. Insert Role "Ketua Tim" (ID 7) if not exists
+
         DB::table('roles')->insertOrIgnore([
             'id'   => 7,
             'name' => 'Ketua Tim',
         ]);
 
-        // 2. Add team_leader_id column to tickets
         Schema::table('tickets', function (Blueprint $table) {
             $table->foreignId('team_leader_id')
                   ->nullable()
@@ -27,7 +24,6 @@ return new class extends Migration
                   ->nullOnDelete();
         });
 
-        // 3. Update status ENUM to include new workflow statuses
         if (DB::getDriverName() !== 'sqlite') {
             DB::statement("ALTER TABLE tickets MODIFY COLUMN status ENUM(
                 'Menunggu Pengecekan Pengelola',
@@ -43,12 +39,9 @@ return new class extends Migration
         }
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
-        // Revert status enum
+
         if (DB::getDriverName() !== 'sqlite') {
             DB::statement("ALTER TABLE tickets MODIFY COLUMN status ENUM(
                 'Menunggu Pengecekan Pengelola',

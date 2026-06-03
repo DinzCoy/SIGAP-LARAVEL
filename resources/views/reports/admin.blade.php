@@ -21,13 +21,12 @@
         </div>
         @endif
 
-        <!-- Header Titles -->
         <div class="mb-6 flex flex-col md:flex-row md:justify-between md:items-start gap-4">
             <div>
                 <h2 class="text-2xl font-bold text-gray-900">Ringkasan Sistem</h2>
                 <p class="text-sm text-gray-500 mt-1">Pantauan real-time aset komputer BPS Sulawesi Selatan.</p>
             </div>
-            <!-- Auto Refresh Indicator -->
+
             <div class="flex items-center gap-2 bg-white px-3 py-1.5 rounded-full border border-gray-200 shadow-sm text-sm font-medium text-gray-700 transition-colors" id="auto-refresh-badge">
                 <span class="relative flex h-2.5 w-2.5">
                     <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
@@ -37,9 +36,8 @@
             </div>
         </div>
 
-        <!-- Summary Cards -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <!-- Total PC -->
+
             <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 flex items-center justify-between hover:shadow-md transition-shadow">
                 <div>
                     <p class="text-sm font-medium text-gray-500 uppercase tracking-wider">Total PC Terdaftar</p>
@@ -50,7 +48,6 @@
                 </div>
             </div>
 
-            <!-- Online -->
             <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 flex items-center justify-between hover:shadow-md transition-shadow">
                 <div>
                     <p class="text-sm font-medium text-gray-500 uppercase tracking-wider">Online (Aktif)</p>
@@ -61,7 +58,6 @@
                 </div>
             </div>
 
-            <!-- Offline -->
             <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 flex items-center justify-between hover:shadow-md transition-shadow">
                 <div>
                     <p class="text-sm font-medium text-gray-500 uppercase tracking-wider">Offline</p>
@@ -72,7 +68,6 @@
                 </div>
             </div>
 
-            <!-- Anomalies -->
             <div class="{{ $anomalyPcs > 0 ? 'bg-red-50 border-red-200' : 'bg-white border-gray-200' }} rounded-xl shadow-sm border p-6 flex items-center justify-between hover:shadow-md transition-shadow relative overflow-hidden">
                 @if($anomalyPcs > 0)
                 <div class="absolute top-0 right-0 w-2 h-full bg-red-500 animate-pulse"></div>
@@ -87,11 +82,10 @@
             </div>
         </div>
 
-        <!-- Filter and Search Section -->
         <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 mb-6">
             <h3 class="text-sm font-semibold text-gray-700 mb-4 uppercase tracking-wider">Filter Data</h3>
             <form action="{{ route('admin.dashboard') }}" method="GET" class="flex flex-col md:flex-row gap-5 items-end">
-                <!-- Search Box -->
+
                 <div class="flex-1 w-full">
                     <label for="search" class="block text-sm font-medium text-gray-700 mb-1">Cari Hostname / IP</label>
                     <div class="relative rounded-md shadow-sm">
@@ -108,7 +102,6 @@
                     </div>
                 </div>
 
-                <!-- Special Filter -->
                 <div class="md:w-64">
                     <label for="filter_spesifik" class="block text-sm font-medium text-gray-700 mb-1">Filter Khusus</label>
                     <select id="filter_spesifik" name="filter_spesifik"
@@ -121,7 +114,6 @@
                     </select>
                 </div>
 
-                <!-- Buttons -->
                 <div class="flex items-end gap-3 w-full md:w-auto mt-4 md:mt-0">
                     <button type="submit"
                         class="bg-bps-orange hover:bg-orange-600 text-white font-semibold py-2.5 px-6 rounded-lg shadow-sm transition-colors w-full md:w-auto flex items-center justify-center gap-2">
@@ -134,7 +126,7 @@
                         Reset
                     </a>
                     @endif
-                    
+
                     <a href="{{ route('admin.reports.export', request()->query()) }}" class="bg-green-600 hover:bg-green-700 text-white font-semibold py-2.5 px-4 rounded-lg shadow-sm transition-colors text-sm flex items-center justify-center w-full md:w-auto gap-2">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                         Export Data
@@ -143,7 +135,6 @@
             </form>
         </div>
 
-        <!-- Dashboard Table -->
         <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
             <div class="p-5 border-b border-gray-200 flex justify-between items-center bg-gray-50">
                 <h2 class="text-lg font-semibold text-gray-800">Daftar PC Status</h2>
@@ -173,17 +164,16 @@
                             $freeDiskGb = ($report->disk_free_b ?? 0) / 1024 / 1024 / 1024;
                             $totalDiskGb = ($report->total_disk_b ?? 0) / 1024 / 1024 / 1024;
 
-                            $ramWarning = $freeRamGb < 2.0; 
-                            $diskCritical = $freeDiskGb < 10.0; 
-                            $diskWarning = $freeDiskGb >= 10.0 && $freeDiskGb < 25.0; 
-                            
+                            $ramWarning = $freeRamGb < 2.0;
+                            $diskCritical = $freeDiskGb < 10.0;
+                            $diskWarning = $freeDiskGb >= 10.0 && $freeDiskGb < 25.0;
+
                             $diskStatusColor = in_array($report->disk_status, ['HEALTHY', 'SEHAT']) ? 'text-green-600' : 'text-red-600 font-bold animate-pulse';
                         @endphp
 
-                        <tr data-href="{{ route('admin.reports.show', $report->id) }}" onclick="window.location.href=this.dataset.href;" 
+                        <tr data-href="{{ route('admin.reports.show', $report->id) }}" onclick="window.location.href=this.dataset.href;"
                             class="group hover:bg-blue-50/50 transition-all cursor-pointer {{ $isOffline ? 'bg-gray-50/50 grayscale-[20%]' : 'bg-white' }} {{ $report->is_trouble ? 'border-l-4 border-l-red-500 bg-red-50/30' : 'border-l-4 border-l-transparent' }}">
-                            
-                            <!-- Perangkat -->
+
                             <td class="px-6 py-4">
                                 <div class="flex items-center gap-4">
                                     <div class="relative flex min-h-[12px] min-w-[12px] items-center justify-center">
@@ -213,13 +203,11 @@
                                 </div>
                             </td>
 
-                            <!-- Jaringan -->
                             <td class="px-6 py-4">
                                 <div class="font-medium text-gray-800">{{ $report->ip_address }}</div>
                                 <div class="font-mono text-[11px] text-gray-400 mt-1">{{ $report->mac_address }}</div>
                             </td>
 
-                            <!-- Aset BMN -->
                             <td class="px-6 py-4">
                                 @if($report->asset)
                                     <div class="text-sm font-semibold text-gray-900">{{ $report->asset->bmn_number }}</div>
@@ -237,7 +225,6 @@
                                 @endif
                             </td>
 
-                            <!-- Memory -->
                             <td class="px-6 py-4">
                                 <div class="flex items-center gap-2">
                                     <span class="inline-flex items-center px-2 py-1 rounded-md text-xs font-semibold {{ $ramWarning ? 'bg-red-50 text-red-700 ring-1 ring-inset ring-red-600/20' : 'bg-gray-50 text-gray-700 ring-1 ring-inset ring-gray-500/10' }}">
@@ -247,7 +234,6 @@
                                 </div>
                             </td>
 
-                            <!-- Penyimpanan -->
                             <td class="px-6 py-4">
                                 <div class="flex flex-col justify-center">
                                     <div class="flex items-center gap-2">
@@ -272,7 +258,6 @@
                                 </div>
                             </td>
 
-                            <!-- Terakhir Aktif -->
                             <td class="px-6 py-4 text-right whitespace-nowrap">
                                 @if($report->last_seen)
                                     <div class="text-sm font-medium {{ $isOffline ? 'text-gray-500' : 'text-gray-900' }}">{{ \Carbon\Carbon::parse($report->last_seen)->timezone(config('app.timezone'))->diffForHumans() }}</div>
@@ -301,7 +286,6 @@
                 </table>
             </div>
 
-            <!-- Pagination -->
             @if($reports->hasPages())
             <div class="px-6 py-4 border-t border-gray-200 bg-gray-50">
                 {{ $reports->links() }}
@@ -311,18 +295,16 @@
 
     </div>
 
-    <!-- Auto-Refresh Script -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Prevent duplicate intervals if navigating
+
             if (window.autoRefreshInterval) {
                 clearInterval(window.autoRefreshInterval);
             }
-            
+
             let timeLeft = 30;
             let isPaused = false;
-            
-            // Pause countdown when user is interacting with filters
+
             document.addEventListener('focusin', (e) => {
                 if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') {
                     isPaused = true;
@@ -350,29 +332,28 @@
 
                 timeLeft--;
                 updateCountdown();
-                
+
                 if (timeLeft <= 0) {
                     const countdownEl = document.getElementById('refresh-countdown');
                     if (countdownEl) countdownEl.innerText = '...';
 
-                    // Fetch fresh HTML
                     fetch(window.location.href)
                     .then(response => response.text())
                     .then(html => {
                         const parser = new DOMParser();
                         const doc = parser.parseFromString(html, 'text/html');
                         const newTarget = doc.getElementById('auto-refresh-target');
-                        
+
                         if (newTarget) {
                             document.getElementById('auto-refresh-target').innerHTML = newTarget.innerHTML;
                         }
-                        
+
                         timeLeft = 30;
                         updateCountdown();
                     })
                     .catch(error => {
                         console.error('Auto-refresh failed:', error);
-                        timeLeft = 30; // retry on next cycle
+                        timeLeft = 30;
                         updateCountdown();
                     });
                 }

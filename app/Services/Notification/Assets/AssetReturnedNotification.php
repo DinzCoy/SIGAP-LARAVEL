@@ -9,31 +9,22 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
 use Illuminate\Support\Facades\Notification as NotificationFacade;
 
-/**
- * Notifikasi Aset Dikembalikan
- * Dikirim kepada pemilik aset (atau Admin/Pengelola Aset jika tidak ada pemilik)
- * ketika peminjam mengembalikan aset yang dipinjam.
- * Channel: database (in-app notification panel)
- */
 class AssetReturnedNotification extends Notification
 {
     use Queueable;
 
     protected AssetLoan $peminjaman;
 
-    // Menyiapkan data peminjaman yang dikembalikan.
     public function __construct(AssetLoan $peminjaman)
     {
         $this->peminjaman = $peminjaman;
     }
 
-    // Menentukan channel pengiriman notifikasi (in-app via database).
     public function via(object $notifiable): array
     {
         return ['database'];
     }
 
-    // Representasi notifikasi dalam bentuk array untuk disimpan ke tabel notifications.
     public function toArray(object $notifiable): array
     {
         $namaAset     = ($this->peminjaman->asset?->deviceName?->brand ?? '')
@@ -53,7 +44,6 @@ class AssetReturnedNotification extends Notification
         ];
     }
 
-    // Kirim ke pemilik aset, atau broadcast ke Admin + Pengelola Aset jika tanpa pemilik.
     public static function kirim(AssetLoan $peminjaman): void
     {
         $peminjaman->load(['asset.deviceName', 'asset.user', 'borrower']);

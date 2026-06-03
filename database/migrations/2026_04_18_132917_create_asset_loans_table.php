@@ -19,7 +19,6 @@ return new class extends Migration
             $table->enum('status', ['active', 'returned'])->default('active');
             $table->timestamps();
 
-            // Hanya boleh 1 peminjaman aktif per aset
             $table->unique(['asset_id', 'status'], 'unique_active_loan');
         });
     }

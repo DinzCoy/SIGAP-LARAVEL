@@ -8,7 +8,7 @@ use Illuminate\Validation\Rule;
 
 class CekUpdateAset extends FormRequest
 {
-    // Otorisasi ditangani oleh middleware role:2,4 di web.php
+
     public function authorize(): bool
     {
         return true;
@@ -16,7 +16,7 @@ class CekUpdateAset extends FormRequest
 
     public function rules(): array
     {
-        // Ambil ID aset dari parameter route agar unique rule mengabaikan aset itu sendiri
+
         $assetId = $this->route('id');
 
         return [

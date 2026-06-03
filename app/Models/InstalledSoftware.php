@@ -18,18 +18,17 @@ class InstalledSoftware extends Model
         return $this->belongsTo(PcReport::class);
     }
 
-    //Menentukan apakah software merupakan antivirus/security.
     public function getIsAntivirusAttribute()
     {
         $keywords = ['antivirus', 'defender', 'security', 'bitdefender', 'smadav', 'kaspersky', 'mcafee', 'avast', 'eset', 'norton', 'malware', 'trend micro', 'sophos', 'endpoint'];
         $name = strtolower($this->software_name);
-        
+
         foreach ($keywords as $keyword) {
             if (str_contains($name, $keyword)) {
                 return true;
             }
         }
-        
+
         return false;
     }
 }

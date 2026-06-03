@@ -1,6 +1,6 @@
 <x-app-layout>
     <div class="space-y-6">
-        <!-- Header Section -->
+
         <div class="sm:flex sm:items-center sm:justify-between">
             <div>
                 <h1 class="text-2xl font-bold text-gray-900 flex items-center gap-2">
@@ -48,7 +48,6 @@
             </div>
         @endif
 
-        <!-- Table Data -->
         <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
             <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-gray-200">
@@ -100,7 +99,6 @@
         </div>
     </div>
 
-    <!-- Modal Tambah -->
     <div id="createModal" class="hidden fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
         <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
             <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true" onclick="closeModal('createModal')"></div>
@@ -117,7 +115,7 @@
                                 Tambah Kategori FAQ
                             </h3>
                         </div>
-                        
+
                         <div class="space-y-4">
                             <div>
                                 <label for="name" class="block text-sm font-medium text-gray-700">Nama Kategori <span class="text-red-500">*</span></label>
@@ -138,7 +136,6 @@
         </div>
     </div>
 
-    <!-- Modal Edit -->
     <div id="editModal" class="hidden fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
         <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
             <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true" onclick="closeModal('editModal')"></div>
@@ -156,7 +153,7 @@
                                 Edit Kategori
                             </h3>
                         </div>
-                        
+
                         <div class="space-y-4">
                             <div>
                                 <label for="edit_name" class="block text-sm font-medium text-gray-700">Nama Kategori <span class="text-red-500">*</span></label>
@@ -177,7 +174,6 @@
         </div>
     </div>
 
-    <!-- Scripts -->
     <script>
         function openCreateModal() {
             document.getElementById('createModal').classList.remove('hidden');

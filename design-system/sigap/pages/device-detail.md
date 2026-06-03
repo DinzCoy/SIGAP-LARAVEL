@@ -1,6 +1,6 @@
 # Device Detail Page Overrides
 
-> **PROJECT:** BPulSe
+> **PROJECT:** SIGAP
 > **Generated:** 2026-05-06 00:14:30
 > **Page Type:** Dashboard / Data View
 

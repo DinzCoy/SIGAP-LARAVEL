@@ -8,7 +8,7 @@ use Illuminate\Validation\Rule;
 
 class CekInputAset extends FormRequest
 {
-    // Otorisasi ditangani oleh middleware role:2,4 di web.php
+
     public function authorize(): bool
     {
         return true;

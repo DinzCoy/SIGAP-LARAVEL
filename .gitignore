@@ -28,7 +28,6 @@ test_json.php
 test_validation.php
 test_validation2.php
 
-
 # ─── Dependencies (reinstallable) ────────────────────────────────────
 /vendor
 /node_modules
@@ -57,4 +56,3 @@ routes.txt
 /storage/app/firebase-service-account.json
 
 /storage/app/projek-magang-bps-d47e4efb4387.json
-

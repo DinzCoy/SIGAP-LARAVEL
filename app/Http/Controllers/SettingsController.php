@@ -18,7 +18,7 @@ class SettingsController extends Controller
     public function index()
     {
         $settings = SystemSetting::pluck('value', 'key')->toArray();
-        $whitelistedIps = WhitelistedIp::orderBy('created_at', 'desc')->get();
+        $whitelistedIps = WhitelistedIp::orderBy('created_at', 'desc')->paginate(10);
         $loginActivities = LoginActivity::where('user_id', Auth::id())
             ->orderBy('logged_in_at', 'desc')
             ->take(10)
@@ -131,7 +131,6 @@ class SettingsController extends Controller
         $fileName = 'backup_' . $dbName . '_' . date('Y-m-d_His') . '.sql';
         $filePath = storage_path('app/' . $fileName);
 
-        // Menggunakan putenv agar kompatibel di Windows (CMD) maupun Linux (Bash)
         putenv("MYSQL_PWD={$dbPass}");
         $command = sprintf(
             'mysqldump -h %s -u %s %s > %s 2>&1',
@@ -142,7 +141,7 @@ class SettingsController extends Controller
         );
 
         exec($command, $output, $result);
-        putenv("MYSQL_PWD="); // Hapus environment variables setelah pemakaian
+        putenv("MYSQL_PWD=");
 
         if ($result !== 0 || !file_exists($filePath)) {
             return back()->with('error', 'Backup gagal. Pastikan mysqldump tersedia di server.');
@@ -180,7 +179,6 @@ class SettingsController extends Controller
             'agent_delay_per_room' => 'required|integer|min:60|max:1800',
         ]);
 
-        // format jam: cuma angka 0-23
         $hours = array_filter(
             array_map('intval', explode(',', $validated['agent_schedule_hours'])),
             fn($h) => $h >= 0 && $h <= 23
@@ -208,4 +206,3 @@ class SettingsController extends Controller
         return back()->with('success', 'Urutan ruangan berhasil diperbarui.');
     }
 }
-

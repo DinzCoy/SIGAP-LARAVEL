@@ -1,32 +1,27 @@
 <nav class="bg-white border-b border-gray-100 h-16 shrink-0 relative z-50">
-    <!-- Primary Navigation Menu -->
+
     <div class="px-4 h-full flex items-center justify-between">
         <div class="flex items-center gap-4">
-            <!-- Sidebar Toggle button -->
+
             <button @click="sidebarOpen = !sidebarOpen"
                 class="p-2 rounded-lg text-gray-500 hover:bg-gray-100 hover:text-bps-blue transition-colors focus:outline-none">
                 <x-lucide-menu class="w-6 h-6" />
             </button>
 
-            <!-- Breadcrumb -->
             <div class="hidden sm:block">
                 <span class="text-sm font-semibold text-gray-600">SIGAP</span>
             </div>
         </div>
 
-        <!-- Right Side -->
         <div class="flex items-center gap-3">
-            <!-- User Role Badge -->
+
             <span
-                class="hidden md:inline-flex px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-[11px] font-bold border border-blue-100 overflow-hidden whitespace-nowrap">
+                class="hidden md:inline-flex px-3 py-1 role-badge-admin rounded-full text-[11px] font-bold overflow-hidden whitespace-nowrap">
                 {{ \App\Models\User::getRoleName(session('active_role_id')) }}
             </span>
 
-            <!-- Notifications Dropdown -->
+            <div x-data="notifPanel()" class="relative" id="notifPanelContainer" data-notif-count="{{ $notifications->count() }}">
 
-
-            <div x-data="notifPanel()" class="relative">
-                {{-- Bell Trigger --}}
                 <button @click="toggle()"
                     class="p-2 rounded-lg text-gray-400 hover:bg-gray-100 hover:text-blue-600 transition-all relative focus:outline-none">
                     <x-lucide-bell class="w-5 h-5" />
@@ -36,7 +31,6 @@
                     @endif
                 </button>
 
-                {{-- Dropdown Panel --}}
                 <div x-show="open" x-cloak x-transition:enter="transition ease-out duration-150"
                     x-transition:enter-start="opacity-0 scale-95 -translate-y-1"
                     x-transition:enter-end="opacity-100 scale-100 translate-y-0"
@@ -46,7 +40,6 @@
                     class="absolute right-0 mt-2 w-96 bg-white rounded-xl shadow-2xl border border-gray-200/80 z-50 overflow-hidden"
                     style="max-width: calc(100vw - 2rem);">
 
-                    {{-- Header --}}
                     <div class="px-4 py-3 border-b border-gray-100 flex justify-between items-center bg-gray-50">
                         <span class="text-xs font-bold text-gray-700 uppercase tracking-widest">Notifikasi</span>
                         <div class="flex items-center gap-2">
@@ -58,7 +51,6 @@
                         </div>
                     </div>
 
-                    {{-- Notification List --}}
                     <div class="max-h-[24rem] overflow-y-auto overscroll-contain">
                         @forelse($notifications as $idx => $notif)
                             <a href="{{ $notif['url'] }}" x-show="!isDismissed({{ $idx }})" x-cloak
@@ -83,7 +75,6 @@
                         @empty
                         @endforelse
 
-                        {{-- Empty State --}}
                         <div x-show="visibleCount === 0" x-cloak class="px-4 py-8 text-center text-gray-500">
                             <div
                                 class="w-12 h-12 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-3">
@@ -105,7 +96,6 @@
                         </div>
                     </div>
 
-                    {{-- Footer --}}
                     @if($notifications->count() > 0)
                         <div class="border-t border-gray-100 px-3 py-2 flex items-center justify-between bg-gray-50">
                             <a href="{{ route('tickets.index') }}"
@@ -137,7 +127,8 @@
             <script>
                 function notifPanel() {
                     const STORAGE_KEY = 'bps_dismissed_notifs';
-                    const totalCount = {{ $notifications->count() }};
+                    const container = document.getElementById('notifPanelContainer');
+                    const totalCount = container ? parseInt(container.getAttribute('data-notif-count') || '0') : 0;
                     return {
                         open: false,
                         totalCount: totalCount,
@@ -156,7 +147,7 @@
                             localStorage.setItem(STORAGE_KEY, JSON.stringify(this.dismissed));
                         },
                         init() {
-                            // Auto-reset dimissed list when notification count changes (new notif arrived)
+
                             const storedTotal = parseInt(localStorage.getItem(STORAGE_KEY + '_total') || '0');
                             if (storedTotal !== this.totalCount) {
                                 this.dismissed = [];
@@ -168,22 +159,21 @@
                 }
             </script>
 
-            {{-- Dark Mode Toggle —— Vanilla JS, no Alpine dependency --}}
             <button onclick="window.toggleDarkMode()" id="darkModeToggle"
                 class="p-2 rounded-lg hover:bg-gray-100 transition-all focus:outline-none"
                 title="Toggle Dark Mode">
-                {{-- Moon icon (shown in light mode) --}}
+
                 <svg id="icon-moon" class="w-5 h-5 text-gray-400 hover:text-indigo-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
-                {{-- Sun icon (shown in dark mode) --}}
+
                 <svg id="icon-sun" class="w-5 h-5 text-yellow-400 hover:text-yellow-300 transition-colors" style="display:none;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
             </button>
             <script>
-                // Initialize icon state on load
+
                 (function() {
                     const isDark = document.documentElement.classList.contains('dark');
                     document.getElementById('icon-moon').style.display = isDark ? 'none' : 'block';
                     document.getElementById('icon-sun').style.display = isDark ? 'block' : 'none';
-                    // Dark hover bg for toggle button
+
                     if (isDark) document.getElementById('darkModeToggle').classList.replace('hover:bg-gray-100', 'hover:bg-gray-700');
                 })();
 
@@ -192,11 +182,9 @@
                     const isDark = html.classList.toggle('dark');
                     localStorage.setItem('bps_dark_mode', isDark);
 
-                    // Swap icons
                     document.getElementById('icon-moon').style.display = isDark ? 'none' : 'block';
                     document.getElementById('icon-sun').style.display = isDark ? 'block' : 'none';
 
-                    // Toggle hover style
                     const btn = document.getElementById('darkModeToggle');
                     if (isDark) {
                         btn.classList.replace('hover:bg-gray-100', 'hover:bg-gray-700');
@@ -206,13 +194,12 @@
                 };
             </script>
 
-            <div class="h-8 w-[1px] bg-gray-200 mx-2"></div>
+            <div class="h-8 w-[1px] bg-gray-200 mx-1 md:mx-2 shrink-0"></div>
 
-            <!-- Settings Dropdown -->
             <x-dropdown align="right" width="48">
                 <x-slot name="trigger">
                     <button
-                        class="flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-gray-50 transition-all focus:outline-none group">
+                        class="flex items-center gap-1.5 md:gap-2 px-1.5 md:px-2 py-1.5 rounded-lg hover:bg-gray-50 transition-all focus:outline-none group">
                         <div class="flex flex-col items-end mr-1 hidden sm:flex">
                             <span class="text-xs font-bold text-gray-900 group-hover:text-bps-blue">{{
     Auth::user()->name }}</span>
@@ -224,11 +211,11 @@
                                 alt="Avatar {{ Auth::user()->name }}">
                         @else
                             <div
-                                class="w-8 h-8 rounded-lg bg-bps-blue text-white flex items-center justify-center font-bold text-xs shadow-sm shadow-blue-200 group-hover:scale-105 transition-transform uppercase">
+                                class="w-8 h-8 rounded-lg bg-bps-blue text-white flex items-center justify-center font-bold text-xs shadow-sm shadow-blue-200 group-hover:scale-105 transition-transform uppercase shrink-0">
                                 {{ substr(Auth::user()->name, 0, 1) }}
                             </div>
                         @endif
-                        <x-lucide-chevron-down class="w-4 h-4 text-gray-400" />
+                        <x-lucide-chevron-down class="w-4 h-4 text-gray-400 shrink-0" />
                     </button>
                 </x-slot>
 
@@ -243,7 +230,6 @@
 
                     <div class="border-t border-gray-100"></div>
 
-                    <!-- Authentication -->
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
                         <x-dropdown-link :href="route('logout')" onclick="event.preventDefault();
@@ -258,3 +244,16 @@
         </div>
     </div>
 </nav>
+
+<style>
+    .role-badge-admin {
+        background-color: #eff6ff !important;
+        border: 1.5px solid #dbeafe !important;
+        color: #1d4ed8 !important;
+    }
+    .dark .role-badge-admin {
+        background-color: rgba(59, 130, 246, 0.12) !important;
+        border: 1.5px solid rgba(59, 130, 246, 0.2) !important;
+        color: #93c5fd !important;
+    }
+</style>

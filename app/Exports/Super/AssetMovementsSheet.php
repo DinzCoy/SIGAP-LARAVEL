@@ -26,10 +26,10 @@ class AssetMovementsSheet implements FromQuery, WithTitle, WithHeadings, WithMap
     public function query()
     {
         $query = AssetMovementLog::query()->with([
-            'asset.deviceName', 
-            'oldUser', 
-            'newUser', 
-            'oldRoom', 
+            'asset.deviceName',
+            'oldUser',
+            'newUser',
+            'oldRoom',
             'newRoom'
         ]);
 
@@ -51,7 +51,7 @@ class AssetMovementsSheet implements FromQuery, WithTitle, WithHeadings, WithMap
     {
         return [
             'Waktu Kejadian',
-            'Sistem NUP Aset', // placeholder if needed, using BMN for now
+            'Sistem NUP Aset',
             'Nomor BMN',
             'Nama Aset',
             'Tipe Aksi',
@@ -84,7 +84,7 @@ class AssetMovementsSheet implements FromQuery, WithTitle, WithHeadings, WithMap
         return [
             1 => [
                 'font' => ['bold' => true, 'color' => ['argb' => 'FFFFFFFF']],
-                'fill' => ['fillType' => Fill::FILL_SOLID, 'color' => ['argb' => 'FF6366F1']], // Indigo 500
+                'fill' => ['fillType' => Fill::FILL_SOLID, 'color' => ['argb' => 'FF6366F1']],
             ],
         ];
     }

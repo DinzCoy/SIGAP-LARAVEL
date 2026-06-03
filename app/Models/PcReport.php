@@ -9,10 +9,9 @@ use Illuminate\Database\Eloquent\Model;
 class PcReport extends Model
 {
     use HasFactory;
-    
+
     public const OFFLINE_THRESHOLD_MINUTES = 5;
 
-    //Kolom yang dapat diisi secara massal.
     protected $fillable = [
         'hostname',
         'username',
@@ -32,7 +31,6 @@ class PcReport extends Model
         'last_seen',
     ];
 
-    //Pengaturan casting tipe data.
     protected function casts(): array
     {
         return [
@@ -41,21 +39,16 @@ class PcReport extends Model
         ];
     }
 
-    //Daftar software yang terinstal di PC.
     public function installedSoftware()
     {
         return $this->hasMany(InstalledSoftware::class);
     }
 
-    //Data aset yang terhubung dengan PC ini.
     public function asset()
     {
         return $this->hasOne(Asset::class, 'mac_address', 'mac_address');
     }
 
-    /**
-     * Cek apakah PC sedang offline berdasarkan last_seen.
-     */
     public function isOffline(): bool
     {
         if (!$this->last_seen) {
@@ -71,17 +64,11 @@ class PcReport extends Model
                      ->when($endDate, fn($q) => $q->whereDate('last_seen', '<=', $endDate));
     }
 
-    /**
-     * Scope: Hanya ambil PC yang sedang online (last_seen belum lewat threshold).
-     */
     public function scopeOnline(Builder $query): Builder
     {
         return $query->where('last_seen', '>=', now()->subMinutes(self::OFFLINE_THRESHOLD_MINUTES));
     }
 
-    /**
-     * Scope: Hanya ambil PC yang offline (last_seen lewat threshold atau null).
-     */
     public function scopeOffline(Builder $query): Builder
     {
         return $query->where(function ($q) {

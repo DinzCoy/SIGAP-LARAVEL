@@ -1,7 +1,6 @@
 <x-app-layout>
     <div class="space-y-6">
-            
-            {{-- Header Section --}}
+
             <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg border border-gray-100 mb-8">
                 <div class="bg-gradient-to-r from-bps-blue to-blue-700 px-6 py-6 sm:px-8 text-white">
                     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -26,7 +25,6 @@
             </div>
             @endif
 
-            {{-- Cards Grid --}}
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 @foreach($device_names as $device)
                     @php
@@ -43,28 +41,26 @@
                         ];
                         $color = $colors[$hash % count($colors)];
                     @endphp
-                    
+
                     <div class="group bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 border border-gray-100 flex flex-col overflow-hidden relative hover:-translate-y-1">
-                        {{-- Image / Initials Area --}}
+
                         <div class="h-48 bg-white flex items-center justify-center p-4 border-b border-gray-100 relative overflow-hidden group-hover:bg-gray-50 transition-colors">
                             @if($device->image)
-                                <img src="{{ Storage::url($device->image) }}" class="w-full h-full object-contain mix-blend-multiply group-hover:scale-105 transition-transform duration-500" alt="{{ $device->brand }}">
+                                <img src="{{ Storage::url($device->image) }}" class="w-full h-full object-contain mix-blend-multiply group-hover:scale-105 transition-transform duration-500" alt="{{ $device->brand }}" loading="lazy" decoding="async">
                             @else
                                 <div class="w-20 h-20 flex items-center justify-center rounded-2xl {{ $color[0] }} {{ $color[1] }} shadow group-hover:scale-110 transition-transform duration-300">
                                     <span class="text-3xl font-bold">{{ $initials }}</span>
                                 </div>
                             @endif
 
-                            {{-- Quantity Badge --}}
                             <div class="absolute top-4 right-4 bg-bps-blue text-white text-xs font-bold px-3 py-1 rounded-full shadow-sm z-10 backdrop-blur-sm bg-opacity-90">
                                 {{ $device->quantity }} Unit
                             </div>
                         </div>
 
-                        {{-- Details Area --}}
                         <div class="p-5 flex-1 flex flex-col">
                             <h3 class="text-lg font-bold text-gray-900 group-hover:text-bps-blue transition-colors line-clamp-1 truncate" title="{{ $device->brand }} - {{ $device->name }}">{{ $device->brand }} {{ $device->name }}</h3>
-                            
+
                             <div class="mt-2 text-sm text-gray-600 border-b border-gray-50 pb-2">
                                 <span class="bg-gray-100 text-gray-600 px-2 py-1 rounded text-xs font-semibold">{{ $device->type ?: 'Tipe Tidak Disebutkan' }}</span>
                             </div>
@@ -80,7 +76,6 @@
                                 {{ $device->description ?: 'Tidak ada deskripsi' }}
                             </div>
 
-                            {{-- Actions (CRUD + Link) --}}
                             <div class="mt-5 flex items-center justify-between border-t border-gray-100 pt-4 relative z-20">
                                 <a href="{{ route('device-names.show', $device->id) }}" class="text-bps-orange text-sm font-semibold hover:underline flex items-center">
                                     Lihat Rincian Analitik
@@ -93,9 +88,9 @@
                                     <form id="delete-form-{{ $device->id }}" action="{{ route('device-names.destroy', $device->id) }}" method="POST" class="inline-block">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="button" 
+                                        <button type="button"
                                             onclick="confirmDelete('delete-form-{{ $device->id }}', 'Yakin ingin menghapus master nama perangkat ini? Semuan data aset terkait nama perangkat ini akan ikut terhapus!')"
-                                            class="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors" 
+                                            class="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
                                             title="Hapus Master">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                                         </button>

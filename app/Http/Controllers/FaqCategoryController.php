@@ -31,7 +31,7 @@ class FaqCategoryController extends Controller
     public function update(Request $request, string $id)
     {
         $category = FaqCategory::findOrFail($id);
-        
+
         $request->validate([
             'name' => 'required|string|max:255|unique:faq_categories,name,' . $category->id,
         ]);
@@ -47,7 +47,7 @@ class FaqCategoryController extends Controller
     public function destroy(string $id)
     {
         $category = FaqCategory::findOrFail($id);
-        
+
         if ($category->faqs()->count() > 0) {
             return redirect()->back()->with('error', 'Kategori ini tidak dapat dihapus karena masih memiliki artikel FAQ.');
         }

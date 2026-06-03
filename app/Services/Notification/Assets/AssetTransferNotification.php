@@ -9,10 +9,6 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
 use Illuminate\Support\Facades\Notification as NotificationFacade;
 
-/**
- * Notifikasi Serah Terima/Mutasi Aset Permanen
- * Dikirim kepada pemilik lama dan Admin ketika terjadi pengambilalihan/serah terima secara permanen.
- */
 class AssetTransferNotification extends Notification
 {
     use Queueable;
@@ -67,24 +63,21 @@ class AssetTransferNotification extends Notification
         $pushBody = "Aset {$namaAset} telah diserahterimakan dari {$namaPemberi} ke {$namaPenerima}.";
         $pushData = ['tipe' => 'mutasi_aset', 'asset_id' => (string) $asset->id];
 
-        // 1. Kirim ke pemilik lama (jika ada)
         if ($oldUser && $oldUser->id !== $newUser->id) {
             $oldUser->notify(new self($asset, $newUser, $oldUser, $reason));
             FcmService::send($oldUser, $pushTitle, $pushBody, $pushData);
         }
 
-        // 2. Kirim ke Admin & Pengelola Aset
         $admins = User::whereHas('roles', function ($q) {
             $q->whereIn('roles.id', [User::ROLE_ADMIN, User::ROLE_PENGELOLA_ASET]);
         })->get();
 
-        /** @var User $admin */
         foreach ($admins as $admin) {
             if ($oldUser && $admin->id === $oldUser->id) {
-                continue; // Sudah dikirim di langkah 1
+                continue;
             }
             if ($admin->id === $newUser->id) {
-                continue; // Penerima mutasi tidak perlu dinotifikasi dirinya sendiri
+                continue;
             }
             $admin->notify(new self($asset, $newUser, $oldUser, $reason));
             FcmService::send($admin, $pushTitle, $pushBody, $pushData);

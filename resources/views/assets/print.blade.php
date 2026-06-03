@@ -56,7 +56,7 @@
             color: #333;
             margin-top: 3px;
         }
-        
+
         @media print {
             body {
                 background: none;
@@ -69,7 +69,7 @@
                 margin: 0;
                 page-break-inside: avoid;
             }
-            /* Hide print button when printing */
+
             .no-print {
                 display: none !important;
             }
@@ -100,18 +100,18 @@
     <div class="sticker-container">
         <div class="header">Aset BMN BPS</div>
         <div class="sub-header">Pindai QR ini untuk Info & Inspeksi</div>
-        
+
         <div id="qrcode">
             @php
                 $qrCode = SimpleSoftwareIO\QrCode\Facades\QrCode::format('svg')
                     ->size(160)
                     ->errorCorrection('H')
                     ->generate(route('assets.scan', $asset->id));
-                
+
                 $logoPath = public_path('images/logo_qr.png');
                 if (file_exists($logoPath)) {
                     $logoData = base64_encode(file_get_contents($logoPath));
-                    $logoSize = 48; // 30% dari 160
+                    $logoSize = 48;
                     $logoPos = (160 - $logoSize) / 2;
                     $logoTag = '<image href="data:image/png;base64,' . $logoData . '" x="' . $logoPos . '" y="' . $logoPos . '" width="' . $logoSize . '" height="' . $logoSize . '" />';
                     $qrCode = str_replace('</svg>', $logoTag . '</svg>', $qrCode);
@@ -119,7 +119,7 @@
             @endphp
             {!! $qrCode !!}
         </div>
-        
+
         <div class="bmn-number">{{ $asset->bmn_number ?? 'N/A' }}</div>
         <div class="device-info">
             {{ $asset->deviceName->brand ?? 'PC' }} {{ $asset->deviceName->name ?? 'Device' }}
@@ -128,9 +128,9 @@
 
     <script>
         document.addEventListener("DOMContentLoaded", function() {
-            // Auto open print dialog after brief delay
+
             setTimeout(() => {
-                // window.print(); 
+
             }, 500);
         });
     </script>

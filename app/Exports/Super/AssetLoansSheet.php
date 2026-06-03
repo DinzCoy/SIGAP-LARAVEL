@@ -86,7 +86,7 @@ class AssetLoansSheet implements FromQuery, WithTitle, WithHeadings, WithMapping
         return [
             1 => [
                 'font' => ['bold' => true, 'color' => ['argb' => 'FFFFFFFF']],
-                'fill' => ['fillType' => Fill::FILL_SOLID, 'color' => ['argb' => 'FF14B8A6']], // Teal 500
+                'fill' => ['fillType' => Fill::FILL_SOLID, 'color' => ['argb' => 'FF14B8A6']],
             ],
         ];
     }

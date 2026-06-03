@@ -7,17 +7,21 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class AssetLoan extends Model
 {
-    // Konstanta Status Peminjaman
+
     public const STATUS_PENDING  = 'pending';
     public const STATUS_ACTIVE   = 'active';
     public const STATUS_RETURNED = 'returned';
     public const STATUS_REJECTED = 'rejected';
+
+    public const TYPE_PINJAM = 'pinjam';
+    public const TYPE_MUTASI = 'mutasi';
 
     protected $fillable = [
         'asset_id',
         'lender_id',
         'borrower_id',
         'loan_reason',
+        'type',
         'loaned_at',
         'due_date',
         'returned_at',
@@ -34,8 +38,6 @@ class AssetLoan extends Model
         'rejected_at' => 'datetime',
     ];
 
-    //Relasi
-
     public function asset(): BelongsTo
     {
         return $this->belongsTo(Asset::class);
@@ -51,8 +53,6 @@ class AssetLoan extends Model
         return $this->belongsTo(User::class, 'borrower_id');
     }
 
-    //Filter Query (Scopes)
-
     public function scopeActive($query)
     {
         return $query->where('status', self::STATUS_ACTIVE);
@@ -63,8 +63,6 @@ class AssetLoan extends Model
         return $query->where('status', self::STATUS_PENDING);
     }
 
-    //Fungsi Pembantu (Helpers)
-
     public function isOverdue(): bool
     {
         return $this->status === self::STATUS_ACTIVE
@@ -72,10 +70,6 @@ class AssetLoan extends Model
             && now()->greaterThan($this->due_date);
     }
 
-    /**
-     * Cek apakah user berhak menyetujui atau menolak peminjaman ini.
-     * Diizinkan: pemilik aset, Admin (role 2), atau Pengelola Aset (role 4).
-     */
     public function canBeManagedBy(User $user): bool
     {
         $isAdminOrManager = in_array(
@@ -88,10 +82,6 @@ class AssetLoan extends Model
             || ($this->lender_id === null && $isAdminOrManager);
     }
 
-    /**
-     * Cek apakah user berhak mengembalikan aset pinjaman ini.
-     * Diizinkan: peminjam, pemilik, Admin (role 2), atau Pengelola Aset (role 4).
-     */
     public function canBeReturnedBy(User $user): bool
     {
         $isAdminOrManager = in_array(

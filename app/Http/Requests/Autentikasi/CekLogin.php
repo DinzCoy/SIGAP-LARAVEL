@@ -11,13 +11,12 @@ use Illuminate\Validation\ValidationException;
 
 class CekLogin extends FormRequest
 {
-    //Menentukan apakah user diizinkan melakukan request ini.
+
     public function authorize(): bool
     {
         return true;
     }
 
-    //Aturan validasi untuk request login.
     public function rules(): array
     {
         return [
@@ -27,14 +26,12 @@ class CekLogin extends FormRequest
         ];
     }
 
-    //Mencoba melakukan autentikasi — support email atau username.
     public function authenticate(): void
     {
         $this->ensureIsNotRateLimited();
 
         $loginField = trim($this->input('login'));
 
-        // Coba login pakai email dulu, kalau gagal coba pakai username
         $credentials = filter_var($loginField, FILTER_VALIDATE_EMAIL)
             ? ['email'    => $loginField, 'password' => $this->input('password')]
             : ['username' => $loginField, 'password' => $this->input('password')];
@@ -50,7 +47,6 @@ class CekLogin extends FormRequest
         RateLimiter::clear($this->throttleKey());
     }
 
-    //Memastikan request login tidak melebihi batas percobaan (rate limit).
     public function ensureIsNotRateLimited(): void
     {
         if (! RateLimiter::tooManyAttempts($this->throttleKey(), 5)) {
@@ -69,7 +65,6 @@ class CekLogin extends FormRequest
         ]);
     }
 
-    //Mendapatkan kunci pembatas (throttle key) untuk rate limiting.
     public function throttleKey(): string
     {
         return Str::transliterate(Str::lower($this->input('login')).'|'.$this->ip());

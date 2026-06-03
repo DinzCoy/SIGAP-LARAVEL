@@ -15,24 +15,22 @@ use Illuminate\View\View;
 
 class AuthenticatedSessionController extends Controller
 {
-    // tampilin halaman login biar user bisa absen
+
     public function create(): View
     {
         $roles = Role::orderBy('id')->get();
         return view('auth.login', compact('roles'));
     }
 
-    // proses login, cek idsama password, plus pastiin role nya bener
     public function store(CekLogin $request): RedirectResponse
     {
         $request->authenticate();
 
-        // cek role terpilih
         $user = Auth::user();
         $selectedRoleId = (int) $request->role_id;
 
         if (!$user->hasRole($selectedRoleId)) {
-            // tolak login kalo role ga cocok
+
             Auth::guard('web')->logout();
             $request->session()->invalidate();
             $request->session()->regenerateToken();
@@ -44,11 +42,9 @@ class AuthenticatedSessionController extends Controller
             ]);
         }
 
-        // save role di session
         $request->session()->regenerate();
         session(['active_role_id' => $selectedRoleId]);
 
-        // Arahkan ke dashboard sesuai role
         $dashboardRoute = User::getDashboardRoute($selectedRoleId);
 
         \Illuminate\Support\Facades\Log::info('User login success', [
@@ -65,7 +61,6 @@ class AuthenticatedSessionController extends Controller
         return redirect()->route('dashboard');
     }
 
-    // buat user yang mau pamit (logout)
     public function destroy(Request $request): RedirectResponse
     {
         Auth::guard('web')->logout();

@@ -1,8 +1,7 @@
 <x-app-layout>
     <div class="space-y-6">
         <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg border border-gray-100">
-                
-                {{-- Header Section --}}
+
                 <div class="bg-gradient-to-r from-bps-blue to-blue-700 px-6 py-6 sm:px-8 text-white">
                     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                         <div>
@@ -27,14 +26,10 @@
                     </div>
                 </div>
 
-
-
-                {{-- Table Section --}}
                 <div class="p-6">
-                    {{-- Filter Component --}}
+
                     <x-assets.filter />
 
-                    {{-- Table Component --}}
                     <x-assets.table :assets="$assets" />
                 </div>
                 </div>

@@ -11,8 +11,7 @@ use Illuminate\View\View;
 
 class RoomController extends Controller
 {
-    
-    // spill list ruangan di kantor
+
     public function index(): View
     {
         $rooms = Room::with('pic')->withCount([
@@ -25,7 +24,6 @@ class RoomController extends Controller
         return view('rooms.index', compact('rooms'));
     }
 
-    // panggung buat input ruangan baru
     public function create(): View
     {
         $users = $this->getPicCandidates();
@@ -33,7 +31,6 @@ class RoomController extends Controller
         return view('rooms.create', compact('users'));
     }
 
-    // bungkus data ruangan baru ke database
     public function store(Request $request): RedirectResponse
     {
         $request->validate([
@@ -42,7 +39,6 @@ class RoomController extends Controller
             'pic_id'      => 'nullable|exists:users,id',
         ]);
 
-        // ruang baru taro paling belakang
         $nextOrder = (Room::max('sort_order') ?? -1) + 1;
 
         Room::create([
@@ -56,7 +52,6 @@ class RoomController extends Controller
         return redirect()->route('rooms.index')->with('success', 'Ruangan berhasil ditambahkan.');
     }
 
-    // tempat edit-edit kalau ruangan ganti nama atau pic
     public function edit(Room $room): View
     {
         $users = $this->getPicCandidates();
@@ -94,7 +89,6 @@ class RoomController extends Controller
         return redirect()->route('rooms.index')->with('success', 'Ruangan berhasil dihapus.');
     }
 
-    // filter siapa aja yang bisa jadi pic ruangan
     private function getPicCandidates()
     {
         return User::whereHas('roles', fn ($q) => $q->whereIn('roles.id', [5, 6]))->get();

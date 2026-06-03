@@ -2,13 +2,11 @@
 
 namespace App\Http\Controllers;
 
-// ini controller buat ngatur anak buah, ganti password, sampe pecat orang (hapus user)
-// cuma role Admnin (id 2) yang boleh narikan di sini!
-
 use App\Models\User;
 use App\Models\Role;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules\Password;
@@ -16,17 +14,15 @@ use Illuminate\Validation\Rules\Password;
 class UserManagementController extends Controller
 {
 
-    // spill semua user yang ada di database
     public function index(Request $request)
     {
-        // lu bukan admin? cabut sana, jangan lancang!
+
         if ((int) session('active_role_id') !== User::ROLE_ADMIN) {
             abort(403, 'Panel ini rahasia, cuma Admin yang boleh masuk!');
         }
 
         $query = User::with('roles');
 
-        // fitur search biar ga pusing nyari user
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
@@ -46,11 +42,9 @@ class UserManagementController extends Controller
 
         return view('users.index', compact('users', 'roles'));
     }
-
-    // buat bikin akun baru biar bisa login
     public function store(Request $request)
     {
-        // lu bukan admin? jangan ngimpi bisa bikin user baru
+
         if ((int) session('active_role_id') !== User::ROLE_ADMIN) {
             abort(403, 'Eits, cuma Admin yang bisa mendaftarkan warga baru!');
         }
@@ -73,7 +67,6 @@ class UserManagementController extends Controller
                 'password' => Hash::make($request->password),
             ]);
 
-            // pastiin role bawaan juga nempel
             $user->roles()->sync($this->ensureDefaultRole($request->roles));
 
             DB::commit();
@@ -85,10 +78,9 @@ class UserManagementController extends Controller
         return redirect()->back()->with('success', 'Akun pengguna berhasil dibuat.');
     }
 
-    // update info user kalau ada yg ganti nama atau ganti role
     public function update(Request $request, User $user)
     {
-        // edit role & profil itu hak eksklusif Admin
+
         if ((int) session('active_role_id') !== User::ROLE_ADMIN) {
             abort(403, 'Waduh, lu ga punya wewenang buat ngedit data orang lain!');
         }
@@ -115,7 +107,7 @@ class UserManagementController extends Controller
         $rolesToSync = $request->roles;
 
         $warning = null;
-        // proteksi biar ga bunuh diri (hapus role admin sendiri ampe ga ada admin sisa)
+
         if ($user->hasRole(User::ROLE_ADMIN) && !in_array(User::ROLE_ADMIN, $rolesToSync, true)) {
             if ($this->countAdmins() <= 1) {
                 $warning = 'User berhasil diupdate. Namun, Role Admin gagal dihapus karena minimal harus ada 1 Admin di sistem.';
@@ -140,10 +132,9 @@ class UserManagementController extends Controller
         return redirect()->back()->with('success', 'Data akun dan role pengguna berhasil diperbarui.');
     }
 
-    // reset password akun ke sandi default "password" — buat admin kalau user lupa sandi
     public function resetPassword(User $user)
     {
-        // hak eksklusif Admin, jangan coba-coba kalau bukan Admin!
+
         if ((int) session('active_role_id') !== User::ROLE_ADMIN) {
             abort(403, 'Akses ditolak! Hanya Admin yang bisa mereset password.');
         }
@@ -155,15 +146,14 @@ class UserManagementController extends Controller
         return redirect()->back()->with('success', 'Password akun ' . $user->name . ' berhasil direset ke sandi default.');
     }
 
-    // pecat user dari sistem biar ga bisa macem-macem lagi
     public function destroy(User $user)
     {
-        // cuma Admin yang pegang tombol "Delete"
+
         if ((int) session('active_role_id') !== User::ROLE_ADMIN) {
             abort(403, 'Akses ditolak! Lu bukan Admin, jangan main hapus aja.');
         }
 
-        if ($user->id === auth()->id()) {
+        if ($user->id === Auth::id()) {
             return redirect()->back()->with('error', 'Anda tidak dapat menghapus akun Anda sendiri.');
         }
 

@@ -7,7 +7,6 @@
 
     <div class="py-12 space-y-6">
 
-        <!-- Hero Header -->
         <div class="bg-gradient-to-r from-violet-700 to-purple-800 rounded-2xl shadow-xl mb-8 p-8 flex flex-col md:flex-row items-center justify-between text-white">
             <div>
                 <h1 class="text-3xl font-extrabold tracking-tight mb-2">Pusat Komando Tim</h1>
@@ -23,9 +22,8 @@
             </div>
         </div>
 
-        <!-- Summary Cards -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <!-- Pending Assignment -->
+
             <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden relative group">
                 <div class="p-6 relative z-10 transition-transform duration-300 group-hover:-translate-y-1">
                     <div class="flex items-center justify-between">
@@ -41,7 +39,6 @@
                 <div class="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-amber-400 to-orange-500 transform origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></div>
             </div>
 
-            <!-- In Progress by Team -->
             <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden relative group">
                 <div class="p-6 relative z-10 transition-transform duration-300 group-hover:-translate-y-1">
                     <div class="flex items-center justify-between">
@@ -57,7 +54,6 @@
                 <div class="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-blue-400 to-indigo-600 transform origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></div>
             </div>
 
-            <!-- Completed by Team -->
             <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden relative group">
                 <div class="p-6 relative z-10 transition-transform duration-300 group-hover:-translate-y-1">
                     <div class="flex items-center justify-between">
@@ -74,7 +70,6 @@
             </div>
         </div>
 
-        <!-- Recent Tickets Table -->
         <div class="bg-white overflow-hidden shadow-sm rounded-2xl border border-gray-100 mb-8">
             <div class="p-6 border-b border-gray-100 bg-gray-50/50 flex justify-between items-center">
                 <h3 class="text-lg font-bold text-gray-800 flex items-center gap-2">
@@ -136,7 +131,7 @@
                             </td>
                             <td class="px-6 py-4 text-right whitespace-nowrap">
                                 <div class="flex items-center justify-end gap-2">
-                                    {{-- Quick Assign Button for unassigned tickets --}}
+
                                     @if($ticket->status === 'Diteruskan ke Ketua Tim' && !$ticket->technician_id)
                                         <form action="{{ route('tickets.updateStatus', $ticket->id) }}" method="POST" class="flex items-center gap-2">
                                             @csrf

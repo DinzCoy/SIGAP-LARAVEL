@@ -10,10 +10,9 @@ use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
-    //Menggunakan trait factory untuk pembuatan data user.
+
     use HasApiTokens, HasFactory, Notifiable;
 
-    // Role
     public const ROLE_PIMPINAN = 1;
     public const ROLE_ADMIN = 2;
     public const ROLE_TEKNISI = 3;
@@ -22,7 +21,6 @@ class User extends Authenticatable
     public const ROLE_USER = 6;
     public const ROLE_KETUA_TIM = 7;
 
-    // Mendapatkan nama role berdasarkan ID.
     public static function getRoleName(?int $roleId): string
     {
         return match ($roleId) {
@@ -39,17 +37,19 @@ class User extends Authenticatable
 
     public function isAdminOrPengelola(): bool
     {
-        // Jika ada active role di session (Web mode)
+
+        if (request()->is('api/*') || request()->expectsJson()) {
+            return $this->roles()->whereIn('roles.id', [self::ROLE_ADMIN, self::ROLE_PENGELOLA_ASET])->exists();
+        }
+
         $activeRole = session('active_role_id');
         if ($activeRole) {
             return in_array((int)$activeRole, [self::ROLE_ADMIN, self::ROLE_PENGELOLA_ASET]);
         }
 
-        // Jika dipanggil dari API (Stateless)
         return $this->roles()->whereIn('roles.id', [self::ROLE_ADMIN, self::ROLE_PENGELOLA_ASET])->exists();
     }
 
-    // Mendapatkan rute dashboard berdasarkan ID Role.
     public static function getDashboardRoute(?int $roleId): ?string
     {
         return match ($roleId) {
@@ -73,13 +73,11 @@ class User extends Authenticatable
         'photo_path',
     ];
 
-    //Kolom yang disembunyikan saat serialisasi data.
     protected $hidden = [
         'password',
         'remember_token',
     ];
 
-    //Pengaturan casting tipe data.
     protected function casts(): array
     {
         return [
@@ -88,45 +86,36 @@ class User extends Authenticatable
         ];
     }
 
-    //Relasi Many-to-Many dengan model Role.
     public function roles(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
     {
         return $this->belongsToMany(Role::class, 'role_user');
     }
 
-    //Mendapatkan ID role yang sedang aktif di session.
     public function activeRoleId(): ?int
     {
         return session('active_role_id');
     }
 
-    //Cek apakah user memiliki role tertentu berdasarkan ID.
     public function hasRole(int $roleId): bool
     {
         return $this->roles()->where('roles.id', $roleId)->exists();
     }
 
-    //Tiket yang dilaporkan oleh user ini.
     public function ticketsReported(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(Ticket::class, 'reported_by');
     }
 
-    //Tiket yang ditugaskan ke user ini sebagai teknisi.
     public function ticketsAssigned(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(Ticket::class, 'technician_id');
     }
 
-    //Tiket yang dipimpin oleh user ini sebagai ketua tim.
     public function ticketsAsLeader(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(Ticket::class, 'team_leader_id');
     }
 
-    /**
-     * Scope untuk menyaring pengguna yang memiliki ID Role tertentu.
-     */
     public function scopeWithRole(Builder $query, int $roleId): Builder
     {
         return $query->whereHas('roles', fn($q) => $q->where('roles.id', $roleId));

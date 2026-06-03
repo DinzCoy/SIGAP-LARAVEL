@@ -7,41 +7,59 @@ use App\Models\Ticket;
 use App\Models\Asset;
 use App\Models\User;
 use App\Services\Notification\Tickets\TicketStatusNotification;
+use App\Services\ImageService;
+use App\Jobs\CompressImageJob;
+use App\Http\Requests\CekUpdateStatusTiket;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 class TicketController extends Controller
 {
-    /**
-     * GET /tickets
-     * Daftar tiket milik user yang sedang login (formatted).
-     */
+    public function __construct(protected \App\Services\Ticket\TicketService $ticketService) {}
+
     public function index(Request $request)
     {
-        $tickets = Ticket::where('reported_by', $request->user()->id)
+        $query = Ticket::where('reported_by', $request->user()->id)
             ->with(['asset', 'technician'])
-            ->orderBy('created_at', 'desc')
-            ->get()
-            ->map(function ($ticket) {
-                return [
-                    'id'          => $ticket->id,
-                    'title'       => $ticket->title,
-                    'description' => $ticket->description,
-                    'type'        => $ticket->type,
-                    'status'      => $ticket->status,
-                    'priority'    => $ticket->priority,
-                    'asset_id'    => $ticket->asset_id,
-                    'asset_name'  => $ticket->asset ? $ticket->asset->name : null,
-                    'technician'    => $ticket->technician ? $ticket->technician->name : null,
-                    'technician_id' => $ticket->technician_id,
-                    'photo_url'   => $ticket->photo_path
-                        ? url('storage/' . $ticket->photo_path)
-                        : null,
-                    'created_at'  => $ticket->created_at,
-                    'updated_at'  => $ticket->updated_at,
-                ];
-            });
+            ->orderBy('created_at', 'desc');
+
+        $formatTicket = function ($ticket) {
+            return [
+                'id'          => $ticket->id,
+                'title'       => $ticket->title,
+                'description' => $ticket->description,
+                'type'        => $ticket->type,
+                'status'      => $ticket->status,
+                'priority'    => $ticket->priority,
+                'asset_id'    => $ticket->asset_id,
+                'asset_name'  => $ticket->asset ? $ticket->asset->name : null,
+                'technician'    => $ticket->technician ? $ticket->technician->name : null,
+                'technician_id' => $ticket->technician_id,
+                'photo_url'   => $ticket->photo_path
+                    ? url('storage/' . $ticket->photo_path)
+                    : null,
+                'created_at'  => $ticket->created_at,
+                'updated_at'  => $ticket->updated_at,
+            ];
+        };
+
+        if ($request->has('page') || $request->has('limit')) {
+            $perPage = (int) ($request->limit ?? 15);
+            $paginated = $query->paginate($perPage);
+
+            return response()->json([
+                'status' => 'success',
+                'data'   => [
+                    'data'         => collect($paginated->items())->map($formatTicket),
+                    'last_page'    => $paginated->lastPage(),
+                    'total'        => $paginated->total(),
+                    'current_page' => $paginated->currentPage(),
+                ],
+            ], 200);
+        }
+
+        $tickets = $query->take(100)->get()->map($formatTicket);
 
         return response()->json([
             'status' => 'success',
@@ -49,52 +67,22 @@ class TicketController extends Controller
         ], 200);
     }
 
-    /**
-     * POST /tickets
-     * Buat tiket baru dari mobile.
-     */
     public function store(Request $request)
     {
-        $request->validate([
+        $validated = $request->validate([
             'title'       => 'required|string|max:255',
             'description' => 'required|string',
             'category'    => 'required|in:Service,Troubleshooting',
+            'priority'    => 'nullable|in:Rendah,Sedang,Tinggi',
             'asset_id'    => 'nullable|exists:assets,id',
             'foto'        => 'nullable|image|mimes:jpeg,jpg,png,webp|max:5120',
         ]);
 
-        // Simpan foto jika ada
-        $photoPath = null;
-        if ($request->hasFile('foto') && $request->file('foto')->isValid()) {
-            $photoPath = $request->file('foto')->store('ticket-photos', 'public');
-        }
-
-        // Cari room_id jika asset_id disediakan
-        $roomId = null;
-        if ($request->asset_id) {
-            $asset  = Asset::find($request->asset_id);
-            $roomId = $asset ? $asset->room_id : null;
-
-            // Otomatis ubah status kondisi aset jika service
-            if ($request->category === 'Service') {
-                $asset->update(['status_kondisi' => 'Rusak Ringan']);
-            }
-        }
-
-        $type = !empty($request->asset_id) ? 'Asset' : 'General';
-
-        $ticket = Ticket::create([
-            'title'       => $request->title,
-            'description' => $request->description,
-            'type'        => $type,
-            'category'    => $request->category,
-            'status'      => Ticket::STATUS_MENUNGGU_PENGELOLA,
-            'priority'    => 'Sedang',
-            'reported_by' => $request->user()->id,
-            'asset_id'    => $request->asset_id,
-            'room_id'     => $roomId,
-            'photo_path'  => $photoPath,
-        ]);
+        $ticket = $this->ticketService->createTicket(
+            $validated,
+            $request->user(),
+            $request->file('foto')
+        );
 
         return response()->json([
             'status'  => 'success',
@@ -105,16 +93,28 @@ class TicketController extends Controller
         ], 201);
     }
 
-    /**
-     * GET /user/tickets
-     * Semua tiket milik user (raw, tanpa format – untuk admin panel mobile).
-     */
     public function myTickets(Request $request)
     {
-        $tickets = Ticket::where('reported_by', $request->user()->id)
+        $query = Ticket::where('reported_by', $request->user()->id)
             ->with(['asset'])
-            ->orderBy('created_at', 'desc')
-            ->get();
+            ->orderBy('created_at', 'desc');
+
+        if ($request->has('page') || $request->has('limit')) {
+            $perPage = (int) ($request->limit ?? 15);
+            $paginated = $query->paginate($perPage);
+
+            return response()->json([
+                'status' => 'success',
+                'data'   => [
+                    'data'         => $paginated->items(),
+                    'last_page'    => $paginated->lastPage(),
+                    'total'        => $paginated->total(),
+                    'current_page' => $paginated->currentPage(),
+                ],
+            ], 200);
+        }
+
+        $tickets = $query->take(100)->get();
 
         return response()->json([
             'status' => 'success',
@@ -122,62 +122,89 @@ class TicketController extends Controller
         ], 200);
     }
 
-    /**
-     * GET /admin/tickets?status=...
-     * Admin: semua tiket dengan optional filter status.
-     */
     public function adminIndex(Request $request)
     {
         $status = $request->query('status');
         $user = $request->user();
-        
-        $roleId = $request->query('role_id');
-        if ($roleId) {
-            $isKetuaTim = ((int) $roleId) === 7;
-            $isTeknisi = ((int) $roleId) === 3;
-        } else {
-            $isKetuaTim = $user->hasRole(7);
-            $isTeknisi = $user->hasRole(3);
+
+        $roleId = $request->header('X-Active-Role-ID') ?? $request->query('role_id');
+        if (!$roleId) {
+            if ($user->hasRole(User::ROLE_KETUA_TIM)) {
+                $roleId = User::ROLE_KETUA_TIM;
+            } elseif ($user->hasRole(User::ROLE_TEKNISI)) {
+                $roleId = User::ROLE_TEKNISI;
+            } else {
+                $roleId = User::ROLE_ADMIN;
+            }
         }
 
-        $query = Ticket::with(['asset', 'reporter', 'technician']);
-
-        // Filter berdasarkan peran pengguna (Admin/Pengelola melihat semua)
-        if ($isKetuaTim) {
-            $query->where(function ($q) use ($user) {
-                $q->where('status', Ticket::STATUS_KE_KETUA_TIM)
-                  ->orWhere('team_leader_id', $user->id);
-            });
-        } elseif ($isTeknisi) {
-            $query->where('technician_id', $user->id);
-        }
+        $query = Ticket::with(['asset', 'reporter', 'technician'])->forRole($user, (int) $roleId);
 
         if ($status) {
-            $query->where('status', $status);
+            $map = [
+                'menunggu' => [
+                    Ticket::STATUS_MENUNGGU_PENGELOLA,
+                    Ticket::STATUS_MENUNGGU_BIAYA
+                ],
+                'proses' => [
+                    Ticket::STATUS_KE_KETUA_TIM,
+                    Ticket::STATUS_KE_TEKNISI,
+                    Ticket::STATUS_IN_PROGRESS,
+                    Ticket::STATUS_APPROVED
+                ],
+                'selesai' => [
+                    Ticket::STATUS_SELESAI,
+                    Ticket::STATUS_DIBATALKAN
+                ],
+            ];
+
+            if (isset($map[$status])) {
+                $query->whereIn('status', $map[$status]);
+            } else {
+                $query->where('status', $status);
+            }
         }
 
-        $tickets = $query->orderBy('created_at', 'desc')->get()
-            ->map(function ($ticket) {
-                return [
-                    'id'          => $ticket->id,
-                    'title'       => $ticket->title,
-                    'description' => $ticket->description,
-                    'type'        => $ticket->type,
-                    'category'    => $ticket->category,
-                    'status'      => $ticket->status,
-                    'priority'    => $ticket->priority,
-                    'asset_id'    => $ticket->asset_id,
-                    'asset_name'  => $ticket->asset ? $ticket->asset->name : null,
-                    'reporter'    => $ticket->reporter ? $ticket->reporter->name : null,
-                    'technician'    => $ticket->technician ? $ticket->technician->name : null,
-                    'technician_id' => $ticket->technician_id,
-                    'photo_url'   => $ticket->photo_path
-                        ? url('storage/' . $ticket->photo_path)
-                        : null,
-                    'created_at'  => $ticket->created_at,
-                    'updated_at'  => $ticket->updated_at,
-                ];
-            });
+        $query->orderBy('created_at', 'desc');
+
+        $formatTicket = function ($ticket) {
+            return [
+                'id'          => $ticket->id,
+                'title'       => $ticket->title,
+                'description' => $ticket->description,
+                'type'        => $ticket->type,
+                'category'    => $ticket->category,
+                'status'      => $ticket->status,
+                'priority'    => $ticket->priority,
+                'asset_id'    => $ticket->asset_id,
+                'asset_name'  => $ticket->asset ? $ticket->asset->name : null,
+                'reporter'    => $ticket->reporter ? $ticket->reporter->name : null,
+                'technician'    => $ticket->technician ? $ticket->technician->name : null,
+                'technician_id' => $ticket->technician_id,
+                'photo_url'   => $ticket->photo_path
+                    ? url('storage/' . $ticket->photo_path)
+                    : null,
+                'created_at'  => $ticket->created_at,
+                'updated_at'  => $ticket->updated_at,
+            ];
+        };
+
+        if ($request->has('page') || $request->has('limit')) {
+            $perPage = (int) ($request->limit ?? 15);
+            $paginated = $query->paginate($perPage);
+
+            return response()->json([
+                'status' => 'success',
+                'data'   => [
+                    'data'         => collect($paginated->items())->map($formatTicket),
+                    'last_page'    => $paginated->lastPage(),
+                    'total'        => $paginated->total(),
+                    'current_page' => $paginated->currentPage(),
+                ],
+            ], 200);
+        }
+
+        $tickets = $query->take(100)->get()->map($formatTicket);
 
         return response()->json([
             'status' => 'success',
@@ -185,79 +212,21 @@ class TicketController extends Controller
         ], 200);
     }
 
-    /**
-     * POST /admin/tickets/{id}/status
-     * Admin/Teknisi: update status tiket.
-     * Body: { status: string, tanggapan?: string }
-     */
-    public function updateStatus(Request $request, int $id)
+    public function updateStatus(CekUpdateStatusTiket $request, int $id)
     {
-        $request->validate([
-            'status'        => 'required|string',
-            'tanggapan'     => 'nullable|string',
-            'technician_id' => 'nullable|exists:users,id',
-        ]);
-
         $ticket = Ticket::find($id);
         if (!$ticket) {
             return response()->json(['status' => 'error', 'message' => 'Tiket tidak ditemukan'], 404);
         }
 
-        $user = $request->user();
-        $statusLama = $ticket->status;
-        $statusBaru = $request->status;
-        $tanggapan  = $request->tanggapan;
+        $activeRoleId = $request->header('X-Active-Role-ID') ?? $request->query('role_id');
 
-        $ticket->status = $statusBaru;
-
-        // SLA Tracking: Catat waktu respons pertama kali
-        if (in_array($statusBaru, [Ticket::STATUS_KE_TEKNISI, Ticket::STATUS_IN_PROGRESS]) && is_null($ticket->responded_at)) {
-            $ticket->responded_at = now();
-        }
-
-        // SLA Tracking: Catat waktu selesai
-        if ($statusBaru === Ticket::STATUS_SELESAI && is_null($ticket->resolved_at)) {
-            $ticket->resolved_at = now();
-            // Jika teknisi langsung bypass ke Selesai tanpa In Progress
-            if (is_null($ticket->responded_at)) {
-                $ticket->responded_at = now();
-            }
-        }
-
-        // Penugasan teknisi oleh Ketua Tim atau Admin
-        if ($statusBaru === Ticket::STATUS_KE_TEKNISI) {
-            if ($request->filled('technician_id')) {
-                $ticket->technician_id = $request->technician_id;
-                // Jika yang menugaskan adalah Ketua Tim, jadikan dia team leader tiket ini
-                if ($user->hasRole(7)) {
-                    $ticket->team_leader_id = $user->id;
-                }
-            }
-        }
-
-        // Penugasan otomatis jika Teknisi mengubah status ke In Progress
-        if ($statusBaru === Ticket::STATUS_IN_PROGRESS && $user->hasRole(3)) {
-            if (!$ticket->technician_id) {
-                $ticket->technician_id = $user->id;
-            }
-        }
-
-        $ticket->save();
-
-        // Jika tiket Selesai dan terkait aset → kembalikan kondisi aset ke Baik
-        if ($statusBaru === Ticket::STATUS_SELESAI && $ticket->asset_id) {
-            \App\Models\Asset::where('id', $ticket->asset_id)
-                ->update(['status_kondisi' => \App\Models\Asset::KONDISI_BAIK]);
-        }
-
-        // Kirim notifikasi jika status benar-benar berubah
-        if ($statusLama !== $statusBaru) {
-            try {
-                TicketStatusNotification::kirim($ticket, $statusBaru, $tanggapan);
-            } catch (\Exception $e) {
-                Log::warning('Gagal kirim notif tiket: ' . $e->getMessage());
-            }
-        }
+        $this->ticketService->updateStatus(
+            $ticket,
+            $request->validated(),
+            $request->user(),
+            $activeRoleId ? (int) $activeRoleId : null
+        );
 
         return response()->json([
             'status'  => 'success',
@@ -265,22 +234,15 @@ class TicketController extends Controller
         ], 200);
     }
 
-    /**
-     * GET /technician/maintenance
-     * Riwayat maintenance / servis aset yang sudah selesai dikerjakan OLEH TEKNISI YANG LOGIN.
-     * - Jika role Teknisi: hanya tampilkan tiket di mana technician_id = user ini
-     * - Jika role Ketua Tim: tampilkan tiket di mana team_leader_id = user ini (semua anggota tim)
-     */
     public function maintenanceHistory(Request $request)
     {
         $user   = $request->user();
         $userId = $user->id;
         $limit  = (int) ($request->query('limit', 20));
         $page   = (int) ($request->query('page', 1));
-        $bulan  = $request->query('bulan'); // format: YYYY-MM (opsional)
+        $bulan  = $request->query('bulan');
 
-        // Tentukan apakah user adalah Ketua Tim (role_id 7)
-        $roleId = $request->query('role_id');
+        $roleId = $request->header('X-Active-Role-ID') ?? $request->query('role_id');
         if ($roleId) {
             $isKetuaTim = ((int) $roleId) === 7;
         } else {
@@ -289,11 +251,11 @@ class TicketController extends Controller
 
         $query = Ticket::with(['asset.room', 'asset.deviceName', 'reporter', 'technician', 'teamLeader'])
             ->whereNotNull('resolved_at')
-            // ── Filter per role ────────────────────────────────────────────
+
             ->where(function ($q) use ($userId, $isKetuaTim) {
-                // Teknisi: lihat tiket yang dia kerjakan sendiri
+
                 $q->where('technician_id', $userId);
-                // Ketua Tim: JUGA lihat tiket seluruh anggota tim yang dia pimpin
+
                 if ($isKetuaTim) {
                     $q->orWhere('team_leader_id', $userId);
                 }
@@ -322,7 +284,7 @@ class TicketController extends Controller
             'pelapor'       => $ticket->reporter ? $ticket->reporter->name : null,
             'teknisi'       => $ticket->technician ? $ticket->technician->name : null,
             'ketua_tim'     => $ticket->teamLeader ? $ticket->teamLeader->name : null,
-            // Flag untuk UI: apakah tiket ini milik anggota tim (bukan dikerjakan sendiri)?
+
             'is_delegated'  => $ticket->technician_id !== $userId,
             'foto_url'      => $ticket->photo_path
                                 ? url('storage/' . $ticket->photo_path)
@@ -351,10 +313,6 @@ class TicketController extends Controller
         ], 200);
     }
 
-    /**
-     * GET /technicians/leaderboard
-     * Ambil data leaderboard gamifikasi teknisi.
-     */
     public function leaderboard(Request $request)
     {
         $data = \App\Services\Gamification\GamificationService::getLeaderboard();
@@ -364,5 +322,3 @@ class TicketController extends Controller
         ], 200);
     }
 }
-
-

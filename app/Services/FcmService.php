@@ -7,23 +7,11 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Cache;
 
-/**
- * FcmService — Kirim Push Notification via Firebase Cloud Messaging HTTP V1 API.
- *
- * Menggunakan Service Account JSON (bukan Server Key legacy yang sudah deprecated).
- * Letakkan file service account di: storage/app/firebase-service-account.json
- *
- * Cara dapat file:
- *   Firebase Console → Project Settings → Service Accounts → Generate new private key
- */
 class FcmService
 {
     private const CACHE_KEY     = 'fcm_access_token';
-    private const TOKEN_TTL_MIN = 55; // token valid 60 menit, refresh 5 menit lebih awal
+    private const TOKEN_TTL_MIN = 55;
 
-    /**
-     * Kirim push notification ke satu user berdasarkan fcm_token-nya.
-     */
     public static function send(User $user, string $title, string $body, array $data = []): void
     {
         if (empty($user->fcm_token)) {
@@ -40,7 +28,6 @@ class FcmService
                 return;
             }
 
-            // Siapkan data string (FCM V1 hanya menerima string values di data map)
             $stringData = array_map('strval', $data);
 
             $response = Http::withoutVerifying()
@@ -66,7 +53,6 @@ class FcmService
             if ($response->failed()) {
                 Log::warning("FCM: Gagal kirim ke user [{$user->id}]. Status: {$response->status()}. Body: " . $response->body());
 
-                // Jika token FCM user tidak valid, hapus dari database
                 if ($response->status() === 404 || str_contains($response->body(), 'UNREGISTERED')) {
                     $user->update(['fcm_token' => null]);
                     Log::info("FCM: Token user [{$user->id}] dihapus karena tidak terdaftar.");
@@ -79,9 +65,6 @@ class FcmService
         }
     }
 
-    /**
-     * Kirim push notification ke banyak user sekaligus.
-     */
     public static function sendToMany(iterable $users, string $title, string $body, array $data = []): void
     {
         foreach ($users as $user) {
@@ -89,12 +72,6 @@ class FcmService
         }
     }
 
-    // ─── INTERNAL ─────────────────────────────────────────────────────────────
-
-    /**
-     * Dapatkan OAuth2 Access Token menggunakan Service Account JWT.
-     * Token di-cache selama 55 menit untuk efisiensi.
-     */
     private static function getAccessToken(): ?string
     {
         return Cache::remember(self::CACHE_KEY, now()->addMinutes(self::TOKEN_TTL_MIN), function () {
@@ -118,9 +95,6 @@ class FcmService
         });
     }
 
-    /**
-     * Baca dan decode file service account JSON.
-     */
     private static function loadServiceAccount(): ?array
     {
         $path = storage_path('app/projek-magang-bps-d47e4efb4387.json');
@@ -140,19 +114,12 @@ class FcmService
         return $content;
     }
 
-    /**
-     * Dapatkan project ID dari file service account.
-     */
     private static function getProjectId(): ?string
     {
         $credentials = self::loadServiceAccount();
         return $credentials['project_id'] ?? null;
     }
 
-    /**
-     * Buat JWT (JSON Web Token) dari Service Account credentials.
-     * Menggunakan RS256 (RSA SHA-256) sesuai standar Google OAuth2.
-     */
     private static function buildJwt(array $credentials): ?string
     {
         if (empty($credentials['private_key']) || empty($credentials['client_email'])) {
@@ -162,13 +129,11 @@ class FcmService
 
         $now = time();
 
-        // Header
         $header = self::base64UrlEncode(json_encode([
             'alg' => 'RS256',
             'typ' => 'JWT',
         ]));
 
-        // Payload (Claims)
         $payload = self::base64UrlEncode(json_encode([
             'iss'   => $credentials['client_email'],
             'sub'   => $credentials['client_email'],
@@ -178,7 +143,6 @@ class FcmService
             'scope' => 'https://www.googleapis.com/auth/firebase.messaging',
         ]));
 
-        // Sign dengan private key RSA
         $signingInput = "{$header}.{$payload}";
         $privateKey   = openssl_pkey_get_private($credentials['private_key']);
 
@@ -196,9 +160,6 @@ class FcmService
         return "{$signingInput}." . self::base64UrlEncode($signature);
     }
 
-    /**
-     * Encode data ke Base64 URL-safe (tanpa padding =).
-     */
     private static function base64UrlEncode(string $data): string
     {
         return rtrim(strtr(base64_encode($data), '+/', '-_'), '=');

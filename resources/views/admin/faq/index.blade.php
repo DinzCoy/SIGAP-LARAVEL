@@ -1,6 +1,6 @@
 <x-app-layout>
     <div class="space-y-6">
-        <!-- Header Section -->
+
         <div class="sm:flex sm:items-center sm:justify-between">
             <div>
                 <h1 class="text-2xl font-bold text-gray-900 flex items-center gap-2">
@@ -34,7 +34,6 @@
             </div>
         @endif
 
-        <!-- Table Data -->
         <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
             <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-gray-200">
@@ -81,7 +80,7 @@
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
                                     <div class="flex justify-center gap-2">
-                                        <!-- View Detail in frontend (blank target) -->
+
                                         <a href="{{ route('faq.show', $faq->id) }}" target="_blank" class="text-emerald-600 hover:text-emerald-900 bg-emerald-50 hover:bg-emerald-100 p-1.5 rounded-md transition-colors tooltip-trigger" title="Preview Artikel">
                                             <x-lucide-external-link class="w-5 h-5" />
                                         </a>

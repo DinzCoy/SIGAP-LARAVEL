@@ -4,7 +4,6 @@ echo SIGAP Agent Installer
 echo ========================================================
 echo.
 
-:: Periksa apakah dijalankan sebagai Administrator
 net session >nul 2>&1
 if %errorLevel% neq 0 (
     echo [ERROR] Harap jalankan file install-agent.bat ini sebagai Administrator (Klik Kanan -^> Run as administrator^)
@@ -12,7 +11,6 @@ if %errorLevel% neq 0 (
     exit /b
 )
 
-:: Konfigurasi Path
 set "AGENT_DIR=C:\BPS-Guardian"
 set "PS1_FILE=sigap-agent.ps1"
 set "SOURCE_PATH=%~dp0%PS1_FILE%"
@@ -20,7 +18,6 @@ set "SOURCE_PATH=%~dp0%PS1_FILE%"
 echo [*] Mengecek direktori %AGENT_DIR%...
 if not exist "%AGENT_DIR%" (
     mkdir "%AGENT_DIR%"
-    :: Sembunyikan direktori agar tidak terlihat sembarangan oleh user
     attrib +h "%AGENT_DIR%"
 )
 
@@ -41,13 +38,9 @@ echo objShell.Run "powershell.exe -ExecutionPolicy Bypass -WindowStyle Hidden -F
 ) > "%AGENT_DIR%\%VBS_FILE%"
 
 echo [*] Menambahkan Task Scheduler (Otomatis menyala tiap PC booting)...
-:: Hapus task lama jika ada untuk mencegah error duplikat
 schtasks /Delete /TN "BPS-PC-Guardian-Agent" /F >nul 2>&1
 
-:: Buat Task Baru (diarahkan ke file VBScript)
-:: - Menggunakan SYSTEM user (NT AUTHORITY\SYSTEM) jadi tidak butuh login dan jalan 100% di latar belakang (hidden).
 schtasks /Create /TN "BPS-PC-Guardian-Agent" /RU "SYSTEM" /SC ONSTART /TR "wscript.exe \"%AGENT_DIR%\%VBS_FILE%\"" /F
-:: Anda juga bisa mengganti /SC ONSTART menjadi jadwal seperti /SC DAILY /ST 08:00 (Tiap jam 8 pagi)
 
 echo.
 echo ========================================================

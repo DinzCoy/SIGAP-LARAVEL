@@ -84,7 +84,7 @@ class PcReportsSheet implements FromQuery, WithTitle, WithHeadings, WithMapping,
         return [
             1 => [
                 'font' => ['bold' => true, 'color' => ['argb' => 'FFFFFFFF']],
-                'fill' => ['fillType' => Fill::FILL_SOLID, 'color' => ['argb' => 'FF3B82F6']], // Blue 500
+                'fill' => ['fillType' => Fill::FILL_SOLID, 'color' => ['argb' => 'FF3B82F6']],
             ],
         ];
     }

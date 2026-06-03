@@ -2,7 +2,7 @@
 
 <div class="flex items-center justify-between mb-4">
     <p class="text-sm text-gray-500">
-        Menampilkan 
+        Menampilkan
         <span class="font-bold text-gray-700">{{ $assets?->firstItem() ?? 0 }}</span>
         –
         <span class="font-bold text-gray-700">{{ $assets?->lastItem() ?? 0 }}</span>
@@ -113,7 +113,6 @@
     </div>
 </div>
 
-{{-- Pagination & Per Page Control --}}
 <div class="mt-6 mb-4 flex flex-col md:flex-row justify-between items-center gap-4">
     <div class="flex items-center gap-3 bg-gray-50 px-4 py-2 rounded-lg border border-gray-100">
         <label for="per_page_bottom" class="text-xs font-bold text-gray-500 uppercase tracking-wider">Tampilkan:</label>

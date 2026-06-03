@@ -69,7 +69,7 @@ class UsersSheet implements FromQuery, WithTitle, WithHeadings, WithMapping, Sho
         return [
             1 => [
                 'font' => ['bold' => true, 'color' => ['argb' => 'FFFFFFFF']],
-                'fill' => ['fillType' => Fill::FILL_SOLID, 'color' => ['argb' => 'FFF59E0B']], // Amber 500
+                'fill' => ['fillType' => Fill::FILL_SOLID, 'color' => ['argb' => 'FFF59E0B']],
             ],
         ];
     }

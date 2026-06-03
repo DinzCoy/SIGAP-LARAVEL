@@ -1,6 +1,6 @@
 <x-app-layout>
     <div class="max-w-4xl mx-auto space-y-6">
-        <!-- Breadcrumb -->
+
         <nav class="flex text-sm text-gray-500" aria-label="Breadcrumb">
             <ol class="inline-flex items-center space-x-1 md:space-x-3">
                 <li class="inline-flex items-center">
@@ -19,10 +19,9 @@
         </nav>
 
         <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden relative">
-            <!-- decorative line -->
+
             <div class="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-bps-blue to-bps-orange"></div>
 
-            <!-- Article Header -->
             <div class="p-8 pb-6 border-b border-gray-100 bg-gray-50/30 mt-1">
                 <div class="mb-4">
                     <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-blue-50 text-bps-blue border border-blue-100">
@@ -45,17 +44,15 @@
                 </div>
             </div>
 
-            <!-- Article Content -->
-            <div class="p-8 prose prose-blue prose-lg max-w-none text-gray-700 leading-relaxed 
-                        prose-headings:text-gray-900 prose-headings:font-bold 
+            <div class="p-8 prose prose-blue prose-lg max-w-none text-gray-700 leading-relaxed
+                        prose-headings:text-gray-900 prose-headings:font-bold
                         prose-a:text-bps-blue hover:prose-a:text-bps-orange prose-a:transition-colors
                         prose-ol:pl-4 prose-ul:pl-4 prose-li:marker:text-gray-400
                         prose-strong:text-gray-900 prose-strong:font-bold
                         prose-img:rounded-xl prose-img:shadow-sm">
                 {!! $faq->answer !!}
             </div>
-            
-            <!-- Feedback Section -->
+
             <div id="feedback-section" class="px-8 py-6 bg-gray-50 border-t border-gray-100 text-center relative overflow-hidden transition-all duration-300">
                 <p class="text-sm font-medium text-gray-600 mb-3" id="feedback-question">Apakah artikel ini membantu Anda?</p>
                 <div class="flex justify-center gap-3" id="feedback-buttons">
@@ -68,7 +65,7 @@
                         Tidak Membantu
                     </button>
                 </div>
-                <!-- Success Message -->
+
                 <div id="feedback-success" class="hidden flex items-center justify-center text-green-600 font-medium scale-95 opacity-0 transition-all duration-500">
                     <x-lucide-check-circle class="w-5 h-5 mr-2" />
                     Terima kasih atas masukannya!
@@ -86,9 +83,8 @@
         @endif
     </div>
 
-    <!-- Styling untuk konten artikel FAQ -->
     <style>
-        /* ── Heading Hierarchy ── */
+
         .prose h2 {
             font-size: 1.35rem;
             font-weight: 700;
@@ -108,13 +104,11 @@
             margin-bottom: 0.5rem;
         }
 
-        /* ── Lists ── */
         .prose ul { list-style-type: disc; padding-left: 1.5rem; margin: 0.75rem 0; }
         .prose ol { list-style-type: decimal; padding-left: 1.5rem; margin: 0.75rem 0; }
         .prose li { margin-bottom: 0.35rem; line-height: 1.7; }
         .prose li > ul, .prose li > ol { margin-top: 0.35rem; margin-bottom: 0.25rem; }
 
-        /* ── Table ── */
         .prose table {
             width: 100%;
             border-collapse: collapse;
@@ -144,7 +138,6 @@
         .prose tbody tr:last-child td { border-bottom: none; }
         .prose tbody tr:hover { background-color: #f9fafb; }
 
-        /* ── Inline Code ── */
         .prose code {
             background-color: #f1f5f9;
             color: #0f4c81;
@@ -156,7 +149,6 @@
             font-family: 'Fira Code', 'Cascadia Code', 'Consolas', monospace;
         }
 
-        /* ── Blockquote ── */
         .prose blockquote {
             border-left: 4px solid #fca311;
             background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
@@ -169,16 +161,12 @@
         .prose blockquote strong { color: #92400e; }
         .prose blockquote p { margin: 0; }
 
-        /* ── Paragraphs ── */
         .prose p { margin-bottom: 0.85rem; line-height: 1.8; }
 
-        /* ── Strong / Bold ── */
         .prose strong { color: #111827; font-weight: 600; }
 
-        /* ── Emphasis ── */
         .prose em { color: #4b5563; }
 
-        /* ── Horizontal Rule ── */
         .prose hr { border-color: #e5e7eb; margin: 1.5rem 0; }
     </style>
 
@@ -186,8 +174,7 @@
         function submitFeedback(type) {
             const faqId = {{ $faq->id }};
             const csrfToken = '{{ csrf_token() }}';
-            
-            // Hide buttons, show success
+
             document.getElementById('feedback-buttons').classList.add('hidden');
             document.getElementById('feedback-question').classList.add('hidden');
             const successDiv = document.getElementById('feedback-success');
@@ -196,7 +183,6 @@
                 successDiv.classList.remove('scale-95', 'opacity-0');
             }, 50);
 
-            // Send fetch request
             fetch(`/faq/${faqId}/feedback`, {
                 method: 'POST',
                 headers: {

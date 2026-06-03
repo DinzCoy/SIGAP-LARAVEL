@@ -1,7 +1,6 @@
 <x-app-layout>
     <div class="py-8 space-y-6" x-data="pimpinanDash()" x-init="init()">
 
-        <!-- Header -->
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
             <div>
                 <h2 class="text-2xl font-bold text-gray-900">Command Center Eksekutif</h2>
@@ -22,9 +21,8 @@
             </div>
         </div>
 
-        <!-- KPI Ringkasan (High-Level Overview) -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <!-- Total Laporan -->
+
             <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 group cursor-default">
                 <div class="flex items-center justify-between mb-4">
                     <div class="p-3 bg-blue-50 rounded-xl text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-all duration-300">
@@ -40,7 +38,6 @@
                 </div>
             </div>
 
-            <!-- Tiket Selesai -->
             <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 group cursor-default">
                 <div class="flex items-center justify-between mb-4">
                     <div class="p-3 bg-green-50 rounded-xl text-green-600 group-hover:bg-green-600 group-hover:text-white transition-all duration-300">
@@ -57,7 +54,6 @@
                 </div>
             </div>
 
-            <!-- Kepatuhan SLA -->
             <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 group cursor-default">
                 <div class="flex items-center justify-between mb-4">
                     <div class="p-3 bg-purple-50 rounded-xl text-purple-600 group-hover:bg-purple-600 group-hover:text-white transition-all duration-300">
@@ -74,7 +70,6 @@
                 </div>
             </div>
 
-            <!-- Usia Rata-Rata -->
             <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 group cursor-default">
                 <div class="flex items-center justify-between mb-4">
                     <div class="p-3 bg-orange-50 rounded-xl text-orange-600 group-hover:bg-orange-600 group-hover:text-white transition-all duration-300">
@@ -91,7 +86,6 @@
             </div>
         </div>
 
-        <!-- Analitik Laporan dan Aset -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
             <div
                 class="lg:col-span-2 bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow duration-300">
@@ -137,7 +131,6 @@
             </div>
         </div>
 
-        <!-- Performa Teknisi dan Evaluasi -->
         <div class="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-8">
             <div
                 class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow duration-300">
@@ -149,8 +142,7 @@
                         @php
                         $total = $tech->total_count > 0 ? $tech->total_count : 1;
                         $pct = round(($tech->completed_count / $total) * 100);
-                        
-                        // Dynamic glow styling for Top 3
+
                         $glowClass = '';
                         $rankBadge = '';
                         if ($tech->is_top_three) {
@@ -171,10 +163,10 @@
                         <li>
                             <div class="flex flex-col md:flex-row md:items-center justify-between p-4 hover:bg-slate-50 rounded-xl transition-all duration-300 border border-transparent hover:border-slate-100 gap-3 group cursor-default">
                                 <div class="flex items-center gap-4 flex-1">
-                                    <!-- Avatar dengan Ring Glowing -->
+
                                     <div class="relative">
                                         @if($tech->photo_url)
-                                            <img src="{{ $tech->photo_url }}" class="w-12 h-12 rounded-full object-cover {{ $glowClass }}" alt="{{ $tech->name }}">
+                                            <img src="{{ $tech->photo_url }}" class="w-12 h-12 rounded-full object-cover {{ $glowClass }}" alt="{{ $tech->name }}" loading="lazy" decoding="async">
                                         @else
                                             <div class="w-12 h-12 rounded-full bg-blue-50 text-bps-blue flex items-center justify-center font-bold text-base {{ $glowClass }} group-hover:bg-bps-blue group-hover:text-white transition-colors">
                                                 {{ strtoupper(substr($tech->name ?? 'T', 0, 1)) }}
@@ -187,7 +179,6 @@
                                         @endif
                                     </div>
 
-                                    <!-- Informasi Teknisi & Badges -->
                                     <div class="space-y-1 flex-1">
                                         <div class="flex flex-wrap items-center gap-2">
                                             <h4 class="text-sm font-semibold text-gray-900 group-hover:text-bps-blue transition-colors">
@@ -206,12 +197,11 @@
                                             <span class="text-gray-500">{{ $pct }}% Success</span>
                                         </p>
 
-                                        <!-- Badge List Spesialisasi -->
                                         @if(!empty($tech->earned_badges))
                                             <div class="flex flex-wrap gap-1 mt-1">
                                                 @foreach($tech->earned_badges as $badge)
-                                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold text-white shadow-sm transition-transform hover:scale-105 cursor-help" 
-                                                          :style="{ backgroundColor: '{{ $badge['color'] }}' }" 
+                                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold text-white shadow-sm transition-transform hover:scale-105 cursor-help"
+                                                          :style="{ backgroundColor: '{{ $badge['color'] }}' }"
                                                           title="{{ $badge['description'] }}">
                                                         @if($badge['icon'] === 'zap') ⚡ @elseif($badge['icon'] === 'globe') 🌐 @elseif($badge['icon'] === 'monitor') 🖥️ @elseif($badge['icon'] === 'star') 🌟 @else 🛡️ @endif
                                                         {{ $badge['name'] }}
@@ -222,13 +212,12 @@
                                     </div>
                                 </div>
 
-                                <!-- Progress XP -->
                                 <div class="flex flex-col items-end gap-1.5 min-w-[120px]">
                                     <span class="text-xs font-bold text-gray-700">
                                         {{ $tech->xp }} <span class="text-[10px] text-gray-400 font-normal">XP</span>
                                     </span>
                                     <div class="w-24 bg-gray-100 rounded-full h-1.5 overflow-hidden">
-                                        <div class="bg-indigo-600 h-1.5 rounded-full transition-all duration-500" 
+                                        <div class="bg-indigo-600 h-1.5 rounded-full transition-all duration-500"
                                              :style="{ width: '{{ $tech->level_progress_pct }}%' }"></div>
                                     </div>
                                     <span class="text-[9px] text-gray-400">
@@ -285,7 +274,6 @@
             </div>
         </div>
 
-        <!-- Log Laporan Terbaru -->
         <div
             class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-8 hover:shadow-md transition-shadow duration-300">
             <div class="p-5 border-b border-gray-200 flex justify-between items-center bg-gray-50/80">
@@ -361,10 +349,8 @@
             </div>
         </div>
 
-    <!-- Pass Laravel data to JS without triggering IDE parser warnings -->
     <div id="pimpinan-dashboard-data" style="display: none;" data-config="{{ json_encode($dashboardConfig) }}"></div>
 
-    <!-- Chart Configuration -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         const dashboardDataEl = document.getElementById('pimpinan-dashboard-data');

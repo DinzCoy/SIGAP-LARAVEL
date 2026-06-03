@@ -7,31 +7,22 @@ use App\Services\FcmService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
 
-/**
- * Notifikasi Peminjaman Ditolak
- * Dikirim kepada peminjam ketika permintaan peminjaman asetnya ditolak
- * oleh pemilik aset, Admin, atau Pengelola Aset.
- * Channel: database (in-app notification panel)
- */
 class AssetLoanRejectedNotification extends Notification
 {
     use Queueable;
 
     protected AssetLoan $peminjaman;
 
-    // Menyiapkan data peminjaman yang telah ditolak.
     public function __construct(AssetLoan $peminjaman)
     {
         $this->peminjaman = $peminjaman;
     }
 
-    // Menentukan channel pengiriman notifikasi (in-app via database).
     public function via(object $notifiable): array
     {
         return ['database'];
     }
 
-    // Representasi notifikasi dalam bentuk array untuk disimpan ke tabel notifications.
     public function toArray(object $notifiable): array
     {
         $namaAset    = ($this->peminjaman->asset?->deviceName?->brand ?? '')
@@ -51,7 +42,6 @@ class AssetLoanRejectedNotification extends Notification
         ];
     }
 
-    // Kirim in-app + push FCM ke peminjam saat ditolak.
     public static function kirim(AssetLoan $peminjaman): void
     {
         $peminjaman->load(['asset.deviceName', 'borrower', 'lender']);

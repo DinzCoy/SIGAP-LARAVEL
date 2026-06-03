@@ -13,10 +13,9 @@ use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
 class PcReportsExport implements FromQuery, WithHeadings, WithMapping, ShouldAutoSize, WithStyles
 {
-    //Filter software tertentu.
+
     protected ?string $softwareFilter;
 
-    //Filter pencarian hostname.
     protected ?string $search;
 
     public function __construct(?string $softwareFilter, ?string $search)
@@ -25,7 +24,6 @@ class PcReportsExport implements FromQuery, WithHeadings, WithMapping, ShouldAut
         $this->search         = $search;
     }
 
-    //Membangun query untuk ekspor dengan filter yang dipilih.
     public function query()
     {
         $query = PcReport::query();
@@ -47,7 +45,6 @@ class PcReportsExport implements FromQuery, WithHeadings, WithMapping, ShouldAut
         return $query->orderByDesc('last_seen');
     }
 
-    //Menentukan judul kolom untuk file Excel.
     public function headings(): array
     {
         return [
@@ -65,7 +62,6 @@ class PcReportsExport implements FromQuery, WithHeadings, WithMapping, ShouldAut
         ];
     }
 
-    //Memetakan data dari setiap baris laporan ke kolom Excel.
     public function map($report): array
     {
         $isOffline   = $report->isOffline();
@@ -91,7 +87,6 @@ class PcReportsExport implements FromQuery, WithHeadings, WithMapping, ShouldAut
         ];
     }
 
-    //Memberikan gaya (styling) pada baris header.
     public function styles(Worksheet $sheet): array
     {
         return [

@@ -1,10 +1,7 @@
-/**
- * Asset Management Javascript Utils
- */
 
 window.openLinkModal = function (assetId, bmnNumber) {
     document.getElementById('linkBmnCode').innerText = bmnNumber;
-    // Set action route dynamically
+
     const form = document.getElementById('linkForm');
     form.action = `/asset-manager/${assetId}/link`;
     document.getElementById('linkModal').classList.remove('hidden');
@@ -29,17 +26,17 @@ window.openEditModal = function (button) {
 window.handleUserAllocationChange = function (select) {
     const dateInput = document.getElementById('edit_allocated_at');
     if (select.value) {
-        // If a user is selected and date is empty, set it to today
+
         if (!dateInput.value) {
             const today = new Date();
-            // Format explicitly as timezone-independent local YYYY-MM-DD
+
             const yyyy = today.getFullYear();
             const mm = String(today.getMonth() + 1).padStart(2, '0');
             const dd = String(today.getDate()).padStart(2, '0');
             dateInput.value = `${yyyy}-${mm}-${dd}`;
         }
     } else {
-        // If user is unassigned, clear the allocation date
+
         dateInput.value = '';
     }
 }
@@ -61,22 +58,22 @@ window.promptConfirm = function (event, verb) {
         title = 'Konfirmasi Peminjaman';
         text = 'Apakah Anda yakin ingin meminjam sementara aset ini? Peminjaman membutuhkan persetujuan pemilik.';
         confirmButtonText = 'Ya, Pinjam';
-        confirmButtonColor = '#2563eb'; // blue-600
+        confirmButtonColor = '#2563eb';
     } else if (verb === 'kembali') {
         title = 'Konfirmasi Pengembalian';
         text = 'Apakah Anda yakin ingin mengembalikan aset ini ke pemilik aslinya?';
         confirmButtonText = 'Ya, Kembalikan';
-        confirmButtonColor = '#16a34a'; // green-600
+        confirmButtonColor = '#16a34a';
     } else if (verb === 'approve') {
         title = 'Setujui Peminjaman';
         text = 'Apakah Anda yakin ingin menyetujui permintaan peminjaman aset ini?';
         confirmButtonText = 'Ya, Setujui';
-        confirmButtonColor = '#16a34a'; // green-600
+        confirmButtonColor = '#16a34a';
     } else if (verb === 'reject') {
         title = 'Tolak Peminjaman';
         text = 'Apakah Anda yakin ingin menolak permintaan peminjaman aset ini?';
         confirmButtonText = 'Ya, Tolak';
-        confirmButtonColor = '#ef4444'; // red-500
+        confirmButtonColor = '#ef4444';
     }
 
     if (typeof Swal !== 'undefined') {
@@ -111,9 +108,6 @@ window.promptConfirm = function (event, verb) {
     }
 }
 
-// ============================================
-// User Management Utilities
-// ============================================
 window.openUserCreateModal = function () {
     const el = document.getElementById('createModal');
     if (el) el.classList.remove('hidden');
@@ -132,7 +126,7 @@ window.prepareUserEditModal = function (button) {
         const rid = parseInt(cb.value);
         if (rid === 6) {
             cb.checked = true;
-            cb.onclick = () => false; // Lock user role
+            cb.onclick = () => false;
         } else {
             cb.checked = roles.includes(rid);
             cb.onclick = null;
@@ -149,9 +143,6 @@ window.closeModal = function (id) {
     if (el) el.classList.add('hidden');
 }
 
-// ============================================
-// QR Modal (Dashboard) Utilities
-// ============================================
 window.openQrModal = function (url, deviceName, type = 'loan') {
     const nameEl = document.getElementById('qrDeviceName');
     if (nameEl) nameEl.textContent = deviceName;
@@ -192,7 +183,6 @@ window.closeQrModal = function () {
     window.closeModal('qrModal');
 }
 
-// Global Escape Key Handler for Modals
 window.onkeydown = function (e) {
     if (e.key === "Escape") {
         window.closeModal('createModal');
@@ -202,9 +192,6 @@ window.onkeydown = function (e) {
     }
 };
 
-// ============================================
-// Tickets Show Utilities (Chatbox Setup)
-// ============================================
 document.addEventListener('DOMContentLoaded', function () {
     const chatBox = document.getElementById('chatBoxContainer');
     if (chatBox) {

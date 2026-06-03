@@ -7,10 +7,9 @@
 
     <div class="py-12 space-y-6">
 
-        <!-- Hero Header -->
         <div
             class="relative overflow-hidden bg-gradient-to-br from-indigo-700 via-blue-800 to-indigo-900 rounded-3xl shadow-2xl mb-10 p-8 md:p-10 flex flex-col md:flex-row items-center justify-between text-white border border-white/10 group">
-            <!-- Decorative floating background elements -->
+
             <div
                 class="absolute -top-24 -right-24 w-72 h-72 bg-blue-400 rounded-full mix-blend-overlay filter blur-3xl opacity-40 group-hover:scale-125 transition-transform duration-1000">
             </div>
@@ -42,9 +41,8 @@
             </div>
         </div>
 
-        <!-- Summary Cards -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-            <!-- Total Assets -->
+
             <div
                 class="bg-white rounded-3xl shadow-sm hover:shadow-xl border border-gray-100 overflow-hidden relative group transition-all duration-300 hover:border-indigo-100">
                 <div class="p-8 relative z-10 transition-transform duration-300 group-hover:-translate-y-1">
@@ -66,7 +64,6 @@
                 </div>
             </div>
 
-            <!-- Broken Assets -->
             <div
                 class="bg-white rounded-3xl shadow-sm hover:shadow-xl border border-gray-100 overflow-hidden relative group transition-all duration-300 hover:border-orange-100">
                 <div class="p-8 relative z-10 transition-transform duration-300 group-hover:-translate-y-1">
@@ -88,7 +85,6 @@
                 </div>
             </div>
 
-            <!-- Tiket Butuh Pengecekan -->
             <a href="{{ route('tickets.index') }}"
                 class="bg-white rounded-3xl shadow-sm hover:shadow-xl border border-gray-100 overflow-hidden relative group block cursor-pointer transition-all duration-300 hover:border-rose-100">
                 <div class="p-8 relative z-10 transition-transform duration-300 group-hover:-translate-y-1">
@@ -118,7 +114,6 @@
             </a>
         </div>
 
-        <!-- Recent Assets Table -->
         <div
             class="bg-white overflow-hidden shadow-sm hover:shadow-lg transition-shadow duration-300 rounded-3xl border border-gray-100 mb-8">
             <div

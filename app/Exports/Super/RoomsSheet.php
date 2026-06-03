@@ -71,7 +71,7 @@ class RoomsSheet implements FromQuery, WithTitle, WithHeadings, WithMapping, Sho
         return [
             1 => [
                 'font' => ['bold' => true, 'color' => ['argb' => 'FFFFFFFF']],
-                'fill' => ['fillType' => Fill::FILL_SOLID, 'color' => ['argb' => 'FFEC4899']], // Pink 500
+                'fill' => ['fillType' => Fill::FILL_SOLID, 'color' => ['argb' => 'FFEC4899']],
             ],
         ];
     }

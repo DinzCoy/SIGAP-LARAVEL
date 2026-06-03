@@ -14,21 +14,18 @@ use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
-    //Mendaftarkan layanan aplikasi.
+
     public function register(): void
     {
-        //
+
     }
 
-    //Inisialisasi layanan aplikasi (bootstrapping).
     public function boot(): void
     {
         Event::listen(Login::class, RecordLoginActivity::class);
 
-        // Daftarkan aturan akses (Policy) untuk model Tiket
         Gate::policy(Ticket::class, AturanTiket::class);
 
-        // View Composer for Navigation
         View::composer('layouts.navigation', function ($view) {
             $notificationService = app(TicketNotificationService::class);
             $view->with('notifications', $notificationService->getNotifikasiUntukUser());

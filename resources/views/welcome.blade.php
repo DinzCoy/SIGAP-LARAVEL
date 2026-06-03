@@ -5,12 +5,10 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>SIGAP | Monitor & Protect</title>
 
-        <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
 
-        <!-- Styles / Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
 
         <style>
@@ -37,13 +35,12 @@
     </head>
     <body class="antialiased bg-black text-white selection:bg-bps-orange selection:text-white">
         <div class="relative min-h-screen overflow-hidden">
-            <!-- Background Image with Overlay -->
+
             <div class="absolute inset-0 z-0">
                 <img src="{{ asset('images/hero.png') }}" alt="Hero Background" class="w-full h-full object-cover opacity-40">
                 <div class="absolute inset-0 hero-gradient"></div>
             </div>
 
-            <!-- Navigation -->
             <nav class="relative z-10 p-6 flex items-center justify-between max-w-7xl mx-auto">
                 <div class="flex items-center space-x-2">
                     <div class="w-10 h-10 bg-bps-orange rounded-xl flex items-center justify-center shadow-lg shadow-bps-orange/20">
@@ -65,7 +62,6 @@
                 @endif
             </nav>
 
-            <!-- Hero Section -->
             <main class="relative z-10 flex flex-col items-center justify-center min-h-[80vh] px-6 text-center">
                 <div class="glass p-2 rounded-2xl mb-8 animate-float">
                     <div class="bg-white/5 p-4 rounded-xl border border-white/10">
@@ -91,7 +87,6 @@
                     </a>
                 </div>
 
-                <!-- Stats/Social Proof -->
                 <div class="mt-20 grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-16">
                     <div class="text-center">
                         <div class="text-3xl font-bold text-white mb-1">99.9%</div>
@@ -112,7 +107,6 @@
                 </div>
             </main>
 
-            <!-- Grid Decorative -->
             <div class="absolute inset-0 z-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 pointer-events-none"></div>
         </div>
 

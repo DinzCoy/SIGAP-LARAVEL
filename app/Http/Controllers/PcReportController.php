@@ -13,7 +13,7 @@ use Illuminate\Http\Request;
 
 class PcReportController extends Controller
 {
-    // tempat nampung curhatan (report) spek pc dari agent
+
     public function store(Request $request): JsonResponse
     {
         $validApiKey = SystemSetting::getValue('api_key', 'BPS-SULSEL-SECRET-2026');
@@ -51,7 +51,6 @@ class PcReportController extends Controller
         $isTrouble = $validated['is_trouble'] ?? false;
         $troubleNote = $validated['trouble_note'] ?? '';
 
-        // Override logic untuk RAM
         if (isset($validated['total_ram_kb']) && isset($validated['ram_free_kb']) && $validated['total_ram_kb'] > 0) {
             $usedRamPercent = round((($validated['total_ram_kb'] - $validated['ram_free_kb']) / $validated['total_ram_kb']) * 100, 2);
             if ($usedRamPercent > $ramThreshold) {
@@ -60,7 +59,6 @@ class PcReportController extends Controller
             }
         }
 
-        // Override logic untuk Sisa Disk
         if (isset($validated['disk_free_b']) && $validated['disk_free_b'] < $diskThresholdBytes) {
             $isTrouble = true;
             $troubleNote = ($troubleNote ? $troubleNote . " | " : "") . "Disk Space Critical (Under {$diskThresholdGb}GB)";
@@ -87,7 +85,6 @@ class PcReportController extends Controller
             ]
         );
 
-        // --- Logic: Auto Allocation & Room Sync ---
         $asset = Asset::where('mac_address', $validated['mac_address'])->first();
         if ($asset) {
             $oldUserId = $asset->user_id;
@@ -97,7 +94,6 @@ class PcReportController extends Controller
             $hasChanged = false;
             $reasons = [];
 
-            // 1. Sync User (jika username dikirim dan cocok dengan database kita)
             if (!empty($validated['username'])) {
                 $foundUser = User::where('username', $validated['username'])->first();
                 if ($foundUser && $asset->user_id !== $foundUser->id) {
@@ -109,7 +105,6 @@ class PcReportController extends Controller
                 }
             }
 
-            // 2. Sync Room (jika room_name dikirim dan cocok dengan database kita)
             if (!empty($validated['room_name'])) {
                 $foundRoom = Room::where('name', $validated['room_name'])->first();
                 if ($foundRoom && $asset->room_id !== $foundRoom->id) {
@@ -123,7 +118,6 @@ class PcReportController extends Controller
             if ($hasChanged) {
                 $asset->save();
 
-                // Log pergerakan aset untuk audit
                 AssetMovementLog::create([
                     'asset_id'    => $asset->id,
                     'old_user_id' => $oldUserId,
@@ -136,29 +130,68 @@ class PcReportController extends Controller
             }
         }
 
-        if (!empty($validated['software_list'])) {
-            $report->installedSoftware()->delete();
+        if (isset($validated['software_list'])) {
+            $existingSoftware = $report->installedSoftware()->get(['id', 'software_name', 'software_version', 'software_publisher']);
 
-            $softwareData = [];
+            $existingMap = [];
+            foreach ($existingSoftware as $item) {
+                $key = sprintf(
+                    '%s|%s|%s',
+                    $item->software_name,
+                    $item->software_version ?? '',
+                    $item->software_publisher ?? ''
+                );
+                $existingMap[$key] = $item->id;
+            }
+
+            $newMap = [];
+            $toInsert = [];
             foreach ($validated['software_list'] as $software) {
                 $name = trim($software['name'] ?? '');
                 if ($name === '') {
                     continue;
                 }
 
-                $softwareData[] = [
-                    'pc_report_id'      => $report->id,
-                    'software_name'     => substr($name, 0, 255),
-                    'software_version'  => isset($software['version']) ? substr(trim($software['version']), 0, 255) : null,
-                    'software_publisher' => isset($software['publisher']) ? substr(trim($software['publisher']), 0, 255) : null,
-                    'created_at'        => now(),
-                    'updated_at'        => now(),
-                ];
+                $name = substr($name, 0, 255);
+                $version = isset($software['version']) ? substr(trim($software['version']), 0, 255) : null;
+                $publisher = isset($software['publisher']) ? substr(trim($software['publisher']), 0, 255) : null;
+
+                $key = sprintf(
+                    '%s|%s|%s',
+                    $name,
+                    $version ?? '',
+                    $publisher ?? ''
+                );
+
+                $newMap[$key] = true;
+
+                if (!isset($existingMap[$key])) {
+                    $toInsert[] = [
+                        'pc_report_id'       => $report->id,
+                        'software_name'      => $name,
+                        'software_version'   => $version,
+                        'software_publisher' => $publisher,
+                        'created_at'         => now(),
+                        'updated_at'         => now(),
+                    ];
+                }
             }
 
-            // di-chunk biar memori ga jebol pas insert software
-            foreach (array_chunk($softwareData, 200) as $chunk) {
-                \App\Models\InstalledSoftware::insert($chunk);
+            $toDeleteIds = [];
+            foreach ($existingMap as $key => $id) {
+                if (!isset($newMap[$key])) {
+                    $toDeleteIds[] = $id;
+                }
+            }
+
+            if (!empty($toDeleteIds)) {
+                \App\Models\InstalledSoftware::whereIn('id', $toDeleteIds)->delete();
+            }
+
+            if (!empty($toInsert)) {
+                foreach (array_chunk($toInsert, 200) as $chunk) {
+                    \App\Models\InstalledSoftware::insert($chunk);
+                }
             }
         }
 

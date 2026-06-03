@@ -8,21 +8,6 @@ use App\Services\FcmService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
 
-/**
- * Notifikasi Perubahan Status Tiket
- *
- * Dikirim kepada pihak yang relevan sesuai transisi status:
- *   - Menunggu Pengecekan Pengelola → reporter (tiket diterima)
- *   - Diteruskan ke Ketua Tim       → semua ketua tim
- *   - Diteruskan ke Teknisi         → semua teknisi
- *   - In Progress                   → reporter (sedang dikerjakan)
- *   - Menunggu Persetujuan Biaya    → reporter (butuh konfirmasi)
- *   - Approved                      → reporter (biaya disetujui)
- *   - Selesai                       → reporter (tiket selesai)
- *   - Dibatalkan                    → reporter (tiket dibatalkan)
- *
- * Channel: database (in-app) + FCM (push)
- */
 class TicketStatusNotification extends Notification
 {
     use Queueable;
@@ -59,12 +44,6 @@ class TicketStatusNotification extends Notification
         ];
     }
 
-    // ─── Statik: Kirim notifikasi sesuai transisi status ─────────────────────
-
-    /**
-     * Panggil ini setelah status tiket diubah.
-     * Metode ini menentukan sendiri siapa yang harus dinotifikasi.
-     */
     public static function kirim(Ticket $ticket, string $statusBaru, ?string $tanggapan = null): void
     {
         $ticket->load(['reporter', 'technician', 'teamLeader']);
@@ -73,7 +52,6 @@ class TicketStatusNotification extends Notification
 
         switch ($statusBaru) {
 
-            // Reporter dikabari bahwa tiket sudah diterima sistem
             case Ticket::STATUS_MENUNGGU_PENGELOLA:
                 if ($ticket->reporter) {
                     $ticket->reporter->notify($notif);
@@ -86,10 +64,9 @@ class TicketStatusNotification extends Notification
                 }
                 break;
 
-            // Semua Ketua Tim dinotifikasi
             case Ticket::STATUS_KE_KETUA_TIM:
                 $ketuaTim = User::withRole(User::ROLE_KETUA_TIM)->get();
-                /** @var \App\Models\User $u */
+
                 foreach ($ketuaTim as $u) {
                     $u->notify($notif);
                     FcmService::send(
@@ -99,7 +76,7 @@ class TicketStatusNotification extends Notification
                         ['tipe' => 'update_tiket', 'ticket_id' => (string) $ticket->id]
                     );
                 }
-                // Reporter juga dikabari
+
                 if ($ticket->reporter) {
                     $ticket->reporter->notify($notif);
                     FcmService::send(
@@ -111,7 +88,6 @@ class TicketStatusNotification extends Notification
                 }
                 break;
 
-            // Hanya Teknisi terpilih yang ditugaskan yang dinotifikasi
             case Ticket::STATUS_KE_TEKNISI:
                 if ($ticket->technician) {
                     $ticket->technician->notify($notif);
@@ -122,7 +98,7 @@ class TicketStatusNotification extends Notification
                         ['tipe' => 'update_tiket', 'ticket_id' => (string) $ticket->id]
                     );
                 }
-                // Reporter dikabari juga
+
                 if ($ticket->reporter) {
                     $ticket->reporter->notify($notif);
                     FcmService::send(
@@ -134,7 +110,6 @@ class TicketStatusNotification extends Notification
                 }
                 break;
 
-            // Reporter dikabari tiket mulai dikerjakan
             case Ticket::STATUS_IN_PROGRESS:
                 if ($ticket->reporter) {
                     $ticket->reporter->notify($notif);
@@ -147,7 +122,6 @@ class TicketStatusNotification extends Notification
                 }
                 break;
 
-            // Reporter diminta konfirmasi biaya
             case Ticket::STATUS_MENUNGGU_BIAYA:
                 if ($ticket->reporter) {
                     $ticket->reporter->notify($notif);
@@ -160,7 +134,6 @@ class TicketStatusNotification extends Notification
                 }
                 break;
 
-            // Reporter dikabari biaya disetujui
             case Ticket::STATUS_APPROVED:
                 if ($ticket->reporter) {
                     $ticket->reporter->notify($notif);
@@ -173,7 +146,6 @@ class TicketStatusNotification extends Notification
                 }
                 break;
 
-            // Reporter dikabari tiket selesai
             case Ticket::STATUS_SELESAI:
                 if ($ticket->reporter) {
                     $ticket->reporter->notify($notif);
@@ -186,7 +158,6 @@ class TicketStatusNotification extends Notification
                 }
                 break;
 
-            // Reporter dikabari tiket dibatalkan
             case Ticket::STATUS_DIBATALKAN:
                 if ($ticket->reporter) {
                     $ticket->reporter->notify($notif);
@@ -201,8 +172,6 @@ class TicketStatusNotification extends Notification
                 break;
         }
     }
-
-    // ─── Helper: bangun judul & pesan ─────────────────────────────────────────
 
     private function _buildMessage(string $nomorTiket): array
     {

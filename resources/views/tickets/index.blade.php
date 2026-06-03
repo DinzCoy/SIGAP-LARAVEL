@@ -5,7 +5,7 @@
         </h2>
     </x-slot>
     <div class="py-8 space-y-6">
-        <!-- Header Banner -->
+
         <div
             class="relative overflow-hidden bg-gradient-to-r from-blue-700 to-indigo-800 rounded-3xl shadow-xl p-8 border border-white/10 group">
             <div
@@ -36,7 +36,6 @@
             </div>
         @endif
 
-        <!-- Main Table Card -->
         <div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden flex-1 group/table">
             <div class="overflow-x-auto">
                 <table class="w-full text-left border-collapse">
@@ -143,7 +142,7 @@
                                     <x-lucide-chevron-right
                                         class="w-5 h-5 text-gray-300 ml-auto group-hover/row:text-blue-500 group-hover/row:translate-x-1 transition-all" />
                                 </td>
-                                <!-- Highlight Overlay -->
+
                                 <div
                                     class="absolute inset-0 bg-blue-50/0 group-hover/row:bg-blue-50/50 pointer-events-none transition-colors duration-200">
                                 </div>
@@ -169,7 +168,6 @@
         </div>
     </div>
 
-    <!-- Modal Create Ticket — Redesigned Premium UI -->
     @if(in_array(session('active_role_id'), [\App\Models\User::ROLE_PIC_RUANGAN, \App\Models\User::ROLE_USER]))
         <x-modal name="createTicketModal" focusable>
             <form method="post" action="{{ route('tickets.store') }}"
@@ -190,10 +188,9 @@
                         }
                       }">
                 @csrf
-                {{-- Hidden priority input — dikontrol Alpine --}}
+
                 <input type="hidden" name="priority" :value="priority">
 
-                {{-- ── Modal Header ── --}}
                 <div class="flex items-center justify-between px-6 pt-6 pb-4 border-b border-gray-100">
                     <div class="flex items-center gap-3">
                         <div class="p-2 bg-blue-50 rounded-xl">
@@ -212,7 +209,6 @@
 
                 <div class="px-6 py-4 space-y-4 max-h-[65vh] overflow-y-auto">
 
-                    {{-- ── Step 1: Identifikasi Sumber Masalah ── --}}
                     <div class="rounded-xl border border-gray-200 overflow-hidden">
                         <div class="flex items-center gap-2.5 px-4 py-3 bg-gray-50/80 border-b border-gray-100">
                             <span class="w-5 h-5 rounded-full bg-blue-600 text-white flex items-center justify-center text-[10px] font-bold shrink-0">1</span>
@@ -220,7 +216,6 @@
                         </div>
                         <div class="p-4 space-y-3">
 
-                            {{-- Pilih Aset (Opsional) --}}
                             <div>
                                 <label for="asset_id" class="block text-sm font-medium text-gray-700 mb-1">
                                     Aset BMN Terkait <span class="text-gray-400 font-normal text-xs">(opsional)</span>
@@ -238,7 +233,6 @@
                                 <p class="text-[11px] text-gray-400 mt-1 italic">Kosongkan jika melapor masalah fasilitas atau bantuan IT umum.</p>
                             </div>
 
-                            {{-- Ruangan --}}
                             <div>
                                 <label for="room_id" class="block text-sm font-medium text-gray-700 mb-1">
                                     Lokasi / Ruangan <span class="text-red-500">*</span>
@@ -256,7 +250,6 @@
                         </div>
                     </div>
 
-                    {{-- ── Step 2: Detail Laporan ── --}}
                     <div class="rounded-xl border border-gray-200 overflow-hidden">
                         <div class="flex items-center gap-2.5 px-4 py-3 bg-gray-50/80 border-b border-gray-100">
                             <span class="w-5 h-5 rounded-full bg-blue-600 text-white flex items-center justify-center text-[10px] font-bold shrink-0">2</span>
@@ -264,7 +257,6 @@
                         </div>
                         <div class="p-4 space-y-3">
 
-                            {{-- Kategori --}}
                             <div>
                                 <label for="category" class="block text-sm font-medium text-gray-700 mb-1">
                                     Kategori <span class="text-red-500">*</span>
@@ -278,7 +270,6 @@
                                 <x-input-error class="mt-1" :messages="$errors->get('category')" />
                             </div>
 
-                            {{-- Judul --}}
                             <div>
                                 <label for="title" class="block text-sm font-medium text-gray-700 mb-1">
                                     Judul Masalah <span class="text-red-500">*</span>
@@ -289,7 +280,6 @@
                                 <x-input-error class="mt-1" :messages="$errors->get('title')" />
                             </div>
 
-                            {{-- Prioritas — Radio Card (sama dengan lapor PIC) --}}
                             <div>
                                 <p class="block text-sm font-medium text-gray-700 mb-2">
                                     Tingkat Prioritas <span class="text-red-500">*</span>
@@ -314,7 +304,6 @@
                                 </div>
                             </div>
 
-                            {{-- Keterangan Detail --}}
                             <div>
                                 <label for="description" class="block text-sm font-medium text-gray-700 mb-1">
                                     Keterangan Detail <span class="text-red-500">*</span>
@@ -325,13 +314,11 @@
                                 <x-input-error class="mt-1" :messages="$errors->get('description')" />
                             </div>
 
-                            {{-- Foto Kerusakan (Opsional) --}}
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">
                                     Foto Kerusakan <span class="text-gray-400 font-normal text-xs">(opsional, maks. 5MB)</span>
                                 </label>
 
-                                {{-- Area Upload --}}
                                 <div
                                     x-show="!photoPreview"
                                     class="relative flex flex-col items-center justify-center gap-2 border-2 border-dashed border-gray-200 rounded-xl py-6 px-4 cursor-pointer hover:border-blue-400 hover:bg-blue-50/30 transition-all"
@@ -347,7 +334,6 @@
                                     </div>
                                 </div>
 
-                                {{-- Preview Foto --}}
                                 <div x-show="photoPreview" class="relative rounded-xl overflow-hidden border border-gray-200">
                                     <img :src="photoPreview" class="w-full max-h-48 object-cover" alt="Preview foto">
                                     <div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
@@ -372,7 +358,6 @@
 
                 </div>
 
-                {{-- ── Footer Tombol — grid 2 kolom, tidak bisa terpotong ── --}}
                 <div class="px-6 py-4 border-t border-gray-100 bg-gray-50/50">
                     <div class="grid grid-cols-2 gap-3">
                         <button type="button" x-on:click="$dispatch('close')"

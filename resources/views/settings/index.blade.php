@@ -6,7 +6,6 @@
         </h2>
     </x-slot>
 
-    {{-- Success/Error Flash Messages --}}
     @if(session('success'))
         <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 4000)"
              x-transition:leave="transition ease-in duration-300" x-transition:leave-start="opacity-100 translate-y-0" x-transition:leave-end="opacity-0 -translate-y-2"
@@ -23,9 +22,8 @@
         </div>
     @endif
 
-    {{-- Tabbed Settings UI --}}
-    <div x-data="{ activeTab: 'profil' }">
-        {{-- Tab Navigation --}}
+    <div x-data="{ activeTab: localStorage.getItem('settings_active_tab') || 'profil' }">
+
         <div class="flex flex-wrap gap-1 mb-8 bg-white rounded-xl p-1.5 shadow-sm border border-gray-100">
             @php
                 $tabs = [
@@ -37,7 +35,7 @@
                 ];
             @endphp
             @foreach($tabs as $tab)
-                <button @click="activeTab = '{{ $tab['id'] }}'"
+                <button @click="activeTab = '{{ $tab['id'] }}'; localStorage.setItem('settings_active_tab', '{{ $tab['id'] }}')"
                         :class="activeTab === '{{ $tab['id'] }}'
                             ? 'bg-bps-blue text-white shadow-md shadow-blue-200'
                             : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'"
@@ -48,10 +46,8 @@
             @endforeach
         </div>
 
-        {{-- ========== TAB 1: PENGATURAN PROFIL ========== --}}
         <div x-show="activeTab === 'profil'" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 translate-y-2" x-transition:enter-end="opacity-100 translate-y-0" class="space-y-6">
 
-            {{-- Update Profil --}}
             <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                 <div class="px-6 py-4 border-b border-gray-100 bg-gray-50/50">
                     <h3 class="font-bold text-gray-800 flex items-center gap-2">
@@ -81,7 +77,6 @@
                 </form>
             </div>
 
-            {{-- Keamanan Akun --}}
             <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                 <div class="px-6 py-4 border-b border-gray-100 bg-gray-50/50">
                     <h3 class="font-bold text-gray-800 flex items-center gap-2">
@@ -122,7 +117,6 @@
                 </form>
             </div>
 
-            {{-- Aktivitas Login --}}
             <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                 <div class="px-6 py-4 border-b border-gray-100 bg-gray-50/50">
                     <h3 class="font-bold text-gray-800 flex items-center gap-2">
@@ -164,10 +158,8 @@
             </div>
         </div>
 
-        {{-- ========== TAB 2: KONFIGURASI SISTEM ========== --}}
         <div x-show="activeTab === 'sistem'" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 translate-y-2" x-transition:enter-end="opacity-100 translate-y-0" class="space-y-6">
 
-            {{-- API Key Management --}}
             <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                 <div class="px-6 py-4 border-b border-gray-100 bg-gray-50/50">
                     <h3 class="font-bold text-gray-800 flex items-center gap-2">
@@ -205,7 +197,6 @@
                 </form>
             </div>
 
-            {{-- IP Whitelist --}}
             <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                 <div class="px-6 py-4 border-b border-gray-100 bg-gray-50/50">
                     <h3 class="font-bold text-gray-800 flex items-center gap-2">
@@ -214,7 +205,7 @@
                     <p class="text-xs text-gray-500 mt-1">Daftar IP PC yang diizinkan mengirim data ke server</p>
                 </div>
                 <div class="p-6 space-y-4">
-                    {{-- Add IP Form --}}
+
                     <form method="POST" action="{{ route('settings.addWhitelistIp') }}" class="flex flex-col sm:flex-row gap-3">
                         @csrf
                         <input type="text" name="ip_address" placeholder="Contoh: 192.168.1.100"
@@ -227,7 +218,6 @@
                     </form>
                     @error('ip_address') <p class="text-xs text-red-500">{{ $message }}</p> @enderror
 
-                    {{-- IP List --}}
                     @if($whitelistedIps->isEmpty())
                         <div class="text-center py-6">
                             <x-lucide-globe class="w-10 h-10 text-gray-200 mx-auto mb-2" />
@@ -253,12 +243,14 @@
                                 </div>
                             @endforeach
                         </div>
+                        <div class="mt-4">
+                            {{ $whitelistedIps->links() }}
+                        </div>
                     @endif
                 </div>
             </div>
         </div>
 
-        {{-- ========== TAB 3: THRESHOLD ANOMALI ========== --}}
         <div x-show="activeTab === 'threshold'" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 translate-y-2" x-transition:enter-end="opacity-100 translate-y-0" class="space-y-6">
             <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                 <div class="px-6 py-4 border-b border-gray-100 bg-gray-50/50">
@@ -271,7 +263,6 @@
                       x-data="{ ramVal: {{ $settings['ram_threshold'] ?? 90 }} }">
                     @csrf
 
-                    {{-- RAM Threshold Slider --}}
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 mb-3">
                             Alert Threshold RAM:
@@ -287,7 +278,6 @@
                         <p class="text-[11px] text-gray-400 mt-2">PC dengan penggunaan RAM di atas nilai ini akan ditandai "Anomali"</p>
                     </div>
 
-                    {{-- Disk Threshold --}}
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 mb-1.5">Alert Threshold Disk (GB tersisa)</label>
                         <div class="relative max-w-xs">
@@ -299,7 +289,6 @@
                         <p class="text-[11px] text-gray-400 mt-1.5">Notifikasi merah dikirim jika sisa disk kurang dari nilai ini</p>
                     </div>
 
-                    {{-- Report Interval --}}
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 mb-1.5">Interval Laporan Rutin</label>
                         <select name="report_interval_days" class="max-w-xs rounded-xl border-gray-200 focus:border-bps-blue focus:ring-bps-blue/20 text-sm py-2.5">
@@ -319,10 +308,8 @@
             </div>
         </div>
 
-        {{-- ========== TAB 4: JADWAL AGENT ========== --}}
         <div x-show="activeTab === 'jadwal-agent'" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 translate-y-2" x-transition:enter-end="opacity-100 translate-y-0" class="space-y-6">
 
-            {{-- Info Banner --}}
             <div class="bg-gradient-to-r from-sky-50 to-indigo-50 rounded-2xl border border-sky-100 p-5">
                 <div class="flex items-start gap-3">
                     <div class="w-10 h-10 rounded-xl bg-sky-100 flex items-center justify-center shrink-0">
@@ -341,7 +328,6 @@
                 </div>
             </div>
 
-            {{-- Schedule Hours & Delay Config --}}
             <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                 <div class="px-6 py-4 border-b border-gray-100 bg-gray-50/50">
                     <h3 class="font-bold text-gray-800 flex items-center gap-2">
@@ -366,10 +352,8 @@
                       }">
                     @csrf
 
-                    {{-- Hidden input with actual value --}}
                     <input type="hidden" name="agent_schedule_hours" :value="hours.join(',')">
 
-                    {{-- Hour Chips --}}
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 mb-3">Jam Pengiriman Laporan</label>
                         <div class="flex flex-wrap gap-2 mb-3 min-h-[40px] p-3 bg-gray-50 rounded-xl border border-gray-100">
@@ -385,7 +369,6 @@
                             <span x-show="hours.length === 0" class="text-xs text-gray-400 py-1.5">Belum ada jam yang ditambahkan</span>
                         </div>
 
-                        {{-- Add Hour Input --}}
                         <div class="flex gap-2 max-w-xs">
                             <select x-model="newHour" class="flex-1 rounded-xl border-gray-200 focus:border-bps-blue focus:ring-bps-blue/20 text-sm py-2.5">
                                 <option value="">Pilih Jam...</option>
@@ -400,7 +383,6 @@
                         <p class="text-[11px] text-gray-400 mt-2">Agent juga tetap mengirim data saat PC startup (tanpa delay) untuk deteksi anomali langsung</p>
                     </div>
 
-                    {{-- Delay Per Room --}}
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 mb-1.5">Jeda Antar Ruangan (detik)</label>
                         <div class="relative max-w-xs">
@@ -423,7 +405,6 @@
                 </form>
             </div>
 
-            {{-- Room Order Configuration --}}
             <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                 <div class="px-6 py-4 border-b border-gray-100 bg-gray-50/50">
                     <h3 class="font-bold text-gray-800 flex items-center gap-2">
@@ -442,14 +423,13 @@
                         <div class="space-y-2">
                             @foreach($rooms as $index => $room)
                                 <div class="flex items-center gap-3 p-3 rounded-xl border border-gray-100 hover:border-gray-200 hover:bg-gray-50/50 transition-all group">
-                                    {{-- Sort Order Input --}}
+
                                     <div class="w-20 shrink-0">
                                         <input type="number" name="room_orders[{{ $room->id }}]" value="{{ $room->sort_order }}"
                                                min="0" max="99"
                                                class="w-full text-center rounded-lg border-gray-200 focus:border-indigo-400 focus:ring-indigo-200 text-sm py-2 font-bold text-indigo-700 bg-indigo-50/50">
                                     </div>
 
-                                    {{-- Room Info --}}
                                     <div class="flex-1 min-w-0">
                                         <p class="text-sm font-semibold text-gray-800 truncate">{{ $room->name }}</p>
                                         <p class="text-xs text-gray-400">
@@ -460,7 +440,6 @@
                                         </p>
                                     </div>
 
-                                    {{-- Delay Preview --}}
                                     <div class="text-right shrink-0">
                                         <p class="text-xs text-gray-400">Delay</p>
                                         <p class="text-sm font-bold text-gray-600">+{{ $room->sort_order * (int)($settings['agent_delay_per_room'] ?? 300) / 60 }} mnt</p>
@@ -479,10 +458,8 @@
             </div>
         </div>
 
-        {{-- ========== TAB 5: MAINTENANCE & LOGS ========== --}}
         <div x-show="activeTab === 'maintenance'" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 translate-y-2" x-transition:enter-end="opacity-100 translate-y-0" class="space-y-6">
 
-            {{-- Log Retention --}}
             <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                 <div class="px-6 py-4 border-b border-gray-100 bg-gray-50/50">
                     <h3 class="font-bold text-gray-800 flex items-center gap-2">
@@ -508,16 +485,15 @@
                 </form>
             </div>
 
-            {{-- Action Cards --}}
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {{-- Export Data --}}
+
                 <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 flex flex-col items-center hover:shadow-md transition-shadow">
                     <div class="w-12 h-12 rounded-xl bg-emerald-50 flex items-center justify-center mb-3 mx-auto">
                         <x-lucide-file-spreadsheet class="w-6 h-6 text-emerald-500" />
                     </div>
                     <h4 class="font-bold text-gray-800 text-sm text-center">Super Export Data</h4>
                     <p class="text-xs text-gray-400 mt-1 mb-4 text-center">Download Laporan Excel: Aset, Tiket, PC, Penugasan & User</p>
-                    
+
                     <form method="GET" action="{{ route('settings.exportData') }}" class="w-full text-left space-y-3"
                           x-data="{ isExporting: false }" @submit="isExporting = true; setTimeout(() => isExporting = false, 5000)">
                         <div class="flex gap-2">
@@ -538,7 +514,6 @@
                     </form>
                 </div>
 
-                {{-- Backup Database --}}
                 <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 flex flex-col items-center text-center hover:shadow-md transition-shadow">
                     <div class="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center mb-3">
                         <x-lucide-hard-drive class="w-6 h-6 text-bps-blue" />
@@ -552,9 +527,11 @@
                             <x-lucide-database class="w-4 h-4 inline mr-1" /> Backup Sekarang
                         </button>
                     </form>
+                    <p class="text-[10px] text-gray-400 mt-3.5 italic leading-normal border-t border-gray-50 pt-3">
+                        <strong>Catatan cPanel:</strong> Jika tombol ini gagal (karena pembatasan <code>exec()</code> hosting), silakan lakukan backup secara manual melalui menu <strong>phpMyAdmin &rarr; Export</strong> di panel hosting Anda.
+                    </p>
                 </div>
 
-                {{-- Clean Old Logs --}}
                 <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 flex flex-col items-center text-center hover:shadow-md transition-shadow">
                     <div class="w-12 h-12 rounded-xl bg-red-50 flex items-center justify-center mb-3">
                         <x-lucide-trash-2 class="w-6 h-6 text-red-400" />
@@ -574,7 +551,6 @@
 
     </div>
 
-    {{-- Re-initialize Lucide icons after Alpine renders --}}
     <script>
         document.addEventListener('DOMContentLoaded', () => lucide.createIcons());
     </script>

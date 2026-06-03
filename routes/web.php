@@ -14,18 +14,12 @@ use App\Http\Controllers\UserManagementController;
 use App\Http\Controllers\WebReportController;
 use Illuminate\Support\Facades\Route;
 
-//Redirect Halaman Utama
-
 Route::get('/', fn() => redirect()->route('login'));
-
-//Dashboard Umum (Dispatcher Berbasis Role)
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::post('/switch-role/{roleId}', [DashboardController::class, 'switchRole'])->name('switch.role');
 });
-
-//Rute Administrator (Role 2)
 
 Route::middleware(['auth', 'role:2'])->prefix('admin')->group(function () {
     Route::get('/dashboard', [WebReportController::class, 'adminIndex'])->name('admin.dashboard');
@@ -34,11 +28,8 @@ Route::middleware(['auth', 'role:2'])->prefix('admin')->group(function () {
     Route::delete('/reports/{id}', [WebReportController::class, 'destroy'])->name('admin.reports.destroy');
     Route::patch('/reports/{id}/room', [WebReportController::class, 'updateRoom'])->name('reports.updateRoom');
 
-    // Tautkan perangkat PC ke aset BMN — Khusus Admin
     Route::post('/assets/{asset_id}/link', [AssetController::class, 'linkDevice'])->name('asset.link');
 });
-
-//Pengaturan Sistem (Admin)
 
 Route::middleware(['auth', 'role:2'])->prefix('settings')->group(function () {
     Route::get('/', [SettingsController::class, 'index'])->name('settings.index');
@@ -56,19 +47,13 @@ Route::middleware(['auth', 'role:2'])->prefix('settings')->group(function () {
     Route::post('/room-order', [SettingsController::class, 'updateRoomOrder'])->name('settings.updateRoomOrder');
 });
 
-//Pimpinan (Role 1)
-
 Route::middleware(['auth', 'role:1'])->prefix('pimpinan')->group(function () {
     Route::get('/dashboard', [PimpinanController::class, 'dashboard'])->name('pimpinan.dashboard');
 });
 
-//Teknisi (Role 3)
-
 Route::middleware(['auth', 'role:3'])->prefix('teknisi')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'teknisi'])->name('teknisi.dashboard');
 });
-
-//Pengelola Ruangan (Role 5)
 
 Route::middleware(['auth', 'role:5'])->prefix('ruangan')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'ruangan'])->name('ruangan.dashboard');
@@ -76,19 +61,13 @@ Route::middleware(['auth', 'role:5'])->prefix('ruangan')->group(function () {
     Route::post('/lapor', [TicketController::class, 'storeRuangan'])->name('ruangan.lapor.store');
 });
 
-//User Biasa (Role 6)
-
 Route::middleware(['auth', 'role:6'])->prefix('user')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'user'])->name('user.dashboard');
 });
 
-//Ketua Tim (Role 7)
-
 Route::middleware(['auth', 'role:7'])->prefix('ketua-tim')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'ketuaTim'])->name('ketua_tim.dashboard');
 });
-
-//Pengelola Aset (Role 4)
 
 Route::middleware(['auth', 'role:2,4,7'])->prefix('asset-manager')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'pengelolaAset'])->name('pengelola_aset.dashboard');
@@ -97,18 +76,15 @@ Route::middleware(['auth', 'role:2,4,7'])->prefix('asset-manager')->group(functi
     Route::put('/{id}', [AssetController::class, 'update'])->name('asset.update');
     Route::delete('/{id}', [AssetController::class, 'destroy'])->name('asset.destroy');
 
-    // Master Ruangan — index dapat diakses Role 2,4,7; operasi lain hanya 2,4
     Route::get('rooms', [RoomController::class, 'index'])->name('rooms.index')->middleware('role:2,4,7');
     Route::resource('rooms', RoomController::class)->except(['index', 'show'])->middleware('role:2,4');
 
-    // Master Nama Perangkat — index dapat diakses Role 2,4,7; operasi lain hanya 2,4
     Route::get('device-names', [DeviceNameController::class, 'index'])->name('device-names.index')->middleware('role:2,4,7');
     Route::resource('device-names', DeviceNameController::class)->except(['index'])->middleware('role:2,4');
 
     Route::get('/master-aset', [AssetController::class, 'masterAset'])->name('master-aset.index')->middleware('role:2,4,7');
 });
 
-//Tracking QR Aset (Semua User Terautentikasi)
 Route::middleware('auth')->prefix('assets')->group(function () {
     Route::get('/{id}/scan', [AssetController::class, 'scan'])->name('assets.scan');
     Route::post('/{id}/takeover', [AssetController::class, 'takeover'])->name('assets.takeover');
@@ -119,8 +95,6 @@ Route::middleware('auth')->prefix('assets')->group(function () {
     Route::get('/{id}/print', [AssetController::class, 'print'])->name('assets.print');
 });
 
-//Tiket & Penanganan (Semua User Terautentikasi)
-
 Route::middleware('auth')->prefix('tickets')->group(function () {
     Route::get('/', [TicketController::class, 'index'])->name('tickets.index');
     Route::post('/', [TicketController::class, 'store'])->name('tickets.store');
@@ -129,16 +103,12 @@ Route::middleware('auth')->prefix('tickets')->group(function () {
     Route::post('/{id}/reply', [TicketController::class, 'addReply'])->name('tickets.reply');
 });
 
-//Profil Pengguna
-
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     Route::put('/password', [\App\Http\Controllers\Auth\PasswordController::class, 'update'])->name('password.update');
 });
-
-//Manajemen Pengguna (Admin)
 
 Route::middleware(['auth', 'role:2'])->prefix('user-management')->group(function () {
     Route::get('/', [UserManagementController::class, 'index'])->name('users.index');
@@ -148,15 +118,11 @@ Route::middleware(['auth', 'role:2'])->prefix('user-management')->group(function
     Route::post('/{user}/reset-password', [UserManagementController::class, 'resetPassword'])->name('users.resetPassword');
 });
 
-//FAQ / Knowledge Base (Semua Authenticated Users)
-
 Route::middleware('auth')->prefix('faq')->name('faq.')->group(function () {
     Route::get('/', [FaqController::class, 'publicIndex'])->name('index');
     Route::post('/{id}/feedback', [FaqController::class, 'publicFeedback'])->name('feedback');
     Route::get('/{id}', [FaqController::class, 'publicShow'])->name('show');
 });
-
-//Manajemen FAQ (Admin)
 
 Route::middleware(['auth', 'role:2'])->prefix('admin/faq')->name('admin.faq.')->group(function () {
     Route::resource('categories', FaqCategoryController::class)->except(['create', 'show', 'edit']);

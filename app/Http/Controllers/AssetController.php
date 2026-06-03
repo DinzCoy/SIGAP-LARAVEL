@@ -22,11 +22,10 @@ class AssetController extends Controller
 
     public function masterAset(): RedirectResponse
     {
-        // lempar ke manajemen merek & tipe barang
+
         return redirect()->route('device-names.index');
     }
 
-    // Menampilkan daftar aset inventaris
     public function index(Request $request): View
     {
         $query = Asset::with(['pcReport', 'room', 'deviceName', 'user'])
@@ -54,7 +53,6 @@ class AssetController extends Controller
         ));
     }
 
-    // Menyimpan data aset baru ke database
     public function store(CekInputAset $request): RedirectResponse
     {
         Asset::create($request->validated());
@@ -76,8 +74,6 @@ class AssetController extends Controller
         return redirect()->back()->with('success', 'Data Aset berhasil dihapus.');
     }
 
-    // Menautkan aset BMN dengan laporan PC (Agent)
-    // Catatan: otorisasi sudah ditangani middleware role:2 di web.php
     public function linkDevice(Request $request, string $assetId): RedirectResponse
     {
         $request->validate([
@@ -94,22 +90,16 @@ class AssetController extends Controller
         return redirect()->back()->with('success', 'Device berhasil ditautkan ke BMN.');
     }
 
-    // Halaman detail saat scan QR Code (Web/Mobile)
     public function scan(Request $request, string $id): View
     {
         $asset       = Asset::with(['pcReport', 'room', 'deviceName', 'user', 'activeLoan.borrower', 'pendingLoan.borrower'])->findOrFail($id);
         $activeLoan  = $asset->activeLoan;
         $pendingLoan = $asset->pendingLoan;
-        $mode        = $request->query('mode'); // 'loan', 'transfer', or null (show all)
+        $mode        = $request->query('mode');
 
         return view('assets.scan', compact('asset', 'activeLoan', 'pendingLoan', 'mode'));
     }
 
-    // =========================================================================
-    // ALUR 1: Peminjaman Sementara
-    // =========================================================================
-
-    // Proses permintaan peminjaman aset sementara
     public function loan(Request $request, string $id): RedirectResponse
     {
         $request->validate([
@@ -147,7 +137,7 @@ class AssetController extends Controller
             return redirect()->back()->with('error', 'Status peminjaman ini tidak dalam masa tunggu.');
         }
 
-        $this->assetService->approveLoan($loan);
+        $this->assetService->approveLoan($loan, $this->currentUser());
 
         return redirect()->back()->with('success', 'Permintaan peminjaman berhasil disetujui.');
     }
@@ -169,7 +159,6 @@ class AssetController extends Controller
         return redirect()->back()->with('success', 'Permintaan peminjaman telah ditolak.');
     }
 
-    // Proses pengembalian aset pinjaman ke pemilik asli
     public function returnLoan(Request $request, string $id): RedirectResponse
     {
         $asset = Asset::with('activeLoan')->findOrFail($id);
@@ -188,11 +177,6 @@ class AssetController extends Controller
         return redirect()->route('assets.scan', $asset->id)->with('success', 'Aset berhasil dikembalikan ke pemilik!');
     }
 
-    // =========================================================================
-    // ALUR 2: Serah Terima Permanen (Mutasi)
-    // =========================================================================
-
-    // Proses mutasi/serah terima aset permanen via QR Code
     public function takeover(Request $request, string $id): RedirectResponse
     {
         $asset = Asset::findOrFail($id);
@@ -208,7 +192,6 @@ class AssetController extends Controller
             ->with('success', 'Aset berhasil diserahterimakan ke Anda secara permanen!');
     }
 
-    // Halaman cetak label QR Code (Stiker BMN)
     public function print(string $id): View
     {
         $asset = Asset::with('deviceName')->findOrFail($id);
@@ -216,17 +199,9 @@ class AssetController extends Controller
         return view('assets.print', compact('asset'));
     }
 
-    // =========================================================================
-    // Private Helpers
-    // =========================================================================
-
-    /**
-     * Mengambil user yang sedang login dengan tipe User yang eksplisit.
-     * Dibutuhkan agar static analyzer bisa resolve method model User.
-     */
     private function currentUser(): User
     {
-        /** @var User $user */
+
         $user = Auth::user();
 
         return $user;

@@ -21,7 +21,6 @@ class DashboardController extends Controller
         $this->layananDashboard = $layananDashboard;
     }
 
-    // Entry point utama: mengarahkan user ke dashboard sesuai role yang aktif
     public function index(Request $request): RedirectResponse|View
     {
         $activeRole = session('active_role_id');
@@ -57,35 +56,30 @@ class DashboardController extends Controller
         return redirect()->back()->with('error', 'Role tidak valid atau Anda tidak memiliki akses.');
     }
 
-    // Dashboard khusus Teknisi untuk memantau antrean tugas penanganan
     public function teknisi(): View
     {
         $stats = $this->layananDashboard->getTeknisiStats(Auth::user());
         return view('teknisi.dashboard', $stats);
     }
 
-    // Dashboard Pengelola Aset untuk memantau status inventaris secara keseluruhan
     public function pengelolaAset(): View
     {
         $stats = $this->layananDashboard->getPengelolaAsetStats();
         return view('pengelola_aset.dashboard', $stats);
     }
 
-    // Dashboard PIC Ruangan untuk memantau aset dan kondisi di ruangan terkait
     public function ruangan(): View
     {
         $stats = $this->layananDashboard->getRuanganStats(Auth::user());
         return view('rooms.dashboard', $stats);
     }
 
-    // Dashboard User untuk memantau riwayat tiket dan aset pribadi yang dikelola
     public function user(): View
     {
         $stats = $this->layananDashboard->getUserStats(Auth::user());
         return view('user.dashboard', $stats);
     }
 
-    // Dashboard Ketua Tim untuk manajemen pembagian tugas kepada teknisi
     public function ketuaTim(): View
     {
         $stats = $this->layananDashboard->getKetuaTimStats(Auth::user());

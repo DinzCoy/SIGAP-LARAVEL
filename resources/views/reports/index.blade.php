@@ -21,11 +21,9 @@
             </div>
         @endif
 
-        <!-- Filter and Search Section -->
         <div class="bg-white p-5 rounded-lg shadow-sm border border-gray-200 mb-6">
             <form action="{{ url('/') }}" method="GET" class="flex flex-col md:flex-row gap-4">
 
-                <!-- Search Box -->
                 <div class="flex-1">
                     <label for="search" class="block text-sm font-medium text-gray-700 mb-1">Cari Hostname / IP</label>
                     <div class="relative rounded-md shadow-sm">
@@ -42,7 +40,6 @@
                     </div>
                 </div>
 
-                <!-- Special Filter -->
                 <div class="md:w-64">
                     <label for="filter_spesifik" class="block text-sm font-medium text-gray-700 mb-1">Filter
                         Khusus</label>
@@ -60,7 +57,6 @@
                     </select>
                 </div>
 
-                <!-- Buttons -->
                 <div class="flex items-end gap-2">
                     <button type="submit"
                         class="bg-bps-orange hover:bg-orange-600 text-white font-medium py-2 px-4 rounded-md shadow-sm transition-colors flex items-center gap-2">
@@ -82,7 +78,6 @@
             </form>
         </div>
 
-        <!-- Dashboard Table -->
         <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
             <div class="p-5 border-b border-gray-200 flex justify-between items-center bg-gray-50">
                 <h2 class="text-lg font-semibold text-gray-800">Daftar PC Status</h2>
@@ -116,7 +111,6 @@
                                 $freeDiskGb = ($report->disk_free_b ?? 0) / 1024 / 1024 / 1024;
                                 $totalDiskGb = ($report->total_disk_b ?? 0) / 1024 / 1024 / 1024;
 
-                                /* Warning Logic */
                                 $ramWarning = $freeRamGb < 2.0;
                                 $diskCritical = $freeDiskGb < 10.0;
                                 $diskWarning = $freeDiskGb >= 10.0 && $freeDiskGb < 25.0;
@@ -251,7 +245,6 @@
                 </table>
             </div>
 
-            <!-- Pagination -->
             @if($reports->hasPages())
                 <div class="px-6 py-4 border-t border-gray-200 bg-gray-50">
                     {{ $reports->links() }}

@@ -8,12 +8,10 @@ use Illuminate\Support\Facades\Hash;
 
 class UserSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
+
     public function run(): void
     {
-        // Admin BPS — Roles: Admin (2) + User (6)
+
         $admin = User::updateOrCreate(
             ['username' => 'admin_bps'],
             [
@@ -24,7 +22,6 @@ class UserSeeder extends Seeder
         );
         $admin->roles()->sync([2, 6]);
 
-        // Pengelola Barang BPS — Roles: Pengelola Barang (4) + User (6)
         $aset = User::firstOrCreate(
             ['email' => 'aset@bps.go.id'],
             [
@@ -35,7 +32,6 @@ class UserSeeder extends Seeder
         );
         $aset->roles()->sync([4, 6]);
 
-        // Pimpinan BPS — Roles: Pimpinan (1) + User (6)
         $pimpinan = User::firstOrCreate(
             ['email' => 'pimpinan@bps.go.id'],
             [
@@ -46,7 +42,6 @@ class UserSeeder extends Seeder
         );
         $pimpinan->roles()->sync([1, 6]);
 
-        // Ketua Tim IT — Roles: Ketua Tim (7) + User (6)
         $ketuaTim = User::firstOrCreate(
             ['email' => 'ketua_it@bps.go.id'],
             [
@@ -57,7 +52,6 @@ class UserSeeder extends Seeder
         );
         $ketuaTim->roles()->sync([7, 6]);
 
-        // Teknisi BPS — Roles: Teknisi (3) + User (6)
         $teknisi = User::firstOrCreate(
             ['email' => 'teknisi@bps.go.id'],
             [

@@ -3,20 +3,15 @@ param(
     [string]$Mode = "startup"
 )
 
-# ============================================================
-# Bypass Keamanan Jaringan & SSL
-# ============================================================
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 [System.Net.ServicePointManager]::ServerCertificateValidationCallback = {$true}
 
-# Konfigurasi dasar agent.
 $ApiUrl      = "http://192.168.20.69/api/pc-report"
 $ConfigUrl   = "http://192.168.20.69/api/agent-config"
 $ApiKey      = "BPS-SULSEL-SECRET-2026"
 $RoomName    = "Ruangan Server BPS"
 $LogPath     = "$env:TEMP\bps_guardian_v2.log"
 
-# Fungsi untuk mencatat log aktivitas agent.
 function Write-Log {
     param([string]$Message, [string]$Color = "White")
     $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
@@ -25,7 +20,6 @@ function Write-Log {
     $logEntry | Out-File -FilePath $LogPath -Append
 }
 
-# Logika untuk mode terjadwal (scheduled).
 if ($Mode -eq "scheduled") {
     Write-Log "Memeriksa jadwal pengiriman dari server..." "Cyan"
 
@@ -37,7 +31,6 @@ if ($Mode -eq "scheduled") {
         $ConfigResponse = Invoke-RestMethod -Uri "$ConfigUrl`?room_name=$([uri]::EscapeDataString($RoomName))" `
                                             -Method Get -Headers $Headers -ErrorAction Stop
 
-        # Validasi apakah jam sekarang masuk dalam jadwal.
         $CurrentHour = (Get-Date).Hour
         $ScheduledHours = $ConfigResponse.scheduled_hours
 
@@ -46,7 +39,6 @@ if ($Mode -eq "scheduled") {
             exit 0
         }
 
-        # Menerapkan jeda pengiriman berdasarkan antrean ruangan.
         $DelaySeconds = [int]$ConfigResponse.delay_seconds
         if ($DelaySeconds -gt 0) {
             Write-Log "Menunggu giliran ruangan '$RoomName' ($([Math]::Round($DelaySeconds / 60, 1)) menit)..." "Yellow"
@@ -63,59 +55,45 @@ if ($Mode -eq "scheduled") {
     Write-Log "Mode startup aktif. Mengirim data segera." "Cyan"
 }
 
-# Proses pengambilan data diagnostik PC.
 try {
     Write-Log "Mengumpulkan data sistem..." "Cyan"
 
-    # Identitas dasar perangkat.
     $Hostname = $env:COMPUTERNAME
-    $IpAddress = (Get-NetIPAddress | Where-Object { 
-        $_.AddressFamily -eq 'IPv4' -and $_.IPAddress -notmatch '^169\.254\.' -and $_.IPAddress -ne '127.0.0.1' 
+    $IpAddress = (Get-NetIPAddress | Where-Object {
+        $_.AddressFamily -eq 'IPv4' -and $_.IPAddress -notmatch '^169\.254\.' -and $_.IPAddress -ne '127.0.0.1'
     } | Select-Object -First 1).IPAddress
 
-    # Pengambilan MAC Address yang lebih stabil (Memprioritaskan adapter FISIK).
-    # Mengabaikan adapter virtual (Hyper-V, VirtualBox, VMWare, WSL).
-    # Prioritaskan adapter fisik yang aktif, abaikan adapter virtual.
-    # Kurung diperlukan agar precedence operator -and/-or bekerja dengan benar.
-    $Adapter = Get-NetAdapter | Where-Object { 
-        $_.Status -eq 'Up' -and 
+    $Adapter = Get-NetAdapter | Where-Object {
+        $_.Status -eq 'Up' -and
         ($_.PhysicalMediaType -ne 'Native 802.11' -or $_.ConnectorPresent -eq $true) -and
         $_.InterfaceDescription -notmatch "Virtual|Hyper-V|VMware|Box|VPN|Loopback|Pseudo|WSL"
     } | Sort-Object -Property @{Expression={$_.ConnectorPresent}; Descending=$true}, InterfaceDescription | Select-Object -First 1
 
-    # Jika tidak ketemu yang fisik, ambil saja yang pertama aktif.
     if (-not $Adapter) { $Adapter = Get-NetAdapter | Where-Object { $_.Status -eq 'Up' } | Select-Object -First 1 }
-    
-    $MacAddress = ($Adapter.MacAddress -replace "-", ":") 
 
-    # Informasi Sistem Operasi.
+    $MacAddress = ($Adapter.MacAddress -replace "-", ":")
+
     $OsInfo = Get-CimInstance Win32_OperatingSystem
     $OsName = $OsInfo.Caption
     $OsBuild = $OsInfo.BuildNumber
     $LastPatch = Get-HotFix | Sort-Object InstalledOn -Descending | Select-Object -First 1
     $LastPatchDate = if ($LastPatch) { $LastPatch.InstalledOn.ToString("yyyy-MM-dd") } else { "Unknown" }
 
-    # Analisis penggunaan RAM.
     $TotalRamKb = $OsInfo.TotalVisibleMemorySize
     $FreeRamKb = $OsInfo.FreePhysicalMemory
     $UsedRamPercent = [Math]::Round((($TotalRamKb - $FreeRamKb) / $TotalRamKb) * 100, 2)
 
-    # Analisis penyimpanan (Drive C:).
     $DiskInfo = Get-CimInstance Win32_LogicalDisk | Where-Object { $_.DeviceID -eq "C:" }
     $TotalDiskB = $DiskInfo.Size
     $FreeDiskB = $DiskInfo.FreeSpace
-    
-    # Pengecekan kesehatan hardware disk.
+
     $DiskHealthObj = Get-CimInstance -Namespace root\wmi -ClassName MSStorageDriver_FailurePredictStatus -ErrorAction SilentlyContinue
     $IsDiskCritical = @($DiskHealthObj.PredictFailure) -contains $true
     $DiskStatus = if ($IsDiskCritical) { "KRITIS (Segera Ganti)" } else { "SEHAT" }
 
-    # Logika deteksi anomali sistem.
     $IsTrouble = $false
     $TroubleNote = "Normal"
 
-    # Catatan: Menggunakan append (+=) agar jika 2 kondisi anomali terjadi bersamaan,
-    # keduanya tercatat dan tidak saling menimpa.
     $TroubleReasons = @()
 
     if ($UsedRamPercent -gt 90) {
@@ -131,7 +109,6 @@ try {
         $TroubleNote = $TroubleReasons -join "; "
     }
 
-    # Inventarisasi daftar aplikasi terinstal.
     $SoftwareList = @()
     $SeenApps = @{}
     $AvKeywords = @("defender", "antivirus", "security", "kaspersky", "mcafee", "norton", "bitdefender", "avast", "eset", "symantec", "smadav", "malwarebytes", "avira", "sophos", "trellix", "sentinel")
@@ -150,8 +127,7 @@ try {
             $AppName = [string]$App.DisplayName
             if (-not [string]::IsNullOrWhiteSpace($AppName) -and -not $SeenApps.ContainsKey($AppName)) {
                 $SeenApps[$AppName] = $true
-                
-                # Identifikasi software keamanan.
+
                 $IsAv = $false
                 foreach ($Keyword in $AvKeywords) {
                     if ($AppName -match "(?i)$Keyword") {
@@ -178,11 +154,9 @@ try {
         }
     }
 
-    # Mengurutkan daftar aplikasi (Keamanan diprioritaskan di atas).
     $SoftwareList = @($SoftwareList | Sort-Object Priority, name)
     $SoftwareList = $SoftwareList | Select-Object name, version, publisher
 
-    # Menyusun payload data untuk dikirim ke server.
     $PayloadHashtable = @{
         hostname      = $Hostname
         ip_address    = $IpAddress
@@ -203,12 +177,8 @@ try {
 
     $PayloadJson = $PayloadHashtable | ConvertTo-Json -Depth 3
 
-    # Memaksa penggunaan encoding UTF-8 untuk Invoke-RestMethod
-    # Pada versi PowerShell lama (seperti 5.1), mengirim string ke -Body akan menggunakan format ISO-8859-1
-    # yang dapat menyebabkan fungsi json_decode pada PHP gagal jika ada karakter seperti '®' di nama software.
     $PayloadBytes = [System.Text.Encoding]::UTF8.GetBytes($PayloadJson)
 
-    # Pengiriman data ke endpoint API server.
     $Headers = @{
         "Accept"       = "application/json"
         "X-API-KEY"    = $ApiKey

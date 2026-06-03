@@ -1,10 +1,9 @@
 @props([
     'title'    => 'SIGAP',
-    'subtitle' => 'Sistem Monitoring Terpadu Aset Komputer',
+    'subtitle' => 'Sistem Guardian Aset dan Pelayanan IT',
 ])
 <!DOCTYPE html>
 <html lang="id">
-@php // Layout Induk SIGAP — Digunakan oleh semua halaman auth @endphp
 
 <head>
     <meta charset="utf-8">
@@ -12,36 +11,25 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ $title ?? 'SIGAP' }} | SIGAP - BPS Sulsel</title>
 
-    @php // Google Fonts @endphp
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
         rel="stylesheet">
 
-    @php // Alpine JS @endphp
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
-    @php // Gaya Terpusat Auth — Hanya didefinisikan di satu tempat @endphp
     <style>
-        /* =========================================
-         * TOKEN WARNA BPULSE
-         * ========================================= */
+
         :root {
             --bps-navy: #004a8d;
             --bps-teal: #00d2d2;
             --bps-bg:   #f8fafc;
         }
 
-        /* =========================================
-         * DASAR
-         * ========================================= */
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
             background-color: white;
             overflow-x: hidden;
         }
 
-        /* =========================================
-         * ANIMASI EKG DETAK JANTUNG
-         * ========================================= */
         @keyframes heartPulse {
             0%   { stroke-dashoffset: 1000; opacity: 0; }
             10%  { opacity: 1; }
@@ -64,9 +52,6 @@
             filter: drop-shadow(0 0 8px rgba(0, 210, 210, 0.6));
         }
 
-        /* =========================================
-         * ANIMASI MELAYANG LOGO
-         * ========================================= */
         @keyframes float {
             0%, 100% { transform: translateY(0); }
             50%       { transform: translateY(-10px); }
@@ -76,9 +61,61 @@
             animation: float 4s ease-in-out infinite;
         }
 
-        /* =========================================
-         * STRUKTUR HALAMAN AUTH
-         * ========================================= */
+        @keyframes glowPulse {
+            0%, 100% {
+                filter: drop-shadow(0 0 12px rgba(255, 255, 255, 0.2)) drop-shadow(0 0 22px rgba(0, 74, 141, 0.4));
+            }
+            50% {
+                filter: drop-shadow(0 0 28px rgba(255, 255, 255, 0.45)) drop-shadow(0 0 48px rgba(0, 210, 210, 0.65));
+            }
+        }
+
+        .animate-shield {
+            animation: float 4s ease-in-out infinite, glowPulse 4s ease-in-out infinite;
+        }
+
+        .shimmer-wrapper {
+            position: relative;
+            overflow: hidden;
+            width: 100%;
+            height: 100%;
+            -webkit-mask-image: url('{{ asset('images/logo_sigap.svg') }}');
+            mask-image: url('{{ asset('images/logo_sigap.svg') }}');
+            -webkit-mask-size: contain;
+            mask-size: contain;
+            -webkit-mask-repeat: no-repeat;
+            mask-repeat: no-repeat;
+            -webkit-mask-position: center;
+            mask-position: center;
+        }
+
+        .sheen-sweep {
+            position: absolute;
+            top: -50%;
+            left: -150%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                105deg,
+                rgba(255, 255, 255, 0) 30%,
+                rgba(255, 255, 255, 0.05) 42%,
+                rgba(255, 255, 255, 0.6) 50%,
+                rgba(255, 255, 255, 0.05) 58%,
+                rgba(255, 255, 255, 0) 70%
+            );
+            pointer-events: none;
+            animation: sheen 5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+        }
+
+        @keyframes sheen {
+            0% {
+                left: -150%;
+            }
+            35%, 100% {
+                left: 150%;
+            }
+        }
+
         .auth-wrapper {
             display: flex;
             flex-direction: column;
@@ -91,9 +128,6 @@
             }
         }
 
-        /* =========================================
-         * PANEL KIRI
-         * ========================================= */
         .left-panel {
             display: none;
             background-color: var(--bps-navy);
@@ -126,9 +160,6 @@
             display: inline-block;
         }
 
-        /* =========================================
-         * PANEL KANAN
-         * ========================================= */
         .right-panel {
             flex: 1;
             display: flex;
@@ -154,9 +185,6 @@
             width: 100%;
         }
 
-        /* =========================================
-         * LOGO MOBILE
-         * ========================================= */
         .mobile-logo {
             display: flex;
             position: absolute;
@@ -172,9 +200,6 @@
             }
         }
 
-        /* =========================================
-         * INPUT FORM
-         * ========================================= */
         .auth-input {
             width: 100%;
             padding: 0.75rem 1rem;
@@ -200,9 +225,6 @@
             cursor: not-allowed;
         }
 
-        /* =========================================
-         * TOMBOL UTAMA
-         * ========================================= */
         .btn-auth {
             background-color: var(--bps-navy) !important;
             color: white !important;
@@ -235,65 +257,43 @@
 
     <div class="auth-wrapper">
 
-        @php // =============================================
-         // PANEL KIRI: BRANDING & ANIMASI (BERSAMA)
-         // ============================================= @endphp
         <div class="left-panel">
 
-            @php // Overlay dekorasi diagonal @endphp
             <div class="diagonal-overlay" style="opacity:0.3; pointer-events:none; z-index:0;"></div>
 
-            @php // Spacer atas @endphp
             <div style="height:2rem; width:100%;"></div>
 
-            @php // Konten tengah: Logo & Judul @endphp
             <div class="left-panel-inner">
-
-                @php // Logo bulat dengan animasi EKG @endphp
-                <div class="animate-float" style="background:white; box-shadow:0 0 60px rgba(255,255,255,0.25); margin-bottom:2rem; position:relative; width:140px; height:140px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
-                    <svg viewBox="0 0 100 100" class="pulse-glow" style="position:absolute; top:0; left:0; width:100%; height:100%; transform:scale(1.1); z-index:20;">
-                        <path class="pulse-line" d="M0,50 L30,50 L35,30 L45,70 L50,50 L100,50" />
-                    </svg>
-                    <span style="font-family:'Plus Jakarta Sans',sans-serif; font-weight:900; font-size:2.5rem; line-height:1; color:#004a8d; position:relative; z-index:50; user-select:none; letter-spacing:-0.05em;">BPS</span>
+                <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; width: 320px; position: relative;">
+                    <!-- Shield Icon (Floating & Glowing with Shimmer) -->
+                    <div class="animate-shield" style="width: 370px; height: 370px; display: flex; align-items: center; justify-content: center; position: relative; z-index: 10;">
+                        <div class="shimmer-wrapper">
+                            <img src="{{ asset('images/logo_sigap.svg') }}" style="width: 100%; height: 100%; object-fit: contain;" alt="Logo SIGAP">
+                            <div class="sheen-sweep"></div>
+                        </div>
+                    </div>
+                    <!-- Name Logo (Static) -->
+                    <img src="{{ asset('images/nama_logo.svg') }}" style="width: 320px; height: 320px; object-fit: contain; clip-path: inset(40% 0 41.5% 0); margin-top: -118px; margin-bottom: -125px; z-index: 5;" alt="Nama SIGAP">
                 </div>
 
-                @php // Judul SIGAP @endphp
-                <div class="sigap-title" style="display:flex; align-items:flex-end; justify-content:center; font-weight:800; letter-spacing:-0.05em; margin-bottom:1rem; user-select:none; line-height:1; z-index:20; width:100%;">
-                    <span style="color:white; font-size:clamp(3rem,5vw,4.5rem);">BP</span>
-                    <span style="color:#00d2d2; font-size:clamp(2rem,3.5vw,3rem); font-weight:500; margin:0 2px 4px;">ul</span>
-                    <span style="color:white; font-size:clamp(3rem,5vw,4.5rem);">S</span>
-                    <span style="color:#00d2d2; font-size:clamp(2rem,3.5vw,3rem); font-weight:500; margin:0 2px 4px;">e</span>
-                </div>
-
-                @php // Garis aksen & slogan @endphp
-                <div style="height:4px; width:4rem; background:#00d2d2; border-radius:9999px; margin-bottom:1.5rem; box-shadow:0 0 20px rgba(0,210,210,0.6);"></div>
-                <h2 style="font-weight:700; letter-spacing:0.3em; text-transform:uppercase; opacity:0.9; margin-bottom:2rem; color:white; font-size:0.875rem;">THE HEARTBEAT OF IT</h2>
-
-                @php // Subjudul per halaman @endphp
-                <div style="max-width:28rem; padding:0 1rem; text-align:center;">
-                    <p style="font-size:1.125rem; color:white; font-weight:500; letter-spacing:-0.025em;">{{ $subtitle }}</p>
-                    <p style="color:rgba(255,255,255,0.4); font-size:9px; margin-top:1rem; text-transform:uppercase; letter-spacing:0.3em; font-weight:700;">BPS Provinsi Sulawesi Selatan</p>
+                <div style="max-width: 28rem; padding: 0 1rem; text-align: center;">
+                    <div style="height: 2px; width: 4rem; background: rgba(255,255,255,0.2); border-radius: 9999px; margin: 0 auto 1.5rem;"></div>
+                    <p style="font-size: 1.125rem; color: white; font-weight: 500; letter-spacing: -0.025em; line-height: 1.5;">{{ $subtitle }}</p>
+                    <p style="color: rgba(255,255,255,0.5); font-size: 10px; margin-top: 0.75rem; text-transform: uppercase; letter-spacing: 0.25em; font-weight: 700;">BPS Provinsi Sulawesi Selatan</p>
                 </div>
             </div>
 
-            @php // Hak cipta @endphp
             <div style="z-index:20; text-align:center; color:rgba(255,255,255,0.3); font-size:9px; font-weight:500; padding:1rem 0; letter-spacing:0.2em; text-transform:uppercase;">
                 © {{ date('Y') }} Badan Pusat Statistik Provinsi Sulawesi Selatan
             </div>
         </div>
 
-        @php // =============================================
-         // PANEL KANAN: KONTEN FORM (BERUBAH PER HALAMAN)
-         // ============================================= @endphp
         <div class="right-panel">
 
-            @php // Logo mobile (tampil hanya di layar kecil) @endphp
-            <div class="mobile-logo">
-                <div style="width:2rem; height:2rem; background:#004a8d; border-radius:50%; display:flex; align-items:center; justify-content:center; color:white; font-weight:700; font-size:9px;">BPS</div>
-                <span style="font-weight:700; font-size:1rem; letter-spacing:-0.05em;">BP<span style="color:#00d2d2;">ul</span>S<span style="color:#00d2d2;">e</span></span>
+            <div class="mobile-logo" style="display: flex; align-items: center; gap: 0.5rem; position: absolute; top: 1.5rem; left: 1.5rem;">
+                <img src="{{ asset('images/logo_sigap.svg') }}" class="h-8 w-auto object-contain" alt="Logo SIGAP">
             </div>
 
-            @php // Slot konten form dari masing-masing halaman @endphp
             <div style="width:100%; max-width:22rem;">
                 {{ $slot }}
             </div>

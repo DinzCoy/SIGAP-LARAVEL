@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Asset;
 use App\Models\DeviceName;
 use App\Models\Room;
+use App\Services\ImageService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -12,7 +13,7 @@ use Illuminate\View\View;
 
 class DeviceNameController extends Controller
 {
-    
+
     public function index(): View
     {
         $device_names = DeviceName::orderBy('brand')->orderBy('name')->get();
@@ -40,7 +41,8 @@ class DeviceNameController extends Controller
         $data = $request->except('image');
 
         if ($request->hasFile('image')) {
-            $data['image'] = $request->file('image')->store('device_images', 'public');
+
+            $data['image'] = ImageService::storeCompressed($request->file('image'), 'device_images', 800);
         }
 
         $deviceName = DeviceName::create($data);
@@ -99,12 +101,12 @@ class DeviceNameController extends Controller
             if ($deviceName->image) {
                 Storage::disk('public')->delete($deviceName->image);
             }
-            $data['image'] = $request->file('image')->store('device_images', 'public');
+
+            $data['image'] = ImageService::storeCompressed($request->file('image'), 'device_images', 800);
         }
 
         $deviceName->update($data);
 
-        // auto bikin slot aset kalo qty nambah
         $existingCount = $deviceName->assets()->count();
         $diff          = (int) $request->quantity - $existingCount;
 
@@ -130,7 +132,6 @@ class DeviceNameController extends Controller
             Storage::disk('public')->delete($deviceName->image);
         }
 
-        // Hapus semua aset yang terkait dengan master ini
         $deviceName->assets()->delete();
 
         $deviceName->delete();

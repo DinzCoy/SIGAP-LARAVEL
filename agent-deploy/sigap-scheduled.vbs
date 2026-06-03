@@ -1,5 +1,3 @@
-' SIGAP - Silent Launcher (Scheduled Mode)
-' Berfungsi untuk menjalankan agent PowerShell di latar belakang tanpa jendela.
 
 Dim objShell
 Set objShell = CreateObject("Wscript.Shell")

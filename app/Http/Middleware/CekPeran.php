@@ -8,7 +8,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 class CekPeran
 {
-    //Menangani request masuk dan memvalidasi peran (role) user.
+
     public function handle(Request $request, Closure $next, ...$roles): Response
     {
         $activeRoleId = session('active_role_id');

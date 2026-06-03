@@ -1,5 +1,5 @@
 <x-app-layout>
-    {{-- Satu x-data di root — semua state terpusat --}}
+
     <div class="max-w-xl mx-auto"
          x-data="{
              selectedAssetId: '{{ old('asset_id', '') }}',
@@ -22,7 +22,6 @@
              }
          }">
 
-        <!-- ── Header ── -->
         <div class="flex items-start gap-3 mb-6">
             <a href="{{ route('ruangan.dashboard') }}"
                class="mt-1 p-2 rounded-lg bg-white border border-gray-200 hover:bg-gray-50 text-gray-500 shadow-sm transition-all shrink-0">
@@ -34,7 +33,6 @@
             </div>
         </div>
 
-        <!-- ── Validasi Error ── -->
         @if ($errors->any())
             <div class="mb-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-sm flex gap-2 items-start">
                 <x-lucide-alert-circle class="w-4 h-4 shrink-0 mt-0.5 text-red-500" />
@@ -59,10 +57,9 @@
         @else
             <form method="POST" action="{{ route('ruangan.lapor.store') }}" class="space-y-4">
                 @csrf
-                {{-- Hidden input priority — dikontrol Alpine --}}
+
                 <input type="hidden" name="priority" :value="priority">
 
-                <!-- ── Card 1: Pilih Aset ── -->
                 <div class="bg-white rounded-xl border border-gray-200 shadow-sm">
                     <div class="flex items-center gap-2.5 px-5 py-3.5 border-b border-gray-100 bg-gray-50/80 rounded-t-xl">
                         <span class="w-5 h-5 rounded-full bg-teal-500 text-white flex items-center justify-center text-[10px] font-bold shrink-0">1</span>
@@ -93,7 +90,6 @@
                             @enderror
                         </div>
 
-                        <!-- Info aset terpilih -->
                         <div x-show="selectedInfo !== null"
                              x-transition:enter="transition ease-out duration-200"
                              x-transition:enter-start="opacity-0 -translate-y-1"
@@ -119,7 +115,6 @@
                     </div>
                 </div>
 
-                <!-- ── Card 2: Detail Laporan ── -->
                 <div class="bg-white rounded-xl border border-gray-200 shadow-sm">
                     <div class="flex items-center gap-2.5 px-5 py-3.5 border-b border-gray-100 bg-gray-50/80 rounded-t-xl">
                         <span class="w-5 h-5 rounded-full bg-teal-500 text-white flex items-center justify-center text-[10px] font-bold shrink-0">2</span>
@@ -127,7 +122,6 @@
                     </div>
                     <div class="px-5 py-4 space-y-4">
 
-                        <!-- Kategori -->
                         <div>
                             <label for="category" class="block text-sm font-medium text-gray-700 mb-1">
                                 Kategori <span class="text-red-500">*</span>
@@ -139,7 +133,6 @@
                             </select>
                         </div>
 
-                        <!-- Judul -->
                         <div>
                             <label for="title" class="block text-sm font-medium text-gray-700 mb-1">
                                 Judul Masalah <span class="text-red-500">*</span>
@@ -153,7 +146,6 @@
                             @enderror
                         </div>
 
-                        <!-- Prioritas — Alpine :class binding, TIDAK ada vanilla JS -->
                         <div>
                             <p class="block text-sm font-medium text-gray-700 mb-2">
                                 Tingkat Prioritas <span class="text-red-500">*</span>
@@ -178,7 +170,6 @@
                             </div>
                         </div>
 
-                        <!-- Keterangan -->
                         <div>
                             <label for="description" class="block text-sm font-medium text-gray-700 mb-1">
                                 Keterangan Detail <span class="text-red-500">*</span>
@@ -194,7 +185,6 @@
                     </div>
                 </div>
 
-                <!-- ── Tombol Aksi — grid 2 kolom, tidak bisa terpotong ── -->
                 <div class="grid grid-cols-2 gap-3 py-2">
                     <a href="{{ route('ruangan.dashboard') }}"
                        class="flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-lg border border-gray-300 bg-white text-gray-600 text-sm font-medium hover:bg-gray-50 transition-colors">

@@ -7,13 +7,12 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    //Memperbaiki nilai ENUM kolom status agar konsisten dengan logika aplikasi.
+
     public function up(): void
     {
-        // Perbaiki data lama yang pakai nama status tidak konsisten
+
         DB::statement("UPDATE tickets SET status = 'Diteruskan ke Teknisi' WHERE status = 'Ditugaskan ke Teknisi'");
 
-        // Update ENUM dengan daftar status lengkap dan konsisten
         if (DB::getDriverName() !== 'sqlite') {
             DB::statement("ALTER TABLE tickets MODIFY COLUMN status ENUM(
                 'Open',
@@ -29,7 +28,6 @@ return new class extends Migration
         }
     }
 
-    //Rollback: kembalikan ke ENUM lama jika perlu.
     public function down(): void
     {
         DB::statement("UPDATE tickets SET status = 'Ditugaskan ke Teknisi' WHERE status = 'Diteruskan ke Teknisi'");

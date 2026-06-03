@@ -3,15 +3,17 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\CekUpdateProfil;
+use App\Services\ImageService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
 class ProfileController extends Controller
 {
-    // buat ngedit profil biar makin ganteng/cantik
+
     public function edit(Request $request): View
     {
         return view('profile.edit', [
@@ -19,11 +21,10 @@ class ProfileController extends Controller
         ]);
     }
 
-    // simpan perubahan profil biar ga ilang
     public function update(CekUpdateProfil $request): RedirectResponse
     {
         $user = $request->user();
-        
+
         $user->fill($request->safe()->only(['name', 'email']));
 
         if ($user->isDirty('email')) {
@@ -31,12 +32,17 @@ class ProfileController extends Controller
         }
 
         if ($request->hasFile('foto_profil') && $request->file('foto_profil')->isValid()) {
-            // Hapus foto lama jika ada
+
             if ($user->photo_path) {
-                \Illuminate\Support\Facades\Storage::disk('public')->delete($user->photo_path);
+                Storage::disk('public')->delete($user->photo_path);
             }
-            // Simpan foto baru
-            $user->photo_path = $request->file('foto_profil')->store('profile-photos', 'public');
+
+            $user->photo_path = ImageService::storeCompressed(
+                $request->file('foto_profil'),
+                'profile-photos',
+                maxWidth: 400,
+                quality: 85
+            );
         }
 
         $user->save();
@@ -44,7 +50,6 @@ class ProfileController extends Controller
         return Redirect::route('profile.edit')->with('status', 'profile-updated');
     }
 
-    // hapus akun kalau udah ga mau jadi bagian dari kita lagi :(
     public function destroy(Request $request): RedirectResponse
     {
         $request->validateWithBag('userDeletion', [

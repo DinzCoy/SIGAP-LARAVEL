@@ -7,7 +7,7 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class CekInputTiketBaru extends FormRequest
 {
-    //Cek apakah user punya izin untuk membuat tiket.
+
     public function authorize(): bool
     {
         return in_array(session('active_role_id'), [
@@ -16,7 +16,6 @@ class CekInputTiketBaru extends FormRequest
         ]);
     }
 
-    //Aturan validasi untuk pembuatan tiket baru.
     public function rules(): array
     {
         return [

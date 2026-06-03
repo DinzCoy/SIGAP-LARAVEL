@@ -1,6 +1,6 @@
 <x-app-layout>
     <div class="w-full px-4 sm:px-6 lg:px-8 space-y-8 animate-fade-in pb-12">
-        <!-- Header Section -->
+
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-5">
             <div>
                 <h1 class="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-gray-600 tracking-tight flex items-center gap-3">
@@ -22,7 +22,6 @@
             </div>
         </div>
 
-        <!-- Flash Messages -->
         @if(session('success'))
             <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 4000)"
                  class="p-4 bg-emerald-50/80 backdrop-blur-sm border border-emerald-200/60 text-emerald-800 rounded-xl flex items-center gap-3 shadow-sm transform transition-all duration-300">
@@ -61,9 +60,8 @@
             </div>
         @endif
 
-        <!-- Filter & Statistics -->
         <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-            <!-- Stat -->
+
             <div class="bg-white rounded-2xl p-6 border border-gray-200/60 shadow-sm flex flex-col justify-center relative overflow-hidden">
                 <div class="absolute -right-6 -top-6 w-24 h-24 bg-blue-100 rounded-full blur-2xl opacity-60 pointer-events-none"></div>
                 <p class="text-xs font-semibold text-gray-500 uppercase tracking-widest mb-1">Total Entitas</p>
@@ -73,15 +71,14 @@
                 </div>
             </div>
 
-            <!-- Filter -->
             <div class="md:col-span-3 bg-white rounded-2xl p-6 border border-gray-200/60 shadow-sm flex flex-col justify-center">
                 <form id="filterForm" action="{{ route('users.index') }}" method="GET" class="flex flex-col sm:flex-row gap-3">
                     <div class="relative flex-1 group">
                         <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
                             <x-lucide-search class="h-4 w-4 text-gray-400 group-focus-within:text-bps-blue transition-colors" />
                         </div>
-                        <input type="text" name="search" value="{{ request('search') }}" 
-                               class="block w-full pl-10 pr-4 py-2.5 bg-gray-50/50 border border-gray-200 rounded-xl focus:bg-white focus:border-bps-blue focus:ring-4 focus:ring-blue-100/50 text-sm transition-all placeholder-gray-400 text-gray-800" 
+                        <input type="text" name="search" value="{{ request('search') }}"
+                               class="block w-full pl-10 pr-4 py-2.5 bg-gray-50/50 border border-gray-200 rounded-xl focus:bg-white focus:border-bps-blue focus:ring-4 focus:ring-blue-100/50 text-sm transition-all placeholder-gray-400 text-gray-800"
                                placeholder="Pencarian nama, email, atau username...">
                     </div>
                     <button type="submit" class="px-6 py-2.5 bg-white border border-gray-200 shadow-sm text-gray-700 rounded-xl text-sm font-semibold hover:bg-gray-50 hover:border-gray-300 transition-all flex items-center justify-center gap-2">
@@ -98,10 +95,9 @@
             </div>
         </div>
 
-        <!-- Table View -->
         <div class="flex items-center justify-between">
             <p class="text-sm text-gray-500">
-                Menampilkan 
+                Menampilkan
                 <span class="font-bold text-gray-700">{{ $users->firstItem() ?? 0 }}</span>
                 –
                 <span class="font-bold text-gray-700">{{ $users->lastItem() ?? 0 }}</span>
@@ -128,20 +124,21 @@
                                 </td>
                                 <td class="px-6 py-5">
                                     <div class="flex items-center gap-4">
-                                        <!-- Avatar -->
+
                                         @php
                                             $initials = strtoupper(substr($user?->name ?? 'U', 0, 2));
                                             $hue = crc32($user?->email ?? 'unknown') % 360;
+                                            $safeName = addslashes($user?->name ?? 'User');
                                         @endphp
                                         <div class="relative w-12 h-12 flex-shrink-0">
                                             <div class="w-full h-full rounded-full flex items-center justify-center text-sm font-bold text-white shadow-sm ring-2 ring-white"
-                                                 style="background: linear-gradient(135deg, hsl({{ $hue }}, 70%, 60%), hsl({{ $hue + 30 }}, 70%, 50%));">
+                                                 {!! 'style="background: linear-gradient(135deg, hsl(' . $hue . ', 70%, 60%), hsl(' . ($hue + 30) . ', 70%, 50%));"' !!}>
                                                 {{ $initials }}
                                             </div>
-                                            <!-- status indicator -->
+
                                             <div class="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 border-2 border-white rounded-full"></div>
                                         </div>
-                                        <!-- Identity -->
+
                                         <div>
                                             <div class="flex items-center gap-2 mb-0.5">
                                                 <h4 class="text-sm font-semibold text-gray-900 leading-tight">
@@ -166,13 +163,13 @@
                                         @foreach($user->roles as $role)
                                             @php
                                                 $badgeStyle = match($role->id) {
-                                                    1 => 'bg-emerald-50 text-emerald-700 border-emerald-200 ring-emerald-100', // Pimpinan
-                                                    2 => 'bg-red-50 text-red-700 border-red-200 ring-red-100', // Admin
-                                                    3 => 'bg-amber-50 text-amber-700 border-amber-200 ring-amber-100', // Teknisi
-                                                    4 => 'bg-blue-50 text-blue-700 border-blue-200 ring-blue-100', // Pengelola Barang
-                                                    5 => 'bg-indigo-50 text-indigo-700 border-indigo-200 ring-indigo-100', // Pengelola Ruangan
-                                                    6 => 'bg-gray-50 text-gray-600 border-gray-200 ring-gray-100', // User
-                                                    7 => 'bg-orange-50 text-orange-700 border-orange-200 ring-orange-100', // Ketua Tim
+                                                    1 => 'bg-emerald-50 text-emerald-700 border-emerald-200 ring-emerald-100',
+                                                    2 => 'bg-red-50 text-red-700 border-red-200 ring-red-100',
+                                                    3 => 'bg-amber-50 text-amber-700 border-amber-200 ring-amber-100',
+                                                    4 => 'bg-blue-50 text-blue-700 border-blue-200 ring-blue-100',
+                                                    5 => 'bg-indigo-50 text-indigo-700 border-indigo-200 ring-indigo-100',
+                                                    6 => 'bg-gray-50 text-gray-600 border-gray-200 ring-gray-100',
+                                                    7 => 'bg-orange-50 text-orange-700 border-orange-200 ring-orange-100',
                                                     default => 'bg-slate-50 text-slate-700 border-slate-200 ring-slate-100'
                                                 };
                                             @endphp
@@ -184,7 +181,7 @@
                                 </td>
                                 <td class="px-6 py-5 text-right">
                                     <div class="flex items-center justify-end gap-1.5">
-                                        <button type="button" 
+                                        <button type="button"
                                             onclick="prepareUserEditModal(this)"
                                             data-user="{{ json_encode($user) }}"
                                             data-roles="{{ json_encode($user->roles->pluck('id')) }}"
@@ -193,12 +190,11 @@
                                             <x-lucide-edit class="w-4 h-4" />
                                         </button>
 
-                                        {{-- Tombol Reset Password --}}
                                         <form id="reset-pw-{{ $user->id }}" action="{{ route('users.resetPassword', $user->id) }}" method="POST" class="hidden">
                                             @csrf
                                         </form>
                                         <button type="button"
-                                            onclick="confirmResetPassword('reset-pw-{{ $user->id }}', '{{ addslashes($user?->name ?? 'User') }}')"
+                                            onclick="confirmResetPassword('reset-pw-{{ $user->id }}', '{{ $safeName }}')"
                                             class="p-2 text-orange-500 bg-orange-50 hover:text-orange-700 hover:bg-orange-100 rounded-lg transition-colors border border-orange-200 hover:border-orange-300 shadow-sm"
                                             title="Reset Password ke Default">
                                             <x-lucide-key-round class="w-4 h-4" />
@@ -207,7 +203,7 @@
                                         @if(auth()->id() !== $user->id)
                                         <form id="del-{{ $user->id }}" action="{{ route('users.destroy', $user->id) }}" method="POST">
                                             @csrf @method('DELETE')
-                                            <button type="button" onclick="confirmDelete('del-{{ $user->id }}', 'Yakin menghapus akun {{ addslashes($user?->name ?? 'User') }} secara permanen?')" class="p-2 text-red-500 bg-red-50 hover:text-red-700 hover:bg-red-100 rounded-lg transition-colors border border-red-200 hover:border-red-300 shadow-sm" title="Hapus Pengguna">
+                                            <button type="button" onclick="confirmDelete('del-{{ $user->id }}', 'Yakin menghapus akun {{ $safeName }} secara permanen?')" class="p-2 text-red-500 bg-red-50 hover:text-red-700 hover:bg-red-100 rounded-lg transition-colors border border-red-200 hover:border-red-300 shadow-sm" title="Hapus Pengguna">
                                                 <x-lucide-trash-2 class="w-4 h-4" />
                                             </button>
                                         </form>
@@ -236,7 +232,6 @@
                 </table>
             </div>
 
-            <!-- Footer Pagination -->
             <div class="px-6 py-4 border-t border-gray-200/60 bg-gray-50/50 flex flex-col md:flex-row justify-between items-center gap-4">
                 <div class="flex items-center gap-3">
                     <label for="per_page_bottom" class="text-xs font-bold text-gray-500 uppercase tracking-wider">Tampilkan:</label>
@@ -257,53 +252,67 @@
         </div>
     </div>
 
-    <!-- PREMIUM MODALS -->
-    
-    <!-- Create Modal -->
     <div id="createModal" class="hidden fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
         <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
             <div class="fixed inset-0 bg-gray-900/60 backdrop-blur-sm transition-opacity" aria-hidden="true" onclick="closeModal('createModal')"></div>
-            
+
             <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-            
+
             <div class="relative inline-block align-bottom bg-white rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full border border-gray-100 animate-slide-up">
                 <form action="{{ route('users.store') }}" method="POST">
                     @csrf
-                    <div class="bg-white px-6 py-8 sm:p-10 sm:pb-8">
-                        <!-- Header -->
-                        <div class="sm:flex sm:items-start mb-2">
-                            <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-blue-50 sm:mx-0 sm:h-10 sm:w-10 border border-blue-100">
-                                <x-lucide-user-plus class="h-5 w-5 text-bps-blue" aria-hidden="true" />
-                            </div>
-                            <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
-                                <h3 class="text-lg leading-6 font-bold text-gray-900" id="modal-title">Pendaftaran Akun Baru</h3>
-                                <div class="mt-1">
-                                    <p class="text-sm text-gray-500">Lengkapi formulir di bawah ini untuk menambahkan entitas ke dalam sistem.</p>
-                                </div>
-                            </div>
-                        </div>
 
-                        <!-- Form Content -->
-                        <div class="space-y-6 mt-8">
+                    <div class="bg-gradient-to-r from-bps-blue to-blue-800 px-6 py-5 text-white flex items-center justify-between">
+                        <h3 class="text-base sm:text-lg font-bold flex items-center gap-2.5" id="modal-title">
+                            <i data-lucide="user-plus" class="w-5 h-5"></i>
+                            Pendaftaran Akun Baru
+                        </h3>
+                        <button type="button" onclick="closeModal('createModal')" class="text-blue-100 hover:text-white transition-colors">
+                            <i data-lucide="x" class="w-5 h-5"></i>
+                        </button>
+                    </div>
+
+                    <div class="px-6 py-6 sm:px-8 space-y-5">
+                        <p class="text-xs sm:text-sm text-gray-500 mt-1">Lengkapi formulir di bawah ini untuk menambahkan entitas ke dalam sistem.</p>
+
+                        <div class="space-y-4">
+
                             <div>
                                 <label class="block text-xs font-semibold text-gray-700 mb-1.5 flex items-center gap-2">
                                     Nama Lengkap <span class="text-red-500">*</span>
                                 </label>
-                                <input type="text" name="name" required class="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-xl focus:border-bps-blue focus:ring-4 focus:ring-blue-100/50 outline-none transition-all text-sm text-gray-900 placeholder-gray-400" placeholder="Ketik nama di sini...">
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                                        <i data-lucide="user" class="w-4 h-4"></i>
+                                    </div>
+                                    <input type="text" name="name" required class="w-full pl-9 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-100 focus:border-bps-blue focus:outline-none transition-all duration-200 text-sm text-gray-900 placeholder-gray-400" placeholder="Ketik nama di sini...">
+                                </div>
                             </div>
 
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+
                                 <div>
                                     <label class="block text-xs font-semibold text-gray-700 mb-1.5 flex items-center gap-2">
                                         Username Unik <span class="text-red-500">*</span>
                                     </label>
-                                    <input type="text" name="username" required class="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-xl focus:border-bps-blue focus:ring-4 focus:ring-blue-100/50 outline-none transition-all text-sm text-gray-900 placeholder-gray-400" placeholder="contoh: budi_123">
+                                    <div class="relative">
+                                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                                            <i data-lucide="fingerprint" class="w-4 h-4"></i>
+                                        </div>
+                                        <input type="text" name="username" required class="w-full pl-9 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-100 focus:border-bps-blue focus:outline-none transition-all duration-200 text-sm text-gray-900 placeholder-gray-400" placeholder="contoh: budi_123">
+                                    </div>
                                 </div>
+
                                 <div>
                                     <label class="block text-xs font-semibold text-gray-700 mb-1.5 flex items-center gap-2">
                                         Email Dinas <span class="text-red-500">*</span>
                                     </label>
-                                    <input type="email" name="email" required class="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-xl focus:border-bps-blue focus:ring-4 focus:ring-blue-100/50 outline-none transition-all text-sm text-gray-900 placeholder-gray-400" placeholder="mail@bps.go.id">
+                                    <div class="relative">
+                                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                                            <i data-lucide="mail" class="w-4 h-4"></i>
+                                        </div>
+                                        <input type="email" name="email" required class="w-full pl-9 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-100 focus:border-bps-blue focus:outline-none transition-all duration-200 text-sm text-gray-900 placeholder-gray-400" placeholder="mail@bps.go.id">
+                                    </div>
                                 </div>
                             </div>
 
@@ -311,36 +320,74 @@
                                 <label class="block text-xs font-semibold text-gray-700 mb-1.5 flex items-center gap-2">
                                     Kredensial Password <span class="text-red-500">*</span>
                                 </label>
-                                <input type="password" name="password" required minlength="8" class="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-xl focus:border-bps-blue focus:ring-4 focus:ring-blue-100/50 outline-none transition-all text-sm font-mono placeholder-gray-400" placeholder="Minimal 8 karakter">
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                                        <i data-lucide="lock" class="w-4 h-4"></i>
+                                    </div>
+                                    <input type="password" name="password" required minlength="8" class="w-full pl-9 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-100 focus:border-bps-blue focus:outline-none transition-all duration-200 text-sm font-mono placeholder-gray-400" placeholder="Minimal 8 karakter">
+                                </div>
                             </div>
 
-                            <!-- Roles Selection -->
                             <div>
-                                <div class="flex items-center gap-2 mb-3">
+                                <div class="flex items-center gap-2 mb-2.5">
                                     <label class="block text-xs font-semibold text-gray-700">Otorisasi Level (Roles)</label>
                                     <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-gray-100 text-gray-500 border border-gray-200">
                                         Pilih minimal satu
                                     </span>
                                 </div>
-                                
-                                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 bg-gray-50/50 p-5 border border-gray-200/60 rounded-xl">
+
+                                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 bg-gray-50/50 p-4 border border-gray-200/60 rounded-xl">
                                     @foreach($roles as $role)
-                                        <label class="relative flex items-center gap-3 p-3.5 bg-white border border-gray-200 rounded-xl cursor-pointer hover:border-bps-blue hover:bg-blue-50/30 transition-all select-none group/role has-[:checked]:border-bps-blue has-[:checked]:bg-blue-50/30 has-[:checked]:ring-1 has-[:checked]:ring-bps-blue">
-                                            <input type="checkbox" name="roles[]" value="{{ $role->id }}" {{ $role->id == 6 ? 'checked onclick="return false;"' : '' }} class="w-4 h-4 shrink-0 text-bps-blue border-gray-300 rounded focus:ring-offset-0 focus:ring-bps-blue transition-all cursor-pointer">
-                                            <span class="text-xs font-semibold text-gray-700 group-hover/role:text-gray-900 transition-colors uppercase tracking-tight">{{ $role->name }}</span>
-                                        </label>
+                                        @php
+                                            $roleIcon = match($role->id) {
+                                                1 => 'briefcase',
+                                                2 => 'shield',
+                                                3 => 'wrench',
+                                                4 => 'box',
+                                                5 => 'door-open',
+                                                6 => 'user',
+                                                7 => 'users',
+                                                default => 'award'
+                                            };
+                                        @endphp
+
+                                        @if($role->id == 6)
+
+                                            <div class="relative flex items-center gap-3 p-3 bg-blue-50/30 border border-bps-blue rounded-xl select-none h-16 ring-1 ring-bps-blue">
+                                                <input type="hidden" name="roles[]" value="6" id="create_role_6">
+
+                                                <div class="w-4 h-4 rounded border border-bps-blue flex items-center justify-center bg-bps-blue text-white">
+                                                    <i data-lucide="check" class="w-3 h-3 stroke-[3.5]"></i>
+                                                </div>
+
+                                                <i data-lucide="{{ $roleIcon }}" class="w-4 h-4 text-bps-blue"></i>
+                                                <span class="text-xs font-semibold text-gray-950 uppercase tracking-tight">{{ $role->name }}</span>
+                                            </div>
+                                        @else
+                                            <label class="relative flex items-center gap-3 p-3 bg-white border border-gray-200 rounded-xl cursor-pointer hover:border-bps-blue hover:bg-blue-50/30 transition-all select-none group has-[:checked]:border-bps-blue has-[:checked]:bg-blue-50/30 has-[:checked]:ring-1 has-[:checked]:ring-bps-blue h-16">
+                                                <input type="checkbox" name="roles[]" value="{{ $role->id }}" class="peer sr-only">
+
+                                                <div class="w-4 h-4 rounded border border-gray-300 flex items-center justify-center bg-white transition-all group-hover:border-bps-blue peer-checked:bg-bps-blue peer-checked:border-bps-blue text-white">
+                                                    <i data-lucide="check" class="w-3 h-3 hidden group-has-[:checked]:block stroke-[3.5]"></i>
+                                                </div>
+
+                                                <i data-lucide="{{ $roleIcon }}" class="w-4 h-4 text-gray-400 group-hover:text-bps-blue peer-checked:text-bps-blue transition-colors"></i>
+                                                <span class="text-xs font-semibold text-gray-700 group-hover:text-gray-900 peer-checked:text-gray-950 transition-colors uppercase tracking-tight">{{ $role->name }}</span>
+                                            </label>
+                                        @endif
                                     @endforeach
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Footer Action Buttons -->
-                    <div class="bg-gray-50 px-6 py-5 sm:px-10 sm:flex sm:flex-row-reverse gap-3 border-t border-gray-100">
-                        <button type="submit" class="w-full inline-flex justify-center rounded-xl border border-transparent shadow-sm px-5 py-2 mt-3 sm:mt-0 bg-gray-900 text-sm font-semibold text-white hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900 sm:w-auto sm:text-sm items-center transition-all">
+                    <div class="bg-gray-50 px-6 py-5 sm:px-8 flex flex-row-reverse gap-3 border-t border-gray-100">
+                        <button type="submit" class="px-5 py-2.5 bg-gradient-to-r from-bps-blue to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold text-sm rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-bps-blue focus:ring-offset-2 transition-all duration-200 flex items-center gap-2">
+                            <i data-lucide="check" class="w-4 h-4"></i>
                             Daftarkan Pengguna
                         </button>
-                        <button type="button" onclick="closeModal('createModal')" class="w-full inline-flex justify-center rounded-xl border border-gray-300 shadow-sm px-5 py-2 mt-3 sm:mt-0 bg-white text-sm font-semibold text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-bps-blue sm:w-auto sm:text-sm items-center transition-all">
+                        <button type="button" onclick="closeModal('createModal')" class="px-4 py-2 border border-gray-300 text-gray-700 font-semibold text-sm rounded-lg shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-200 transition-all duration-200 flex items-center gap-2 bg-white">
+                            <i data-lucide="x" class="w-4 h-4"></i>
                             Batalkan
                         </button>
                     </div>
@@ -349,76 +396,132 @@
         </div>
     </div>
 
-    <!-- Edit Modal -->
     <div id="editModal" class="hidden fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
         <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
             <div class="fixed inset-0 bg-gray-900/60 backdrop-blur-sm transition-opacity" aria-hidden="true" onclick="closeModal('editModal')"></div>
-            
+
             <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-            
+
             <div class="relative inline-block align-bottom bg-white rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full border border-gray-100 animate-slide-up">
                 <form id="editForm" method="POST">
                     @csrf @method('PUT')
-                    <div class="bg-white px-6 py-8 sm:p-10 sm:pb-8">
-                        <!-- Header -->
-                        <div class="sm:flex sm:items-start mb-2">
-                            <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-amber-50 sm:mx-0 sm:h-10 sm:w-10 border border-amber-100">
-                                <x-lucide-user-cog class="h-5 w-5 text-amber-600" aria-hidden="true" />
-                            </div>
-                            <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
-                                <h3 class="text-lg leading-6 font-bold text-gray-900" id="modal-title">Edit Profil Pengguna</h3>
-                                <div class="mt-1">
-                                    <p class="text-sm text-gray-500">Perbarui identitas, kredensial, atau otorisasi level pengguna ini.</p>
-                                </div>
-                            </div>
-                        </div>
 
-                        <!-- Form Content -->
-                        <div class="space-y-6 mt-8">
+                    <div class="bg-gradient-to-r from-bps-blue to-blue-800 px-6 py-5 text-white flex items-center justify-between">
+                        <h3 class="text-base sm:text-lg font-bold flex items-center gap-2.5" id="modal-title">
+                            <i data-lucide="user-cog" class="w-5 h-5"></i>
+                            Edit Profil Pengguna
+                        </h3>
+                        <button type="button" onclick="closeModal('editModal')" class="text-blue-100 hover:text-white transition-colors">
+                            <i data-lucide="x" class="w-5 h-5"></i>
+                        </button>
+                    </div>
+
+                    <div class="px-6 py-6 sm:px-8 space-y-5">
+                        <p class="text-xs sm:text-sm text-gray-500 mt-1">Perbarui identitas, kredensial, atau otorisasi level pengguna ini.</p>
+
+                        <div class="space-y-4">
+
                             <div>
-                                <label class="block text-xs font-semibold text-gray-700 mb-1.5">Nama Lengkap</label>
-                                <input type="text" name="name" id="edit_name" required class="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-xl focus:border-bps-blue focus:ring-4 focus:ring-blue-100/50 outline-none transition-all text-sm text-gray-900">
-                            </div>
-
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                                <div>
-                                    <label class="block text-xs font-semibold text-gray-700 mb-1.5">Username</label>
-                                    <input type="text" name="username" id="edit_username" required class="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-xl focus:border-bps-blue focus:ring-4 focus:ring-blue-100/50 outline-none transition-all text-sm text-gray-900">
-                                </div>
-                                <div>
-                                    <label class="block text-xs font-semibold text-gray-700 mb-1.5">Email</label>
-                                    <input type="email" name="email" id="edit_email" required class="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-xl focus:border-bps-blue focus:ring-4 focus:ring-blue-100/50 outline-none transition-all text-sm text-gray-900">
+                                <label class="block text-xs font-semibold text-gray-700 mb-1.5 flex items-center gap-2">Nama Lengkap</label>
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                                        <i data-lucide="user" class="w-4 h-4"></i>
+                                    </div>
+                                    <input type="text" name="name" id="edit_name" required class="w-full pl-9 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-100 focus:border-bps-blue focus:outline-none transition-all duration-200 text-sm text-gray-900">
                                 </div>
                             </div>
 
-                            <div class="bg-gray-50 rounded-xl p-5 border border-gray-200 border-dashed">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+
+                                <div>
+                                    <label class="block text-xs font-semibold text-gray-700 mb-1.5 flex items-center gap-2">Username</label>
+                                    <div class="relative">
+                                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                                            <i data-lucide="fingerprint" class="w-4 h-4"></i>
+                                        </div>
+                                        <input type="text" name="username" id="edit_username" required class="w-full pl-9 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-100 focus:border-bps-blue focus:outline-none transition-all duration-200 text-sm text-gray-900">
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label class="block text-xs font-semibold text-gray-700 mb-1.5 flex items-center gap-2">Email</label>
+                                    <div class="relative">
+                                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                                            <i data-lucide="mail" class="w-4 h-4"></i>
+                                        </div>
+                                        <input type="email" name="email" id="edit_email" required class="w-full pl-9 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-100 focus:border-bps-blue focus:outline-none transition-all duration-200 text-sm text-gray-900">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="bg-gray-50 rounded-xl p-4 border border-gray-200 border-dashed">
                                 <label class="block text-xs font-semibold text-gray-700 mb-2 flex items-center gap-1.5">
-                                    <x-lucide-key class="w-3.5 h-3.5 text-gray-500" />
-                                    Reset Password
+                                    <i data-lucide="key" class="w-3.5 h-3.5 text-gray-500"></i>
+                                    Ubah Password
                                 </label>
-                                <input type="password" name="password" minlength="8" placeholder="Kosongkan jika password tidak ingin diubah" class="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-xl focus:border-bps-blue focus:ring-4 focus:ring-blue-100/50 outline-none transition-all text-sm font-mono placeholder-gray-400">
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                                        <i data-lucide="lock" class="w-4 h-4"></i>
+                                    </div>
+                                    <input type="password" name="password" minlength="8" placeholder="Kosongkan jika password tidak ingin diubah"
+                                        class="w-full pl-9 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-100 focus:border-bps-blue focus:outline-none transition-all duration-200 text-sm font-mono placeholder-gray-400">
+                                </div>
                             </div>
 
-                            <!-- Roles Grid -->
                             <div>
                                 <label class="block text-xs font-semibold text-gray-700 mb-3">Penugasan Level Akses (Roles)</label>
-                                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 bg-gray-50/50 p-5 border border-gray-200/60 rounded-xl">
+                                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 bg-gray-50/50 p-4 border border-gray-200/60 rounded-xl">
                                     @foreach($roles as $role)
-                                        <label class="relative flex items-center gap-3 p-3.5 bg-white border border-gray-200 rounded-xl cursor-pointer hover:border-bps-blue hover:bg-blue-50/30 transition-all select-none group/role has-[:checked]:border-bps-blue has-[:checked]:bg-blue-50/30 has-[:checked]:ring-1 has-[:checked]:ring-bps-blue">
-                                            <input type="checkbox" name="roles[]" value="{{ $role->id }}" id="edit_role_{{ $role->id }}" class="w-4 h-4 shrink-0 text-bps-blue border-gray-300 rounded focus:ring-offset-0 focus:ring-bps-blue transition-all cursor-pointer">
-                                            <span class="text-xs font-semibold text-gray-700 group-hover/role:text-gray-900 transition-colors uppercase tracking-tight">{{ $role?->name }}</span>
-                                        </label>
+                                        @php
+                                            $roleIcon = match($role->id) {
+                                                1 => 'briefcase',
+                                                2 => 'shield',
+                                                3 => 'wrench',
+                                                4 => 'box',
+                                                5 => 'door-open',
+                                                6 => 'user',
+                                                7 => 'users',
+                                                default => 'award'
+                                            };
+                                        @endphp
+
+                                        @if($role->id == 6)
+
+                                            <div class="relative flex items-center gap-3 p-3 bg-blue-50/30 border border-bps-blue rounded-xl select-none h-16 ring-1 ring-bps-blue">
+                                                <input type="hidden" name="roles[]" value="6" id="edit_role_6">
+
+                                                <div class="w-4 h-4 rounded border border-bps-blue flex items-center justify-center bg-bps-blue text-white">
+                                                    <i data-lucide="check" class="w-3 h-3 stroke-[3.5]"></i>
+                                                </div>
+
+                                                <i data-lucide="{{ $roleIcon }}" class="w-4 h-4 text-bps-blue"></i>
+                                                <span class="text-xs font-semibold text-gray-950 uppercase tracking-tight">{{ $role->name }}</span>
+                                            </div>
+                                        @else
+                                            <label class="relative flex items-center gap-3 p-3 bg-white border border-gray-200 rounded-xl cursor-pointer hover:border-bps-blue hover:bg-blue-50/30 transition-all select-none group has-[:checked]:border-bps-blue has-[:checked]:bg-blue-50/30 has-[:checked]:ring-1 has-[:checked]:ring-bps-blue h-16">
+                                                <input type="checkbox" name="roles[]" value="{{ $role->id }}" id="edit_role_{{ $role->id }}" class="peer sr-only">
+
+                                                <div class="w-4 h-4 rounded border border-gray-300 flex items-center justify-center bg-white transition-all group-hover:border-bps-blue peer-checked:bg-bps-blue peer-checked:border-bps-blue text-white">
+                                                    <i data-lucide="check" class="w-3 h-3 hidden group-has-[:checked]:block stroke-[3.5]"></i>
+                                                </div>
+
+                                                <i data-lucide="{{ $roleIcon }}" class="w-4 h-4 text-gray-400 group-hover:text-bps-blue peer-checked:text-bps-blue transition-colors"></i>
+                                                <span class="text-xs font-semibold text-gray-700 group-hover:text-gray-900 peer-checked:text-gray-950 transition-colors uppercase tracking-tight">{{ $role?->name }}</span>
+                                            </label>
+                                        @endif
                                     @endforeach
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="bg-gray-50 px-6 py-5 sm:px-10 sm:flex sm:flex-row-reverse gap-3 border-t border-gray-100">
-                        <button type="submit" class="w-full inline-flex justify-center rounded-xl border border-transparent shadow-sm px-5 py-2 mt-3 sm:mt-0 bg-bps-blue text-sm font-semibold text-white hover:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-bps-blue sm:w-auto sm:text-sm items-center transition-all">
+                    <div class="bg-gray-50 px-6 py-5 sm:px-8 flex flex-row-reverse gap-3 border-t border-gray-100">
+                        <button type="submit" class="px-5 py-2.5 bg-gradient-to-r from-bps-blue to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold text-sm rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-bps-blue transition-all duration-200 flex items-center gap-2">
+                            <i data-lucide="check" class="w-4 h-4"></i>
                             Simpan Perubahan
                         </button>
-                        <button type="button" onclick="closeModal('editModal')" class="w-full inline-flex justify-center rounded-xl border border-gray-300 shadow-sm px-5 py-2 mt-3 sm:mt-0 bg-white text-sm font-semibold text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-bps-blue sm:w-auto sm:text-sm items-center transition-all">
+                        <button type="button" onclick="closeModal('editModal')" class="px-4 py-2 border border-gray-300 text-gray-700 font-semibold text-sm rounded-lg shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-bps-blue transition-all duration-200 flex items-center gap-2 bg-white">
+                            <i data-lucide="x" class="w-4 h-4"></i>
                             Batalkan
                         </button>
                     </div>
@@ -428,7 +531,7 @@
     </div>
 
     <script>
-        // Konfirmasi reset password pakai SweetAlert2 yang sudah ada di layout
+
         function confirmResetPassword(formId, userName) {
             Swal.fire({
                 title: 'Reset Password?',

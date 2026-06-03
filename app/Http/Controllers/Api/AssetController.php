@@ -6,8 +6,12 @@ use App\Http\Controllers\Controller;
 use App\Models\Asset;
 use App\Models\AssetLoan;
 use App\Services\Assets\AssetService;
+use App\Http\Requests\Api\StoreAssetRequest;
+use App\Http\Requests\Api\TransferAssetRequest;
+use App\Http\Requests\Api\UpdateAssetRoomRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class AssetController extends Controller
 {
@@ -32,7 +36,7 @@ class AssetController extends Controller
                 'tickets' => fn($q) => $q->whereNotNull('resolved_at')->orderByDesc('resolved_at')->limit(1),
             ])->find($id);
         } else {
-            // Coba cari berdasarkan bmn_number terlebih dahulu
+
             $asset = Asset::where('bmn_number', $code)
                 ->with([
                     'room', 'deviceName', 'user',
@@ -40,8 +44,7 @@ class AssetController extends Controller
                     'tickets' => fn($q) => $q->whereNotNull('resolved_at')->orderByDesc('resolved_at')->limit(1),
                 ])
                 ->first();
-                
-            // Jika tidak ditemukan dan kodenya numerik, coba cari berdasarkan ID sebagai fallback
+
             if (!$asset && is_numeric($code)) {
                 $asset = Asset::with([
                     'room', 'deviceName', 'user',
@@ -58,10 +61,8 @@ class AssetController extends Controller
             ], 404);
         }
 
-        // Cek apakah aset sedang dipinjam atau sedang proses pengajuan pinjam
         $activeLoan = $asset->activeLoan ?? $asset->pendingLoan;
 
-        // Ambil riwayat servis terakhir
         $lastTicket = $asset->tickets->first();
 
         return response()->json([
@@ -107,24 +108,16 @@ class AssetController extends Controller
         $assets = Asset::with(['room', 'deviceName'])
             ->where('user_id', Auth::id())
             ->get();
-            
+
         return response()->json([
             'status' => 'success',
             'data' => $assets
         ], 200);
     }
 
-    public function store(Request $request)
+    public function store(StoreAssetRequest $request)
     {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'asset_code' => 'required|string|unique:assets,bmn_number',
-            'status_kondisi' => 'required|string',
-            'room_id' => 'nullable|exists:rooms,id',
-            'category_id' => 'nullable|exists:asset_categories,id',
-        ]);
-
-        $asset = Asset::create($request->all());
+        $asset = $this->assetService->registerAsset($request->validated());
 
         return response()->json([
             'status' => 'success',
@@ -133,49 +126,43 @@ class AssetController extends Controller
         ], 201);
     }
 
-    public function transfer(Request $request)
+    public function transfer(TransferAssetRequest $request)
     {
-        $request->validate([
-            'asset_id' => 'required|exists:assets,id',
-            'reason' => 'required|string',
-        ]);
-
         $asset = Asset::findOrFail($request->asset_id);
-        $user = Auth::user();
 
-        if ($asset->user_id === $user->id) {
+        $result = $this->assetService->requestTransfer(
+            $asset,
+            Auth::user(),
+            $request->reason
+        );
+
+        if ($result['status'] === 'error') {
             return response()->json([
-                'status' => 'error',
-                'message' => 'Aset ini sudah tercatat atas nama Anda.'
+                'status'  => 'error',
+                'message' => $result['message'],
             ], 400);
         }
 
-        $this->assetService->takeover($asset, $user, $request->reason);
-        
         return response()->json([
-            'status' => 'success',
-            'message' => 'Permintaan mutasi aset berhasil dikirim.'
-        ], 200);
+            'status'  => 'success',
+            'message' => $result['message'],
+            'data'    => ['loan_id' => $result['loan']->id],
+        ], 201);
     }
 
-    /**
-     * GET /assets/available
-     * Katalog aset yang sedang tidak dipinjam dan kondisinya baik.
-     * Bisa diakses semua role (User, Admin, Teknisi).
-     */
     public function available(Request $request)
     {
         $search   = $request->query('search');
         $kategori = $request->query('kategori');
 
         $assets = Asset::with(['room', 'deviceName'])
-            // Hanya aset kondisi baik/berfungsi
+
             ->whereIn('status_kondisi', ['Baik', 'Berfungsi'])
-            // Tidak memiliki peminjaman aktif maupun pending
+
             ->whereDoesntHave('loans', fn($q) =>
                 $q->whereIn('status', [AssetLoan::STATUS_ACTIVE, AssetLoan::STATUS_PENDING])
             )
-            // Filter pencarian opsional
+
             ->when($search, fn($q, $s) =>
                 $q->where(fn($inner) =>
                     $inner->where('brand', 'like', "%{$s}%")
@@ -203,5 +190,43 @@ class AssetController extends Controller
             'data'   => $assets,
         ], 200);
     }
-}
 
+    public function listRooms()
+    {
+        $rooms = \App\Models\Room::orderBy('name')->get(['id', 'name']);
+        return response()->json([
+            'status' => 'success',
+            'data' => $rooms
+        ], 200);
+    }
+
+    public function updateRoom(UpdateAssetRoomRequest $request, int $id)
+    {
+        $activeRole = $request->header('X-Active-Role-ID') ?? session('active_role_id');
+        if ((int)$activeRole !== \App\Models\User::ROLE_ADMIN) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Hanya Administrator yang diizinkan untuk mengubah ruangan aset.'
+            ], 403);
+        }
+
+        $asset = Asset::findOrFail($id);
+
+        $asset = $this->assetService->updateAssetRoom(
+            $asset,
+            $request->room_id,
+            $request->new_room_name,
+            Auth::user()
+        );
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Ruangan aset berhasil diperbarui.',
+            'data' => [
+                'id' => $asset->id,
+                'room' => $asset->room ? $asset->room->name : 'Tidak ada ruangan',
+                'room_id' => $asset->room_id,
+            ]
+        ], 200);
+    }
+}

@@ -8,7 +8,7 @@ use Illuminate\Http\Request;
 
 class FaqController extends Controller
 {
-    //Bagian untuk pengguna umum.
+
     public function publicIndex()
     {
         $categories = FaqCategory::with(['faqs' => function ($query) {
@@ -21,7 +21,7 @@ class FaqController extends Controller
     public function publicShow(string $id)
     {
         $faq = Faq::findOrFail($id);
-        
+
         if (!$faq->is_published) {
             abort(404);
         }
@@ -34,7 +34,7 @@ class FaqController extends Controller
     public function publicFeedback(Request $request, string $id)
     {
         $faq = Faq::findOrFail($id);
-        
+
         if (!$faq->is_published) {
             return response()->json(['error' => 'Not found'], 404);
         }
@@ -55,7 +55,6 @@ class FaqController extends Controller
         ]);
     }
 
-    //Bagian khusus administrator.
     public function index()
     {
         $faqs = Faq::with('category')->latest()->get();

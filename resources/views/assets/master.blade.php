@@ -1,7 +1,6 @@
 <x-app-layout>
     <div class="space-y-6">
-            
-            {{-- Header Section --}}
+
             <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg border border-gray-100 mb-8">
                 <div class="bg-gradient-to-r from-bps-blue to-blue-700 px-6 py-6 sm:px-8 text-white">
                     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -20,33 +19,30 @@
                 </div>
             </div>
 
-            {{-- Cards Grid --}}
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 @foreach($brands as $b)
                     @php
-                        // Check if an image exists for this brand, else fallback to default
+
                         $brandImage = strtolower($b->brand) . '.png';
                         $imagePath = public_path('images/devices/' . $brandImage);
                         if (!file_exists($imagePath)) {
                             $brandImage = 'default.png';
                         }
                     @endphp
-                    
+
                     <a href="{{ route('assets.index', ['brand' => $b->brand]) }}" class="group block bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 border border-gray-100 overflow-hidden hover:-translate-y-1">
-                        {{-- Image Area --}}
+
                         <div class="h-48 bg-gray-50 flex items-center justify-center p-6 border-b border-gray-100 relative overflow-hidden group-hover:bg-blue-50/50 transition-colors">
-                            <img src="{{ asset('images/devices/' . $brandImage) }}" alt="{{ $b->brand }} Logo" class="w-24 h-24 object-contain group-hover:scale-110 transition-transform duration-300">
-                            
-                            {{-- Quick total badge --}}
+                            <img src="{{ asset('images/devices/' . $brandImage) }}" alt="{{ $b->brand }} Logo" class="w-24 h-24 object-contain group-hover:scale-110 transition-transform duration-300" loading="lazy" decoding="async">
+
                             <div class="absolute top-4 right-4 bg-bps-blue text-white text-xs font-bold px-3 py-1 rounded-full shadow-sm">
                                 {{ $b->total }} Unit
                             </div>
                         </div>
 
-                        {{-- Details Area --}}
                         <div class="p-5">
                             <h3 class="text-lg font-bold text-gray-900 group-hover:text-bps-blue transition-colors">{{ $b->brand }}</h3>
-                            
+
                             <div class="mt-4 space-y-2">
                                 <div class="flex justify-between items-center text-sm">
                                     <span class="text-gray-500 flex items-center gap-1.5"><div class="w-2 h-2 rounded-full bg-green-500"></div> Baik</span>
@@ -80,7 +76,6 @@
             @endif
         </div>
 
-        {{-- Modal Tambah Aset --}}
     <div id="addModal" class="hidden fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
         <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
             <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true" onclick="document.getElementById('addModal').classList.add('hidden')"></div>
@@ -140,7 +135,6 @@
         </div>
     </div>
 
-    {{-- Datalist untuk dropdown Brand --}}
     <datalist id="brands_list">
         <option value="Acer">
         <option value="Apple">

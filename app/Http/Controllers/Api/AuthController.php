@@ -22,7 +22,6 @@ class AuthController extends Controller
 
         $loginField = trim($request->input($loginKey));
 
-        // Tentukan apakah input berupa email atau username
         $field = filter_var($loginField, FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
 
         $user = User::with('roles')->where($field, $loginField)->first();
@@ -34,7 +33,6 @@ class AuthController extends Controller
             ], 401);
         }
 
-        // Buat token baru untuk akses dari mobile app
         $token = $user->createToken('mobile-app')->plainTextToken;
 
         return response()->json([
@@ -59,12 +57,9 @@ class AuthController extends Controller
         ], 200);
     }
 
-    /**
-     * Handle mobile app logout via API.
-     */
     public function logout(Request $request)
     {
-        // Hapus token yang digunakan untuk mengakses endpoint ini
+
         $request->user()->currentAccessToken()->delete();
 
         return response()->json([
@@ -76,7 +71,7 @@ class AuthController extends Controller
     public function updateProfile(Request $request)
     {
         $user = $request->user();
-        
+
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $user->id,
@@ -89,11 +84,11 @@ class AuthController extends Controller
             }
             $user->photo_path = null;
         } elseif ($request->hasFile('foto_profil') && $request->file('foto_profil')->isValid()) {
-            // Hapus foto lama jika ada
+
             if ($user->photo_path) {
                 Storage::disk('public')->delete($user->photo_path);
             }
-            // Simpan foto baru
+
             $user->photo_path = $request->file('foto_profil')->store('profile-photos', 'public');
         }
 

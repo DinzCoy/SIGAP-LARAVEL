@@ -70,7 +70,6 @@
         </div>
     </div>
 
-    <!-- CKEditor 5 CDN -->
     <script src="https://cdn.ckeditor.com/ckeditor5/39.0.1/classic/ckeditor.js"></script>
     <script>
         ClassicEditor

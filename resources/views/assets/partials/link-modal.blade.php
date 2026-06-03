@@ -1,47 +1,71 @@
-{{-- Modal Link Device --}}
+
 <div id="linkModal" class="hidden fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
     <div class="flex items-center justify-center min-h-screen p-4 text-center">
         <div class="fixed inset-0 bg-gray-900/60 backdrop-blur-sm transition-opacity" aria-hidden="true" onclick="document.getElementById('linkModal').classList.add('hidden')"></div>
-        
+
         <div class="relative bg-white rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all sm:max-w-lg sm:w-full border border-gray-100 animate-slide-up">
             <form id="linkForm" action="#" method="POST">
                 @csrf
-                <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                    <div class="sm:flex sm:items-start">
-                        <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
-                            <h3 class="text-lg leading-6 font-medium text-gray-900 flex items-center gap-2">
-                                <svg class="w-5 h-5 text-bps-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg>
-                                Tautkan Device ke BMN
-                            </h3>
-                            <p class="text-sm text-gray-500 mt-1">Pilih data Agent PC yang terdeteksi untuk ditautkan ke BMN <span id="linkBmnCode" class="font-bold text-bps-blue"></span></p>
-                            
-                            <div class="mt-5">
-                                <label for="mac_address" class="block text-sm font-medium text-gray-700 mb-1">Pilih Device Active (Hostname / MAC) <span class="text-red-500">*</span></label>
-                                @if($unlinkedPcs->count() > 0)
-                                    <select name="mac_address" id="mac_address" required class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-bps-blue focus:border-bps-blue sm:text-sm">
-                                        <option value="">-- Pilih Device Unlinked --</option>
-                                        @foreach($unlinkedPcs as $pc)
-                                            <option value="{{ $pc->mac_address }}">
-                                                {{ $pc->hostname }} (IP: {{ $pc->ip_address }})
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                @else
-                                    <div class="p-3 bg-yellow-50 text-yellow-800 text-sm rounded border border-yellow-200">
-                                        Semua device yang terdeteksi telah memiliki BMN atau tidak ada agent PC yang berhasil terhubung ke server.
-                                    </div>
-                                @endif
+
+                <div class="bg-gradient-to-r from-bps-blue to-blue-800 px-6 py-4 text-white flex items-center justify-between">
+                    <h3 class="text-base sm:text-lg font-bold flex items-center gap-2" id="modal-title">
+                        <i data-lucide="link" class="w-5 h-5"></i>
+                        Tautkan Device ke BMN
+                    </h3>
+                    <button type="button" onclick="document.getElementById('linkModal').classList.add('hidden')" class="text-blue-100 hover:text-white transition-colors">
+                        <i data-lucide="x" class="w-5 h-5"></i>
+                    </button>
+                </div>
+
+                <div class="px-6 py-5 space-y-4">
+                    <p class="text-sm text-gray-600">
+                        Pilih data Agent PC yang terdeteksi untuk ditautkan ke nomor BMN <span id="linkBmnCode" class="font-bold text-bps-blue"></span>.
+                    </p>
+
+                    <div>
+                        <label for="mac_address" class="block text-sm font-semibold text-gray-700 mb-1.5 flex items-center gap-1.5">
+                            <span>Pilih Device Active (Hostname / MAC)</span>
+                            <span class="text-red-500">*</span>
+                        </label>
+
+                        @if($unlinkedPcs->count() > 0)
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                                    <i data-lucide="monitor" class="w-4 h-4"></i>
+                                </div>
+                                <select name="mac_address" id="mac_address" required
+                                    class="w-full pl-9 pr-10 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-100 focus:border-bps-blue focus:outline-none transition-all duration-200 text-sm appearance-none bg-white">
+                                    <option value="">-- Pilih Device Unlinked --</option>
+                                    @foreach($unlinkedPcs as $pc)
+                                        <option value="{{ $pc->mac_address }}">
+                                            {{ $pc->hostname }} (IP: {{ $pc->ip_address }})
+                                        </option>
+                                    @endforeach
+                                </select>
+                                <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-gray-400">
+                                    <i data-lucide="chevron-down" class="w-4 h-4"></i>
+                                </div>
                             </div>
-                        </div>
+                        @else
+                            <div class="p-4 bg-amber-50 text-amber-800 text-sm rounded-lg border border-amber-200 flex items-start gap-2.5">
+                                <i data-lucide="alert-triangle" class="w-5 h-5 text-amber-600 shrink-0 mt-0.5"></i>
+                                <span>Semua device yang terdeteksi telah memiliki BMN atau tidak ada agent PC yang berhasil terhubung ke server.</span>
+                            </div>
+                        @endif
                     </div>
                 </div>
-                <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse border-t border-gray-100">
+
+                <div class="bg-gray-50 px-6 py-4 flex flex-row-reverse gap-3 border-t border-gray-100">
                     @if($unlinkedPcs->count() > 0)
-                        <button type="submit" class="modal-btn-warning">
+                        <button type="submit"
+                            class="px-5 py-2 bg-gradient-to-r from-bps-orange to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white font-semibold text-sm rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-bps-orange focus:ring-offset-2 transition-all duration-200 flex items-center gap-2">
+                            <i data-lucide="link-2" class="w-4 h-4"></i>
                             Tautkan Sekarang
                         </button>
                     @endif
-                    <button type="button" onclick="document.getElementById('linkModal').classList.add('hidden')" class="modal-btn-secondary">
+                    <button type="button" onclick="document.getElementById('linkModal').classList.add('hidden')"
+                        class="px-4 py-2 border border-gray-300 text-gray-700 font-semibold text-sm rounded-lg shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-200 transition-all duration-200 flex items-center gap-2 bg-white">
+                        <i data-lucide="x" class="w-4 h-4"></i>
                         Batal
                     </button>
                 </div>

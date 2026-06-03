@@ -19,7 +19,6 @@
         @csrf
         @method('patch')
 
-        <!-- Foto Profil Uploader -->
         <div class="bg-slate-50/50 p-5 rounded-2xl border border-slate-100 shadow-sm flex flex-col sm:flex-row items-center gap-6">
             <div class="shrink-0 relative">
                 @if ($user->photo_path)
@@ -30,7 +29,7 @@
                     </div>
                 @endif
             </div>
-            
+
             <div class="space-y-2 flex-1 text-center sm:text-left">
                 <label class="block">
                     <span class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-1.5">Foto Profil</span>
@@ -47,29 +46,27 @@
             </div>
         </div>
 
-        <!-- Name Input -->
         <div class="space-y-2">
             <x-input-label for="name" :value="__('Nama Lengkap')" class="font-bold text-slate-700 text-xs uppercase tracking-wider block" />
             <div class="relative rounded-xl shadow-sm">
                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <x-lucide-user class="h-5 w-5 text-slate-400" />
                 </div>
-                <input id="name" name="name" type="text" 
-                    class="block w-full pl-10 pr-4 py-3 border-slate-200 focus:border-indigo-500 focus:ring-indigo-500 rounded-xl text-sm transition-all placeholder-slate-400 font-medium text-slate-800" 
+                <input id="name" name="name" type="text"
+                    class="block w-full pl-10 pr-4 py-3 border-slate-200 focus:border-indigo-500 focus:ring-indigo-500 rounded-xl text-sm transition-all placeholder-slate-400 font-medium text-slate-800"
                     value="{{ old('name', $user->name) }}" required autofocus autocomplete="name" placeholder="Masukkan nama lengkap Anda" />
             </div>
             <x-input-error class="mt-2" :messages="$errors->get('name')" />
         </div>
 
-        <!-- Email Input -->
         <div class="space-y-2">
             <x-input-label for="email" :value="__('Alamat Email')" class="font-bold text-slate-700 text-xs uppercase tracking-wider block" />
             <div class="relative rounded-xl shadow-sm">
                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <x-lucide-mail class="h-5 w-5 text-slate-400" />
                 </div>
-                <input id="email" name="email" type="email" 
-                    class="block w-full pl-10 pr-4 py-3 border-slate-200 focus:border-indigo-500 focus:ring-indigo-500 rounded-xl text-sm transition-all placeholder-slate-400 font-medium text-slate-800" 
+                <input id="email" name="email" type="email"
+                    class="block w-full pl-10 pr-4 py-3 border-slate-200 focus:border-indigo-500 focus:ring-indigo-500 rounded-xl text-sm transition-all placeholder-slate-400 font-medium text-slate-800"
                     value="{{ old('email', $user->email) }}" required autocomplete="username" placeholder="Masukkan alamat email Anda" />
             </div>
             <x-input-error class="mt-2" :messages="$errors->get('email')" />
@@ -93,7 +90,6 @@
             @endif
         </div>
 
-        <!-- Save Button -->
         <div class="flex items-center gap-4 pt-3 border-t border-slate-100">
             <button type="submit" class="inline-flex items-center gap-2 px-6 py-3 bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white text-xs font-black uppercase tracking-wider rounded-xl shadow-sm hover:shadow transition-all duration-200 cursor-pointer select-none">
                 <x-lucide-save class="w-4 h-4" />

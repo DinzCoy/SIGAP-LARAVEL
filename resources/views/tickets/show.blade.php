@@ -32,10 +32,9 @@
         @endif
 
         <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
-            
-            <!-- Left Column: Info & Status -->
+
             <div class="lg:col-span-1 flex flex-col space-y-6">
-                <!-- Ticket Info Card -->
+
                 <div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden relative">
                     <div class="absolute top-0 right-0 p-4 opacity-5 pointer-events-none">
                         <x-lucide-ticket class="w-24 h-24" />
@@ -142,10 +141,9 @@
                     </div>
                 </div>
 
-                <!-- Workflow Actions Card (Role Based) -->
                 @php
                     $canAct = true;
-                    // Teknisi tidak bisa memproses jika tiket aset masih menunggu Pengelola
+
                     if (session('active_role_id') == \App\Models\User::ROLE_TEKNISI && ($ticket?->type ?? '') == 'Asset' && ($ticket?->status ?? '') == 'Menunggu Pengecekan Pengelola') {
                         $canAct = false;
                     }
@@ -163,7 +161,7 @@
                             <form action="{{ route('tickets.updateStatus', $ticket->id) }}" method="POST" class="space-y-5">
                                 @csrf
                                 @method('PATCH')
-                                
+
                                 <div>
                                     <label for="status" class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Ubah Status</label>
                                     <select id="status" name="status" class="w-full bg-gray-50 border border-gray-200 text-gray-800 focus:outline-none focus:ring-2 focus:ring-bps-blue/20 focus:border-bps-blue text-sm font-medium rounded-xl py-3 px-4 transition-all hover:bg-white cursor-pointer shadow-inner">
@@ -173,14 +171,14 @@
                                         <option value="Diteruskan ke Ketua Tim" {{ ($ticket?->status ?? '') == 'Diteruskan ke Ketua Tim' ? 'selected' : '' }}>⏭️ Teruskan ke Ketua Tim</option>
                                         <option value="Approved" {{ ($ticket?->status ?? '') == 'Approved' ? 'selected' : '' }}>👍 Disetujui (Approved)</option>
                                     @endif
-                                    
+
                                     @if(in_array(session('active_role_id'), [\App\Models\User::ROLE_ADMIN, \App\Models\User::ROLE_TEKNISI]))
                                         <option value="In Progress" {{ ($ticket?->status ?? '') == 'In Progress' ? 'selected' : '' }}>🔧 In Progress (Diambil Teknisi)</option>
                                         <option value="Menunggu Persetujuan Biaya" {{ ($ticket?->status ?? '') == 'Menunggu Persetujuan Biaya' ? 'selected' : '' }}>⚠️ Ajukan Persetujuan Biaya</option>
                                         <option value="Selesai" {{ ($ticket?->status ?? '') == 'Selesai' ? 'selected' : '' }}>✅ Selesai (Ditutup)</option>
                                         <option value="Dibatalkan" {{ ($ticket?->status ?? '') == 'Dibatalkan' ? 'selected' : '' }}>❌ Dibatalkan</option>
                                     @endif
-                                    
+
                                     @if(session('active_role_id') == \App\Models\User::ROLE_PENGELOLA_ASET)
                                          <option value="Diteruskan ke Ketua Tim" {{ ($ticket?->status ?? '') == 'Diteruskan ke Ketua Tim' ? 'selected' : '' }}>⏭️ Teruskan ke Ketua Tim</option>
                                          <option value="Approved" {{ ($ticket?->status ?? '') == 'Approved' ? 'selected' : '' }}>✅ Setujui Biaya (Approved)</option>
@@ -249,9 +247,8 @@
                 @endcan
             </div>
 
-            <!-- Right Column: Description & Thread -->
             <div class="lg:col-span-3 flex flex-col space-y-6 flex-1">
-                <!-- Description -->
+
                 <div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden shrink-0">
                     <div class="p-6 border-b border-gray-50 flex items-center gap-3">
                         <div class="p-2.5 bg-blue-50 text-bps-blue rounded-xl">
@@ -264,7 +261,6 @@
                     </div>
                 </div>
 
-                {{-- Foto Kerusakan (jika ada) --}}
                 @if($ticket?->photo_path)
                 <div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden shrink-0">
                     <div class="p-5 border-b border-gray-50 flex items-center gap-3">
@@ -278,6 +274,8 @@
                             <img
                                 src="{{ Storage::url($ticket->photo_path) }}"
                                 alt="Foto kerusakan tiket #{{ $ticket->id }}"
+                                loading="lazy"
+                                decoding="async"
                                 class="w-full max-h-96 object-contain bg-gray-50 group-hover:scale-[1.02] transition-transform duration-300"
                             />
                             <div class="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300 flex items-center justify-center">
@@ -291,9 +289,8 @@
                 </div>
                 @endif
 
-                <!-- WhatsApp-style Chat Log -->
                 <div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden flex flex-col h-[700px] relative">
-                    <!-- Chat Header -->
+
                     <div class="p-5 border-b border-gray-100 bg-white flex justify-between items-center z-10 shadow-sm relative">
                         <div class="flex items-center gap-4">
                             <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center text-bps-blue font-bold shadow-inner">
@@ -311,10 +308,8 @@
                         </span>
                     </div>
 
-                    <!-- Chat Box (Background Pattern) -->
                     <div id="chatBoxContainer" class="flex-1 p-6 overflow-y-auto space-y-6 relative" style="background-color: #f7f9fa; background-image: url('data:image/svg+xml,%3Csvg width=\'20\' height=\'20\' viewBox=\'0 0 20 20\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'%23a0aec0\' fill-opacity=\'0.1\' fill-rule=\'evenodd\'%3E%3Ccircle cx=\'3\' cy=\'3\' r=\'3\'/%3E%3Ccircle cx=\'13\' cy=\'13\' r=\'3\'/%3E%3C/g%3E%3C/svg%3E'); scroll-behavior: smooth;">
-                        
-                        <!-- Auto-Generated System Message -->
+
                         <div class="flex justify-center mb-6">
                             <div class="bg-yellow-100/90 backdrop-blur-sm border border-yellow-200 text-yellow-800 text-[11px] font-bold px-4 py-2 rounded-full shadow-sm text-center max-w-md flex flex-col gap-1">
                                 <span>Tiket #{{ str_pad($ticket?->id ?? 0, 5, '0', STR_PAD_LEFT) }} dibuat pada {{ $ticket?->created_at?->format('d M Y, H:i') ?? '-' }}.</span>
@@ -342,17 +337,17 @@
                                             {{ $reply?->user?->name ?? 'User' }}
                                         </span>
                                     @endif
-                                    
-                                    <div class="relative px-5 py-3.5 rounded-2xl shadow-sm flex flex-col justify-between 
-                                        {{ $isMine 
-                                            ? 'bg-gradient-to-br from-bps-blue to-blue-700 text-white rounded-tr-sm shadow-blue-900/10' 
-                                            : 'bg-white text-gray-800 border-none shadow-gray-200/50 rounded-tl-sm' 
+
+                                    <div class="relative px-5 py-3.5 rounded-2xl shadow-sm flex flex-col justify-between
+                                        {{ $isMine
+                                            ? 'bg-gradient-to-br from-bps-blue to-blue-700 text-white rounded-tr-sm shadow-blue-900/10'
+                                            : 'bg-white text-gray-800 border-none shadow-gray-200/50 rounded-tl-sm'
                                         }}">
-                                        
+
                                         <div class="text-[14.5px] leading-relaxed whitespace-pre-line break-words w-full">
                                             {{ $reply?->message ?? '-' }}
                                         </div>
-                                        
+
                                         <div class="text-[10px] mt-2.5 flex items-center {{ $isMine ? 'justify-end text-blue-200' : 'justify-end text-gray-400' }} gap-1 font-medium w-full">
                                             {{ $reply?->created_at?->format('H:i') ?? '-' }}
                                             @if($isMine)
@@ -371,20 +366,19 @@
                             </div>
                         @endforelse
                     </div>
-                    
-                    <!-- Chat Input area -->
+
                     @can('reply', $ticket)
                     <div class="p-4 bg-white border-t border-gray-100 z-10 w-full shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.02)]">
                          <form action="{{ route('tickets.reply', $ticket->id) }}" method="POST" class="relative">
                             @csrf
                             <div class="flex items-end gap-3 bg-gray-50 p-2 rounded-3xl border border-gray-200 focus-within:border-bps-blue focus-within:ring-2 focus-within:ring-bps-blue/10 focus-within:bg-white transition-all shadow-inner">
-                                
+
                                 <button type="button" class="p-3.5 text-gray-400 hover:text-bps-blue rounded-full hover:bg-blue-50 transition-colors shrink-0 outline-none">
                                     <x-lucide-paperclip class="w-5 h-5" />
                                 </button>
 
                                 <textarea name="message" id="chatInput" rows="1" class="flex-1 max-h-32 bg-transparent border-0 focus:ring-0 resize-none py-3.5 px-2 text-[15px] text-gray-700 leading-snug" placeholder="Ketik balasan Anda di sini... (Shift+Enter untuk baris baru)" oninput="this.style.height = ''; this.style.height = Math.min(this.scrollHeight, 120) + 'px'"></textarea>
-                                
+
                                 <button type="submit" class="w-12 h-12 bg-bps-blue hover:bg-blue-700 text-white rounded-full flex items-center justify-center shadow-md transition-transform hover:scale-105 active:scale-95 shrink-0 outline-none">
                                     <x-lucide-send class="w-5 h-5 mt-0.5 ml-0.5" />
                                 </button>

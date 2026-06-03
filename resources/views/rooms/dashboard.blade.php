@@ -1,7 +1,6 @@
 <x-app-layout>
     <div class="py-8 space-y-6">
 
-        <!-- Header -->
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
             <div>
                 <h2 class="text-2xl font-bold text-gray-900">Dashboard Pengelola Ruangan</h2>
@@ -14,10 +13,8 @@
             </a>
         </div>
 
-        <!-- Summary Cards (4 kolom) -->
         <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
 
-            <!-- Total Rooms -->
             <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 flex items-center justify-between hover:shadow-lg hover:-translate-y-1 transition-all duration-300 cursor-default group">
                 <div>
                     <p class="text-sm font-medium text-gray-500 uppercase tracking-wider group-hover:text-teal-600 transition-colors">Ruangan Dikelola</p>
@@ -28,7 +25,6 @@
                 </div>
             </div>
 
-            <!-- Total Assets -->
             <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 flex items-center justify-between hover:shadow-lg hover:-translate-y-1 transition-all duration-300 cursor-default group">
                 <div>
                     <p class="text-sm font-medium text-gray-500 uppercase tracking-wider group-hover:text-bps-blue transition-colors">Aset di Ruangan</p>
@@ -39,7 +35,6 @@
                 </div>
             </div>
 
-            <!-- Aset Bermasalah -->
             <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 flex items-center justify-between hover:shadow-lg hover:-translate-y-1 transition-all duration-300 cursor-default group">
                 <div>
                     <p class="text-sm font-medium text-gray-500 uppercase tracking-wider group-hover:text-amber-600 transition-colors">Aset Bermasalah</p>
@@ -54,7 +49,6 @@
                 </div>
             </div>
 
-            <!-- Tiket Aktif -->
             <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 flex items-center justify-between hover:shadow-lg hover:-translate-y-1 transition-all duration-300 cursor-default group">
                 <div>
                     <p class="text-sm font-medium text-gray-500 uppercase tracking-wider group-hover:text-rose-600 transition-colors">Tiket Aktif</p>
@@ -71,7 +65,6 @@
 
         </div>
 
-        <!-- Recent Assets Table -->
         <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-8 hover:shadow-md transition-shadow duration-300">
             <div class="p-5 border-b border-gray-200 bg-gray-50/80 flex justify-between items-center">
                 <h3 class="text-lg font-semibold text-gray-800 flex items-center gap-2">
@@ -110,7 +103,6 @@
                                 @endif
                             </td>
 
-                            <!-- Badge Kondisi -->
                             <td class="px-6 py-4 text-center">
                                 @php
                                     $kondisi = $asset->status_kondisi ?? 'Baik';

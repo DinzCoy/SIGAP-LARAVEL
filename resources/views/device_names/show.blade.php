@@ -1,12 +1,11 @@
 <x-app-layout>
     <div class="space-y-6">
-            
-            {{-- Header Section --}}
+
             <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg border border-gray-100 mb-8">
                 <div class="border-b border-gray-100 bg-gray-50/50 px-6 py-5">
                         <div class="flex items-center gap-4">
                             @if($deviceName->image)
-                                <img src="{{ Storage::url($deviceName->image) }}" alt="{{ $deviceName->brand }}" class="h-16 w-16 object-cover rounded-lg border border-gray-200 shadow-sm bg-white p-1">
+                                <img src="{{ Storage::url($deviceName->image) }}" alt="{{ $deviceName->brand }}" class="h-16 w-16 object-cover rounded-lg border border-gray-200 shadow-sm bg-white p-1" loading="lazy" decoding="async">
                             @endif
                             <div>
                                 <h2 class="text-xl font-bold text-gray-800 flex items-center gap-2">
@@ -32,7 +31,7 @@
             </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-                {{-- Statistik Inventaris --}}
+
                 <div class="lg:col-span-1 border border-gray-100 bg-white rounded-2xl shadow-sm p-6 overflow-hidden relative">
                     <div class="absolute -right-6 -top-6 text-gray-50 opacity-50">
                         <svg class="w-32 h-32" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
@@ -67,10 +66,9 @@
                     </div>
                 </div>
 
-                {{-- Statistik Kondisi Fisik --}}
                 <div class="lg:col-span-2 border border-gray-100 bg-white rounded-2xl shadow-sm p-6">
                     <h3 class="text-gray-500 font-bold mb-6 flex items-center gap-2"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg> Kondisi Kesehatan Perangkat</h3>
-                    
+
                     <div class="grid grid-cols-3 gap-4">
                         <div class="bg-gray-50 rounded-xl p-4 text-center border-b-4 border-green-500 shadow-sm">
                             <div class="w-12 h-12 mx-auto bg-green-100 text-green-600 rounded-full flex items-center justify-center mb-3">
@@ -99,16 +97,15 @@
                 </div>
             </div>
 
-            {{-- Tabel Asset Linked --}}
             <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                 <div class="bg-gray-50 px-6 py-4 border-b border-gray-100 flex justify-between items-center">
                     <h3 class="font-bold text-gray-800 flex items-center gap-2">
-                        <svg class="w-5 h-5 text-bps-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg> 
+                        <svg class="w-5 h-5 text-bps-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                         Daftar Individu Aset "{{ $deviceName->name }}"
                     </h3>
                     <a href="{{ route('assets.index') }}" class="text-sm text-bps-blue hover:underline font-semibold">Tuju Master Aset Fisik &rarr;</a>
                 </div>
-                
+
                 <div class="overflow-x-auto">
                     <table class="min-w-full divide-y divide-gray-200">
                         <thead class="bg-white whitespace-nowrap">

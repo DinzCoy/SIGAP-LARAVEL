@@ -1,14 +1,14 @@
 <x-app-layout>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&family=Fira+Sans:wght@300;400;500;600;700&display=swap');
-        
+
         .font-fira { font-family: 'Fira Sans', sans-serif; }
         .font-mono-fira { font-family: 'Fira Code', monospace; }
-        
+
         .premium-gradient {
             background: linear-gradient(135deg, #1E40AF 0%, #1E3A8A 50%, #111827 100%);
         }
-        
+
         .glass-card {
             background: rgba(255, 255, 255, 0.03);
             backdrop-filter: blur(10px);
@@ -17,15 +17,14 @@
     </style>
 
     <div class="space-y-6 max-w-[1400px] mx-auto font-fira">
-            
-            {{-- Header Section --}}
+
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-2xl border border-gray-100 mb-8">
                 <div class="premium-gradient px-6 py-10 sm:px-10 text-white relative overflow-hidden">
-                    {{-- Decorative background elements --}}
+
                     <div class="absolute top-0 right-0 w-96 h-96 bg-blue-500/10 rounded-full -mr-48 -mt-48 blur-3xl"></div>
                     <div class="absolute bottom-0 left-0 w-64 h-64 bg-bps-orange/10 rounded-full -ml-32 -mb-32 blur-2xl"></div>
                     <div class="absolute inset-0 opacity-10" style="background-image: url('data:image/svg+xml,%3Csvg width=\'20\' height=\'20\' viewBox=\'0 0 20 20\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M0 0h20L0 20z\' fill=\'%23ffffff\' fill-opacity=\'1\' fill-rule=\'evenodd\'/%3E%3C/svg%3E');"></div>
-                    
+
                     <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-8 relative z-10">
                         <div class="flex items-center gap-5">
                             <div class="p-4 bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 shadow-2xl">
@@ -40,13 +39,13 @@
                                         <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
                                         <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
                                     </span>
-                                    <p class="text-blue-100 text-sm font-medium tracking-wide">Infrastruktur BPulSe Operational</p>
+                                    <p class="text-blue-100 text-sm font-medium tracking-wide">Infrastruktur SIGAP Operational</p>
                                 </div>
                             </div>
                         </div>
 
                         <div class="flex flex-wrap items-center gap-4">
-                            {{-- Quick Stats --}}
+
                             <div class="flex gap-4 mr-4 border-r border-white/10 pr-8 hidden sm:flex">
                                 <div class="text-center">
                                     <div class="text-2xl font-black font-mono-fira leading-none">{{ $rooms->count() }}</div>
@@ -69,7 +68,6 @@
                 </div>
             </div>
 
-            {{-- Alert Section --}}
             @if(session('success'))
             <div class="animate-in fade-in slide-in-from-top duration-500 mb-6 bg-emerald-50 border-l-4 border-emerald-500 p-4 rounded-xl shadow-sm flex items-center gap-3">
                 <div class="p-1.5 bg-emerald-100 rounded-full">
@@ -79,7 +77,6 @@
             </div>
             @endif
 
-            {{-- Table Section --}}
             <div class="bg-white overflow-hidden shadow-2xl sm:rounded-3xl border border-gray-100 transition-all duration-500 hover:shadow-blue-500/5">
                 <div class="overflow-x-auto">
                     <table class="min-w-full divide-y divide-gray-100">

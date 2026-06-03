@@ -8,7 +8,7 @@ use Illuminate\Validation\Rule;
 
 class CekUpdateProfil extends FormRequest
 {
-    //Aturan validasi yang diterapkan pada request update profil.
+
     public function rules(): array
     {
         return [

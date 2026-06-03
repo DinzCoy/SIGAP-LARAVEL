@@ -6,10 +6,7 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Tambahkan kolom photo_path ke tabel tickets
-     * untuk menyimpan path foto kerusakan dari mobile app.
-     */
+
     public function up(): void
     {
         Schema::table('tickets', function (Blueprint $table) {

@@ -1,26 +1,24 @@
 <x-app-layout>
-    <!-- Background Header -->
+
     <div class="bg-gradient-to-r from-bps-blue to-blue-800 rounded-2xl p-8 mb-8 text-white shadow-lg relative overflow-hidden">
-        <!-- Decoration -->
+
         <div class="absolute top-0 right-0 -mr-8 -mt-8 w-64 h-64 rounded-full bg-white opacity-10 blur-3xl"></div>
         <div class="absolute bottom-0 right-32 -mb-8 w-40 h-40 rounded-full bg-white opacity-10 blur-3xl"></div>
-        
+
         <div class="relative z-10 max-w-2xl">
             <h1 class="text-3xl font-bold mb-3">Hi, ada yang bisa kami bantu?</h1>
             <p class="text-blue-100 text-lg mb-6">Temukan jawaban untuk pertanyaan yang sering diajukan dan panduan penggunaan sistem di sini.</p>
-            
-            <!-- Search field placeholder -->
+
             <div class="relative flex items-center">
                 <div class="absolute inset-y-0 left-0 flex items-center pointer-events-none" style="padding-left: 1rem;">
                     <x-lucide-search class="w-5 h-5 text-gray-400" />
                 </div>
-                <!-- Inline padding-left guarantees layout priority regardless of JIT plugin conflicts -->
+
                 <input type="text" id="faq-search" placeholder="Ketik kata kunci untuk mencari panduan..." style="padding-left: 2.75rem;" class="block w-full pr-4 py-3 rounded-xl text-gray-900 border-0 ring-1 ring-inset ring-gray-100 shadow-sm bg-gray-50 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-bps-blue sm:text-sm sm:leading-6">
             </div>
         </div>
     </div>
 
-    <!-- FAQ Content -->
     <div class="space-y-8">
         @forelse($categories as $category)
             @if($category->faqs->count() > 0)
@@ -40,7 +38,7 @@
                                 <div class="flex items-start justify-between gap-4">
                                     <div>
                                         <h3 class="text-base font-semibold text-gray-900 group-hover:text-bps-blue transition-colors mb-1">{{ $faq->question }}</h3>
-                                        <!-- Plain text excerpt of the answer -->
+
                                         <p class="text-sm text-gray-500 line-clamp-2">
                                             {{ Str::limit(strip_tags($faq->answer), 150) }}
                                         </p>
@@ -75,24 +73,23 @@
         @endforelse
     </div>
 
-    <!-- Client-side Search Logic -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const searchInput = document.getElementById('faq-search');
-            
+
             if(searchInput) {
                 searchInput.addEventListener('input', function(e) {
                     const query = e.target.value.toLowerCase();
                     const categories = document.querySelectorAll('.faq-category-container');
-                    
+
                     categories.forEach(category => {
                         let hasVisibleArticles = false;
                         const articles = category.querySelectorAll('a.faq-article-link');
-                        
+
                         articles.forEach(article => {
                             const question = article.querySelector('h3').textContent.toLowerCase();
                             const answer = article.querySelector('p').textContent.toLowerCase();
-                            
+
                             if (question.includes(query) || answer.includes(query)) {
                                 article.style.display = 'block';
                                 hasVisibleArticles = true;
@@ -100,8 +97,7 @@
                                 article.style.display = 'none';
                             }
                         });
-                        
-                        // Hide the entire category if no articles match
+
                         if (hasVisibleArticles) {
                             category.style.display = 'block';
                         } else {

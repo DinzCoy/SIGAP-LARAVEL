@@ -2,13 +2,12 @@
     <div class="space-y-6">
         <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg border border-gray-100">
 
-            {{-- Header Section (PROVEN PATTERN from index.blade.php) --}}
             <div class="bg-gradient-to-r from-bps-blue to-blue-700 px-6 py-8 sm:px-8 text-white relative overflow-hidden">
-                {{-- Ornamen --}}
+
                 <div class="absolute top-0 right-0 w-40 h-full opacity-10" style="background: linear-gradient(135deg, white 0%, transparent 50%);"></div>
 
                 <div class="relative z-10">
-                    {{-- Breadcrumb & Back Button --}}
+
                     <div class="flex flex-wrap items-center gap-4 justify-between mb-4">
                         <div class="flex items-center gap-2 text-blue-200 text-xs font-semibold uppercase tracking-wider">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1"></path></svg>
@@ -24,11 +23,11 @@
                     </div>
 
                     <div class="flex flex-col sm:flex-row items-start sm:items-center gap-5">
-                        {{-- Icon Perangkat --}}
+
                         <div class="p-4 rounded-2xl border border-white/20" style="background: rgba(255,255,255,0.1);">
                             <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
                         </div>
-                        {{-- Detail Aset --}}
+
                         <div class="flex-1">
                             <h2 class="text-2xl sm:text-3xl font-bold leading-tight">
                                 {{ $asset->deviceName?->brand ?? 'Aset' }}
@@ -48,12 +47,10 @@
                 </div>
             </div>
 
-            {{-- Konten Utama --}}
             <div class="p-6 sm:p-8">
 
-                {{-- Grid Info --}}
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
-                    {{-- Penanggung Jawab --}}
+
                     <div class="bg-gray-50 border border-gray-100 rounded-xl p-5">
                         <div class="flex items-center gap-2 mb-2">
                             <svg class="w-4 h-4 text-bps-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
@@ -62,7 +59,6 @@
                         <p class="text-gray-900 font-bold text-base">{{ $asset?->user?->name ?? 'Belum Dialokasikan' }}</p>
                     </div>
 
-                    {{-- Lokasi --}}
                     <div class="bg-gray-50 border border-gray-100 rounded-xl p-5">
                         <div class="flex items-center gap-2 mb-2">
                             <svg class="w-4 h-4 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
@@ -71,7 +67,6 @@
                         <p class="text-gray-900 font-bold text-base">{{ $asset?->room?->name ?? 'N/A' }}</p>
                     </div>
 
-                    {{-- Update Terakhir --}}
                     <div class="bg-gray-50 border border-gray-100 rounded-xl p-5">
                         <div class="flex items-center gap-2 mb-2">
                             <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
@@ -81,7 +76,6 @@
                     </div>
                 </div>
 
-                {{-- Kondisi Fisik --}}
                 <div class="flex items-center justify-between bg-gray-50 border border-gray-200 rounded-xl p-5 mb-8">
                     <div class="flex items-center gap-3">
                         <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
@@ -102,10 +96,8 @@
                     @endif
                 </div>
 
-                {{-- Divider --}}
                 <div class="border-t border-gray-200 my-6"></div>
 
-                {{-- AREA AKSI --}}
                 <div class="space-y-4">
                     @php
                         $isAdminOrManager = in_array(session('active_role_id'), [\App\Models\User::ROLE_ADMIN, \App\Models\User::ROLE_PENGELOLA_ASET]);
@@ -113,7 +105,7 @@
                     @endphp
 
                     @if($canManageLoan && $pendingLoan)
-                        {{-- Pemilik atau Admin/Manager (jika unallocated) bisa menyetujui peminjaman --}}
+
                         <div class="bg-yellow-50 border border-yellow-200 rounded-xl p-6 mb-4 shadow-sm text-left">
                             <div class="flex items-start gap-4">
                                 <div class="p-2.5 rounded-xl bg-yellow-100 mt-1 shrink-0">
@@ -122,7 +114,7 @@
                                 <div class="flex-1">
                                     <h4 class="text-base font-bold text-yellow-900">Permintaan Pinjaman</h4>
                                     <p class="text-sm text-yellow-800 mt-1 mb-3"><span class="font-bold">{{ $pendingLoan->borrower?->name ?? 'Seseorang' }}</span> ingin meminjam perangkat ini.</p>
-                                    
+
                                     @if($pendingLoan->loan_reason)
                                         <div class="bg-white/60 border border-yellow-200 rounded-lg p-3 mb-4 text-xs text-yellow-900 italic relative">
                                             "{{ $pendingLoan->loan_reason }}"
@@ -151,7 +143,7 @@
                     @endif
 
                     @if($activeLoan && ($activeLoan?->borrower_id ?? 0) === auth()->id())
-                        {{-- User sedang meminjam aset ini --}}
+
                         <form action="{{ route('assets.return', $asset->id) }}" method="POST">
                             @csrf
                             <button type="submit" class="w-full flex items-center justify-center gap-3 px-6 py-5 text-white font-bold text-lg rounded-xl shadow-lg transition-all hover:opacity-90 active:scale-[0.98]" style="background-color: #dc2626;">
@@ -161,7 +153,7 @@
                         </form>
 
                     @elseif($pendingLoan && ($pendingLoan?->borrower_id ?? 0) === auth()->id())
-                        {{-- User sedang menunggu persetujuan peminjaman --}}
+
                         <div class="flex items-center gap-4 bg-yellow-50 border border-yellow-200 rounded-xl p-6 text-left">
                             <svg class="w-8 h-8 text-yellow-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                             <div>
@@ -171,7 +163,7 @@
                         </div>
 
                     @elseif($activeLoan)
-                        {{-- Aset sedang dipinjam orang lain --}}
+
                         <div class="flex items-center gap-4 bg-red-50 border border-red-200 rounded-xl p-6 text-left">
                             <svg class="w-8 h-8 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
                             <div>
@@ -181,7 +173,7 @@
                         </div>
 
                     @elseif($pendingLoan && !$canManageLoan)
-                        {{-- Aset sedang diproses peminjaman oleh orang lain --}}
+
                         <div class="flex items-center gap-4 bg-orange-50 border border-orange-200 rounded-xl p-6 text-left">
                             <svg class="w-8 h-8 text-orange-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
                             <div>
@@ -191,8 +183,7 @@
                         </div>
 
                     @else
-                        {{-- Aset Tersedia atau Milik Sendiri (jika tidak ada pending loan) --}}
-                        
+
                         @if(auth()->id() === ($asset?->user_id ?? null))
                             <div class="flex items-center gap-4 bg-green-50 border border-green-200 rounded-xl p-6 text-left">
                                 <div class="p-2.5 rounded-xl bg-green-600">
@@ -205,7 +196,7 @@
                             </div>
                         @else
                             @if(!($asset?->user_id ?? null))
-                                {{-- Info Aset Unallocated --}}
+
                                 <div class="flex items-center gap-4 bg-blue-50 border border-blue-200 rounded-xl p-6 mb-2 text-left">
                                     <svg class="w-8 h-8 text-blue-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                                     <div>
@@ -215,17 +206,16 @@
                                 </div>
                             @endif
 
-                            {{-- Aksi Utama: PINJAM --}}
                             @if(!isset($mode) || $mode === 'loan')
                                 <form action="{{ route('assets.loan', $asset->id) }}" method="POST" class="text-left">
                                     @csrf
                                     <div class="mb-5">
                                         <label for="loan_reason" class="block text-sm font-black text-bps-blue mb-2 uppercase tracking-wide">Alasan Meminjam <span class="text-red-500">*</span></label>
-                                        <textarea 
-                                            name="loan_reason" 
-                                            id="loan_reason" 
-                                            rows="3" 
-                                            class="w-full rounded-xl border-gray-300 shadow-sm focus:border-bps-blue focus:ring focus:ring-bps-blue/20 transition text-sm py-3 px-4" 
+                                        <textarea
+                                            name="loan_reason"
+                                            id="loan_reason"
+                                            rows="3"
+                                            class="w-full rounded-xl border-gray-300 shadow-sm focus:border-bps-blue focus:ring focus:ring-bps-blue/20 transition text-sm py-3 px-4"
                                             placeholder="Contoh: Dipinjam untuk keperluan rapat di Hotel..."
                                             required
                                         >{{ old('loan_reason') }}</textarea>
@@ -244,7 +234,6 @@
                                 </form>
                             @endif
 
-                            {{-- Separator --}}
                             @if(!isset($mode) || $mode == '')
                                 <div class="flex items-center gap-4 py-2">
                                     <div class="flex-1 border-t border-gray-200"></div>
@@ -253,7 +242,6 @@
                                 </div>
                             @endif
 
-                            {{-- Aksi Sekunder: AMBIL ALIH --}}
                             @if(!isset($mode) || $mode === 'transfer')
                                 <form action="{{ route('assets.takeover', $asset->id) }}" method="POST" onsubmit="promptConfirm(event, 'ambil')">
                                     @csrf
@@ -268,7 +256,6 @@
                 </div>
             </div>
 
-            {{-- Footer Info --}}
             <div class="bg-gray-50 px-6 sm:px-8 py-4 border-t border-gray-100 flex items-center justify-between text-xs text-gray-400">
                 <span>Terakhir diperbarui: {{ $asset?->updated_at?->format('d M Y, H:i') ?? '-' }} WIB</span>
                 <span class="font-semibold">Guardian BPS &copy; 2026</span>
