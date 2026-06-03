@@ -13,8 +13,9 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->alias([
-            'role'    => \App\Http\Middleware\CekPeran::class,
-            'api.key' => \App\Http\Middleware\VerifyApiKey::class,
+            'role'       => \App\Http\Middleware\CekPeran::class,
+            'api.key'    => \App\Http\Middleware\VerifyApiKey::class,
+            'auth.token' => \App\Http\Middleware\AuthenticateApiToken::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

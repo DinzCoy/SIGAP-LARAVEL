@@ -29,7 +29,7 @@ Route::middleware(['api.key'])->group(function () {
     Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:10,1');
 });
 
-Route::middleware(['api.key', 'auth:sanctum'])->group(function () {
+Route::middleware(['api.key', 'auth.token'])->group(function () {
 
     Route::post('/logout', [AuthController::class, 'logout']);
 
