@@ -216,6 +216,9 @@ class LoanController extends Controller
         if ($includeUser) {
             $data['user_name'] = $loan->borrower ? $loan->borrower->name : '-';
             $data['user_id']   = $loan->borrower_id;
+            $data['user_photo'] = $loan->borrower && $loan->borrower->photo_path 
+                ? url('storage/' . $loan->borrower->photo_path) 
+                : null;
             $data['asset_owner'] = $loan->asset && $loan->asset->user ? $loan->asset->user->name : 'Admin';
         }
 

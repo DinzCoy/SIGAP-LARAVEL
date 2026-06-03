@@ -59,11 +59,16 @@ class AssetNotificationService extends Notification
         $pushBody    = "{$namaPeminjam} mengajukan peminjaman aset {$namaAset}.";
         $pushData    = ['tipe' => 'permintaan_peminjaman', 'loan_id' => (string) $peminjaman->id];
 
+        $imageUrl = null;
+        if ($peminjaman->borrower && $peminjaman->borrower->photo_path) {
+            $imageUrl = url('storage/' . $peminjaman->borrower->photo_path);
+        }
+
         if ($peminjaman->asset?->user_id) {
 
             $pemilik = $peminjaman->asset->user;
             $pemilik->notify(new self($peminjaman));
-            FcmService::send($pemilik, $pushTitle, $pushBody, $pushData);
+            FcmService::send($pemilik, $pushTitle, $pushBody, $pushData, $imageUrl);
         } else {
 
             $penerima = User::whereHas('roles', function ($q) {
@@ -71,7 +76,7 @@ class AssetNotificationService extends Notification
             })->get();
 
             NotificationFacade::send($penerima, new self($peminjaman));
-            FcmService::sendToMany($penerima, $pushTitle, $pushBody, $pushData);
+            FcmService::sendToMany($penerima, $pushTitle, $pushBody, $pushData, $imageUrl);
         }
     }
 }

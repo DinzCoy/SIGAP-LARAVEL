@@ -12,7 +12,7 @@ class FcmService
     private const CACHE_KEY     = 'fcm_access_token';
     private const TOKEN_TTL_MIN = 55;
 
-    public static function send(User $user, string $title, string $body, array $data = []): void
+    public static function send(User $user, string $title, string $body, array $data = [], ?string $imageUrl = null): void
     {
         if (empty($user->fcm_token)) {
             Log::info("FCM: User [{$user->id}] tidak punya fcm_token, notif dilewati.");
@@ -35,10 +35,11 @@ class FcmService
                 ->post("https://fcm.googleapis.com/v1/projects/{$projectId}/messages:send", [
                     'message' => [
                         'token' => $user->fcm_token,
-                        'notification' => [
+                        'notification' => array_filter([
                             'title' => $title,
                             'body'  => $body,
-                        ],
+                            'image' => $imageUrl,
+                        ]),
                         'android' => [
                             'priority' => 'high',
                             'notification' => [
@@ -65,10 +66,10 @@ class FcmService
         }
     }
 
-    public static function sendToMany(iterable $users, string $title, string $body, array $data = []): void
+    public static function sendToMany(iterable $users, string $title, string $body, array $data = [], ?string $imageUrl = null): void
     {
         foreach ($users as $user) {
-            self::send($user, $title, $body, $data);
+            self::send($user, $title, $body, $data, $imageUrl);
         }
     }
 
