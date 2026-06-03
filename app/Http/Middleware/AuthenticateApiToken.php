@@ -8,12 +8,6 @@ use Laravel\Sanctum\PersonalAccessToken;
 
 class AuthenticateApiToken
 {
-    /**
-     * Autentikasi request API menggunakan header X-Auth-Token.
-     *
-     * Menggunakan header custom karena server cPanel/Apache memblokir
-     * header 'Authorization: Bearer ...' sebelum sampai ke PHP.
-     */
     public function handle(Request $request, Closure $next)
     {
         $token = $request->header('X-Auth-Token');
