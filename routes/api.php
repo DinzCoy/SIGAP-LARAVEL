@@ -14,6 +14,17 @@ Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 
+// ===== DEBUG ROUTE (SEMENTARA - HAPUS SETELAH SELESAI) =====
+Route::get('/debug-headers', function (Request $request) {
+    return response()->json([
+        'all_headers'        => $request->headers->all(),
+        'authorization'      => $request->header('Authorization'),
+        'bearer_token'       => $request->bearerToken(),
+        'server_auth'        => $_SERVER['HTTP_AUTHORIZATION'] ?? 'NOT SET',
+    ]);
+});
+// ===========================================================
+
 Route::middleware(['api.key'])->group(function () {
     Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:10,1');
 });
