@@ -21,7 +21,7 @@ class TicketController extends Controller
     public function index(Request $request)
     {
         $query = Ticket::where('reported_by', $request->user()->id)
-            ->with(['asset', 'technician'])
+            ->with(['asset', 'technician', 'reporter'])
             ->orderBy('created_at', 'desc');
 
         $formatTicket = function ($ticket) {
@@ -34,6 +34,7 @@ class TicketController extends Controller
                 'priority'    => $ticket->priority,
                 'asset_id'    => $ticket->asset_id,
                 'asset_name'  => $ticket->asset ? $ticket->asset->name : null,
+                'reporter'    => $ticket->reporter ? $ticket->reporter->name : null,
                 'technician'    => $ticket->technician ? $ticket->technician->name : null,
                 'technician_id' => $ticket->technician_id,
                 'photo_url'   => $ticket->photo_path
@@ -96,7 +97,7 @@ class TicketController extends Controller
     public function myTickets(Request $request)
     {
         $query = Ticket::where('reported_by', $request->user()->id)
-            ->with(['asset'])
+            ->with(['asset', 'technician', 'reporter'])
             ->orderBy('created_at', 'desc');
 
         if ($request->has('page') || $request->has('limit')) {
@@ -106,7 +107,26 @@ class TicketController extends Controller
             return response()->json([
                 'status' => 'success',
                 'data'   => [
-                    'data'         => $paginated->items(),
+                    'data'         => collect($paginated->items())->map(function ($ticket) {
+                        return [
+                            'id'          => $ticket->id,
+                            'title'       => $ticket->title,
+                            'description' => $ticket->description,
+                            'type'        => $ticket->type,
+                            'status'      => $ticket->status,
+                            'priority'    => $ticket->priority,
+                            'asset_id'    => $ticket->asset_id,
+                            'asset_name'  => $ticket->asset ? $ticket->asset->name : null,
+                            'reporter'    => $ticket->reporter ? $ticket->reporter->name : null,
+                            'technician'    => $ticket->technician ? $ticket->technician->name : null,
+                            'technician_id' => $ticket->technician_id,
+                            'photo_url'   => $ticket->photo_path
+                                ? url('storage/' . $ticket->photo_path)
+                                : null,
+                            'created_at'  => $ticket->created_at,
+                            'updated_at'  => $ticket->updated_at,
+                        ];
+                    }),
                     'last_page'    => $paginated->lastPage(),
                     'total'        => $paginated->total(),
                     'current_page' => $paginated->currentPage(),
@@ -114,7 +134,26 @@ class TicketController extends Controller
             ], 200);
         }
 
-        $tickets = $query->take(100)->get();
+        $tickets = $query->take(100)->get()->map(function ($ticket) {
+            return [
+                'id'          => $ticket->id,
+                'title'       => $ticket->title,
+                'description' => $ticket->description,
+                'type'        => $ticket->type,
+                'status'      => $ticket->status,
+                'priority'    => $ticket->priority,
+                'asset_id'    => $ticket->asset_id,
+                'asset_name'  => $ticket->asset ? $ticket->asset->name : null,
+                'reporter'    => $ticket->reporter ? $ticket->reporter->name : null,
+                'technician'    => $ticket->technician ? $ticket->technician->name : null,
+                'technician_id' => $ticket->technician_id,
+                'photo_url'   => $ticket->photo_path
+                    ? url('storage/' . $ticket->photo_path)
+                    : null,
+                'created_at'  => $ticket->created_at,
+                'updated_at'  => $ticket->updated_at,
+            ];
+        });
 
         return response()->json([
             'status' => 'success',
