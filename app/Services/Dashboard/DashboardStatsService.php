@@ -306,11 +306,11 @@ class DashboardStatsService
             ->take(5)
             ->get();
 
-        $ageDistData = collect([
+        $ageDistData = [
             'Baru (< 3 Thn)'       => 0,
             'Menengah (3-5 Thn)'   => 0,
             'Tua (> 5 Thn)'        => 0,
-        ]);
+        ];
         foreach ($assetsWithAge as $row) {
             $ageYears = abs(now()->diffInDays(Carbon::parse($row->procurement_date))) / 365;
             if ($ageYears < 3) {
@@ -325,9 +325,9 @@ class DashboardStatsService
         return [
             'avgAge' => $avgAssetAge,
             'oldestAssets' => $oldestAssets,
-            'distData' => $ageDistData,
-            'distLabels' => $ageDistData->keys(),
-            'distValues' => $ageDistData->values(),
+            'distData' => collect($ageDistData),
+            'distLabels' => array_keys($ageDistData),
+            'distValues' => array_values($ageDistData),
         ];
     }
 
