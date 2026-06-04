@@ -130,16 +130,23 @@ class AssetController extends Controller
     {
         $asset = Asset::findOrFail($request->asset_id);
 
-        $result = $this->assetService->requestTransfer(
-            $asset,
-            Auth::user(),
-            $request->reason
-        );
+        try {
+            $result = $this->assetService->requestTransfer(
+                $asset,
+                Auth::user(),
+                $request->reason
+            );
 
-        if ($result['status'] === 'error') {
+            if ($result['status'] === 'error') {
+                return response()->json([
+                    'status'  => 'error',
+                    'message' => $result['message'],
+                ], 400);
+            }
+        } catch (\Exception $e) {
             return response()->json([
                 'status'  => 'error',
-                'message' => $result['message'],
+                'message' => 'Terjadi kesalahan sistem: ' . $e->getMessage(),
             ], 400);
         }
 
