@@ -18,7 +18,7 @@ class AturanTiket
     {
         $roleAktif = (int) session('active_role_id');
 
-        if ($tiket->reported_by === $pengguna->id) {
+        if ((int) $tiket->reported_by === (int) $pengguna->id) {
             return true;
         }
 
@@ -33,12 +33,19 @@ class AturanTiket
         }
 
         if ($roleAktif === User::ROLE_TEKNISI) {
-            return $tiket->technician_id === $pengguna->id;
+            return (int) $tiket->technician_id === (int) $pengguna->id;
         }
 
         if ($roleAktif === User::ROLE_KETUA_TIM) {
-            return $tiket->team_leader_id === $pengguna->id
+            return (int) $tiket->team_leader_id === (int) $pengguna->id
                 || $tiket->status === Ticket::STATUS_KE_KETUA_TIM;
+        }
+
+        if ($roleAktif === User::ROLE_PIC_RUANGAN) {
+            $asset = $tiket->asset;
+            if ($asset && $asset->room) {
+                return (int) $asset->room->pic_id === (int) $pengguna->id;
+            }
         }
 
         return false;
@@ -77,16 +84,26 @@ class AturanTiket
                 User::ROLE_ADMIN,
                 User::ROLE_TEKNISI,
                 User::ROLE_KETUA_TIM,
-            ], true) || $tiket->reported_by === $pengguna->id;
+            ], true) || (int) $tiket->reported_by === (int) $pengguna->id;
         }
 
-        return in_array($roleAktif, [
+        if (in_array($roleAktif, [
             User::ROLE_PIMPINAN,
             User::ROLE_ADMIN,
             User::ROLE_TEKNISI,
             User::ROLE_PENGELOLA_ASET,
             User::ROLE_KETUA_TIM,
-        ], true)
-            || $tiket->reported_by === $pengguna->id;
+        ], true) || (int) $tiket->reported_by === (int) $pengguna->id) {
+            return true;
+        }
+
+        if ($roleAktif === User::ROLE_PIC_RUANGAN) {
+            $asset = $tiket->asset;
+            if ($asset && $asset->room) {
+                return (int) $asset->room->pic_id === (int) $pengguna->id;
+            }
+        }
+
+        return false;
     }
 }
