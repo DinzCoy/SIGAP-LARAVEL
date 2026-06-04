@@ -31,6 +31,10 @@ class AssetNotificationService extends Notification
                       . ' ' . ($this->peminjaman->asset?->bmn_number ?? '-');
         $namaPeminjam = $this->peminjaman->borrower?->name ?? 'Pengguna tidak dikenal';
 
+        $fotoPeminjam = $this->peminjaman->borrower?->photo_path
+            ? url('storage/' . $this->peminjaman->borrower->photo_path)
+            : null;
+
         return [
 
             'tipe'          => 'permintaan_peminjaman',
@@ -44,6 +48,7 @@ class AssetNotificationService extends Notification
             'id_aset'       => $this->peminjaman->asset?->id,
             'nama_aset'     => trim($namaAset),
             'nama_peminjam' => $namaPeminjam,
+            'foto_peminjam' => $fotoPeminjam,
             'alasan'        => $this->peminjaman->loan_reason,
             'waktu_ajuan'   => $this->peminjaman->loaned_at?->toDateTimeString(),
         ];
@@ -57,12 +62,17 @@ class AssetNotificationService extends Notification
         $namaPeminjam = $peminjaman->borrower?->name ?? 'Pengguna';
         $pushTitle   = 'Permintaan Peminjaman Aset';
         $pushBody    = "{$namaPeminjam} mengajukan peminjaman aset {$namaAset}.";
-        $pushData    = ['tipe' => 'permintaan_peminjaman', 'loan_id' => (string) $peminjaman->id];
 
         $imageUrl = null;
         if ($peminjaman->borrower && $peminjaman->borrower->photo_path) {
             $imageUrl = url('storage/' . $peminjaman->borrower->photo_path);
         }
+
+        $pushData = [
+            'tipe'          => 'permintaan_peminjaman',
+            'loan_id'       => (string) $peminjaman->id,
+            'foto_peminjam' => $imageUrl ?? '',
+        ];
 
         if ($peminjaman->asset?->user_id) {
 

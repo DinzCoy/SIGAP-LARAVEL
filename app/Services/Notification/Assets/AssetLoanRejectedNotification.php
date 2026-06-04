@@ -28,6 +28,9 @@ class AssetLoanRejectedNotification extends Notification
         $namaAset    = ($this->peminjaman->asset?->deviceName?->brand ?? '')
                      . ' ' . ($this->peminjaman->asset?->bmn_number ?? '-');
         $namaPemilik = $this->peminjaman->lender?->name ?? 'Admin/Pengelola Aset';
+        $fotoPeminjam = $this->peminjaman->borrower?->photo_path
+            ? url('storage/' . $this->peminjaman->borrower->photo_path)
+            : null;
 
         return [
             'tipe'          => 'peminjaman_ditolak',
@@ -38,6 +41,7 @@ class AssetLoanRejectedNotification extends Notification
             'id_aset'       => $this->peminjaman->asset?->id,
             'nama_aset'     => trim($namaAset),
             'nama_pemilik'  => $namaPemilik,
+            'foto_peminjam' => $fotoPeminjam,
             'waktu_tolak'   => $this->peminjaman->rejected_at?->toDateTimeString(),
         ];
     }
@@ -51,11 +55,21 @@ class AssetLoanRejectedNotification extends Notification
         $rejector = $peminjaman->lender?->name ?? 'Admin/Pengelola Aset';
 
         $peminjaman->borrower->notify(new self($peminjaman));
+
+        $imageUrl = $peminjaman->borrower->photo_path
+            ? url('storage/' . $peminjaman->borrower->photo_path)
+            : null;
+
         FcmService::send(
             $peminjaman->borrower,
             'Peminjaman Ditolak',
             "Maaf, permintaan pinjam aset {$namaAset} ditolak oleh {$rejector}.",
-            ['tipe' => 'peminjaman_ditolak', 'loan_id' => (string) $peminjaman->id]
+            [
+                'tipe'          => 'peminjaman_ditolak',
+                'loan_id'       => (string) $peminjaman->id,
+                'foto_peminjam' => $imageUrl ?? '',
+            ],
+            $imageUrl
         );
     }
 }
