@@ -106,7 +106,7 @@ class AssetController extends Controller
     public function userAssets(Request $request)
     {
         $assets = Asset::with(['room', 'deviceName'])
-            ->where('user_id', Auth::id())
+            ->where('user_id', $request->user()->id)
             ->get();
 
         return response()->json([

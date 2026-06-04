@@ -28,10 +28,9 @@ echo  --------------------------------------------------
 echo.
 
 echo  [1/2] Alamat Server SIGAP
-echo        Contoh IP lokal  : 192.168.20.69
-echo        Contoh domain    : sigap.kantorku.id
+echo        Secara otomatis diarahkan ke domain produksi.
 echo.
-set /p SERVER_IP="        Masukkan alamat server: "
+set SERVER_IP=sigap.makagang.stat7300.net
 
 echo.
 echo  [2/2] Nama Ruangan PC Ini
