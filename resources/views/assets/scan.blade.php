@@ -105,18 +105,32 @@
                     @endphp
 
                     @if($canManageLoan && $pendingLoan)
+                        @php
+                            $isMutasi = $pendingLoan->type === \App\Models\AssetLoan::TYPE_MUTASI;
+                            $bgBox = $isMutasi ? 'bg-purple-50 border-purple-200' : 'bg-yellow-50 border-yellow-200';
+                            $bgIconBox = $isMutasi ? 'bg-purple-100' : 'bg-yellow-100';
+                            $iconColor = $isMutasi ? 'text-purple-600' : 'text-yellow-600';
+                            $titleColor = $isMutasi ? 'text-purple-900' : 'text-yellow-900';
+                            $textColor = $isMutasi ? 'text-purple-800' : 'text-yellow-800';
+                            $quoteBorder = $isMutasi ? 'border-purple-200 text-purple-900' : 'border-yellow-200 text-yellow-900';
+                            $title = $isMutasi ? 'Permintaan Mutasi Permanen' : 'Permintaan Pinjaman';
+                            $desc = $isMutasi ? 'ingin mengambil alih (mutasi) perangkat ini menjadi tanggung jawabnya.' : 'ingin meminjam perangkat ini.';
+                            $iconPath = $isMutasi 
+                                ? '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path>' 
+                                : '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>';
+                        @endphp
 
-                        <div class="bg-yellow-50 border border-yellow-200 rounded-xl p-6 mb-4 shadow-sm text-left">
+                        <div class="{{ $bgBox }} border rounded-xl p-6 mb-4 shadow-sm text-left">
                             <div class="flex items-start gap-4">
-                                <div class="p-2.5 rounded-xl bg-yellow-100 mt-1 shrink-0">
-                                    <svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
+                                <div class="p-2.5 rounded-xl {{ $bgIconBox }} mt-1 shrink-0">
+                                    <svg class="w-6 h-6 {{ $iconColor }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">{!! $iconPath !!}</svg>
                                 </div>
                                 <div class="flex-1">
-                                    <h4 class="text-base font-bold text-yellow-900">Permintaan Pinjaman</h4>
-                                    <p class="text-sm text-yellow-800 mt-1 mb-3"><span class="font-bold">{{ $pendingLoan->borrower?->name ?? 'Seseorang' }}</span> ingin meminjam perangkat ini.</p>
+                                    <h4 class="text-base font-bold {{ $titleColor }}">{{ $title }}</h4>
+                                    <p class="text-sm {{ $textColor }} mt-1 mb-3"><span class="font-bold">{{ $pendingLoan->borrower?->name ?? 'Seseorang' }}</span> {{ $desc }}</p>
 
                                     @if($pendingLoan->loan_reason)
-                                        <div class="bg-white/60 border border-yellow-200 rounded-lg p-3 mb-4 text-xs text-yellow-900 italic relative">
+                                        <div class="bg-white/60 border {{ $quoteBorder }} rounded-lg p-3 mb-4 text-xs italic relative">
                                             "{{ $pendingLoan->loan_reason }}"
                                         </div>
                                     @endif
@@ -153,12 +167,19 @@
                         </form>
 
                     @elseif($pendingLoan && ($pendingLoan?->borrower_id ?? 0) === auth()->id())
-
-                        <div class="flex items-center gap-4 bg-yellow-50 border border-yellow-200 rounded-xl p-6 text-left">
-                            <svg class="w-8 h-8 text-yellow-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        @php
+                            $isMutasi = $pendingLoan->type === \App\Models\AssetLoan::TYPE_MUTASI;
+                            $bgBox = $isMutasi ? 'bg-purple-50 border-purple-200' : 'bg-yellow-50 border-yellow-200';
+                            $iconColor = $isMutasi ? 'text-purple-500' : 'text-yellow-500';
+                            $titleColor = $isMutasi ? 'text-purple-900' : 'text-yellow-900';
+                            $textColor = $isMutasi ? 'text-purple-700' : 'text-yellow-700';
+                            $reqType = $isMutasi ? 'pengajuan mutasi' : 'permintaan pinjaman';
+                        @endphp
+                        <div class="flex items-center gap-4 {{ $bgBox }} border rounded-xl p-6 text-left">
+                            <svg class="w-8 h-8 {{ $iconColor }} shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                             <div>
-                                <h4 class="text-base font-bold text-yellow-900">Menunggu Persetujuan</h4>
-                                <p class="text-sm text-yellow-700 mt-0.5">Permintaan pinjaman Anda sedang menunggu persetujuan dari <span class="font-bold underline">{{ $asset?->user?->name ?? 'Admin / Pengelola Aset' }}</span>.</p>
+                                <h4 class="text-base font-bold {{ $titleColor }}">Menunggu Persetujuan</h4>
+                                <p class="text-sm {{ $textColor }} mt-0.5">{{ ucfirst($reqType) }} Anda sedang menunggu persetujuan dari <span class="font-bold underline">{{ $asset?->user?->name ?? 'Admin / Pengelola Aset' }}</span>.</p>
                             </div>
                         </div>
 
@@ -173,12 +194,15 @@
                         </div>
 
                     @elseif($pendingLoan && !$canManageLoan)
-
+                        @php
+                            $isMutasi = $pendingLoan->type === \App\Models\AssetLoan::TYPE_MUTASI;
+                            $reqTypeProcess = $isMutasi ? 'proses mutasi' : 'proses peminjaman';
+                        @endphp
                         <div class="flex items-center gap-4 bg-orange-50 border border-orange-200 rounded-xl p-6 text-left">
                             <svg class="w-8 h-8 text-orange-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
                             <div>
                                 <h4 class="text-base font-bold text-orange-900">Sedang Diproses</h4>
-                                <p class="text-sm text-orange-700 mt-0.5">Sedang dalam proses peminjaman oleh <span class="font-black underline">{{ $pendingLoan?->borrower?->name ?? 'Seseorang' }}</span>.</p>
+                                <p class="text-sm text-orange-700 mt-0.5">Sedang dalam {{ $reqTypeProcess }} oleh <span class="font-black underline">{{ $pendingLoan?->borrower?->name ?? 'Seseorang' }}</span>.</p>
                             </div>
                         </div>
 
