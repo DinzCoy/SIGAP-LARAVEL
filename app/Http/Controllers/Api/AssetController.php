@@ -133,7 +133,7 @@ class AssetController extends Controller
         try {
             $result = $this->assetService->requestTransfer(
                 $asset,
-                Auth::user(),
+                $request->user(),
                 $request->reason
             );
 
@@ -223,7 +223,7 @@ class AssetController extends Controller
             $asset,
             $request->room_id,
             $request->new_room_name,
-            Auth::user()
+            $request->user()
         );
 
         return response()->json([
