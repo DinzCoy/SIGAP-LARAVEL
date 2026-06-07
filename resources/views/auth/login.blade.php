@@ -2,14 +2,14 @@
 
     <div class="mb-8">
         <h2 class="text-2xl md:text-3xl font-black text-[#004a8d] mb-1.5 tracking-tight">Selamat Datang</h2>
-        <p class="text-slate-400 font-medium text-sm md:text-base">Silakan masuk menggunakan akun Anda.</p>
+        <p class="text-slate-600 font-medium text-sm md:text-base">Silakan masuk menggunakan akun Anda.</p>
     </div>
 
     <form method="POST" action="{{ route('login') }}" class="space-y-4">
         @csrf
 
         <div class="space-y-1">
-            <label for="login" class="text-[10px] font-bold uppercase tracking-widest text-slate-500 ml-0.5">
+            <label for="login" class="text-[10px] font-bold uppercase tracking-widest text-slate-600 ml-0.5">
                 Email atau Username
             </label>
             <input id="login" type="text" name="login" value="{{ old('login') }}" required autofocus
@@ -18,14 +18,14 @@
         </div>
 
         <div class="space-y-1" x-data="{ tampil: false }">
-            <label for="password" class="text-[10px] font-bold uppercase tracking-widest text-slate-500 ml-0.5">
+            <label for="password" class="text-[10px] font-bold uppercase tracking-widest text-slate-600 ml-0.5">
                 Kata Sandi
             </label>
             <div class="relative">
                 <input :type="tampil ? 'text' : 'password'" id="password" name="password" required
                     class="auth-input pr-10" placeholder="••••••••">
-                <button type="button" @click="tampil = !tampil"
-                    class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-[#004a8d] transition-colors p-1">
+                <button type="button" @click="tampil = !tampil" aria-label="Tampilkan kata sandi"
+                    class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-[#004a8d] transition-colors p-1">
 
                     <svg x-show="!tampil" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -42,7 +42,7 @@
         </div>
 
         <div class="space-y-1">
-            <label for="role_id" class="text-[10px] font-bold uppercase tracking-widest text-slate-500 ml-0.5">
+            <label for="role_id" class="text-[10px] font-bold uppercase tracking-widest text-slate-600 ml-0.5">
                 Masuk Sebagai
             </label>
             <select id="role_id" name="role_id" required class="auth-input appearance-none cursor-pointer">
@@ -58,7 +58,7 @@
             <label class="flex items-center group cursor-pointer">
                 <input type="checkbox" name="remember"
                     class="w-3.5 h-3.5 rounded border-slate-300 text-[#004a8d] focus:ring-[#004a8d] transition-all">
-                <span class="ml-2 text-[11px] font-bold text-slate-500 group-hover:text-slate-700 transition-colors uppercase tracking-tight">
+                <span class="ml-2 text-[11px] font-bold text-slate-600 group-hover:text-slate-800 transition-colors uppercase tracking-tight">
                     Ingat Saya
                 </span>
             </label>
@@ -71,8 +71,8 @@
 
     <div class="mt-8 pt-5 border-t border-slate-100 flex justify-between items-center opacity-60">
         <div class="flex space-x-3">
-            <span class="text-[8px] font-bold uppercase tracking-widest text-slate-400">Security SSL</span>
-            <span class="text-[8px] font-bold uppercase tracking-widest text-slate-400">Encrypted</span>
+            <span class="text-[8px] font-bold uppercase tracking-widest text-slate-500">Security SSL</span>
+            <span class="text-[8px] font-bold uppercase tracking-widest text-slate-500">Encrypted</span>
         </div>
         <div class="flex items-center space-x-1.5">
             <div class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>

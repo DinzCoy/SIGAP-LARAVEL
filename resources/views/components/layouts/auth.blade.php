@@ -8,8 +8,12 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Masuk ke Sistem Guardian Aset dan Pelayanan IT (SIGAP) - BPS Provinsi Sulawesi Selatan.">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ $title ?? 'SIGAP' }} | SIGAP - BPS Sulsel</title>
+
+    <link rel="preload" as="image" href="{{ asset('images/logo_sigap.svg') }}">
+    <link rel="preload" as="image" href="{{ asset('images/nama_logo.svg') }}">
 
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
         rel="stylesheet">
