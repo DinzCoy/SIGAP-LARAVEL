@@ -101,7 +101,7 @@
                 <div class="space-y-4">
                     @php
                         $isAdminOrManager = in_array(session('active_role_id'), [\App\Models\User::ROLE_ADMIN, \App\Models\User::ROLE_PENGELOLA_ASET]);
-                        $canManageLoan = (auth()->id() === ($asset?->user_id ?? null)) || (!($asset?->user_id ?? null) && $isAdminOrManager);
+                        $canManageLoan = (auth()->id() == ($asset?->user_id ?? null)) || (!($asset?->user_id ?? null) && $isAdminOrManager);
                     @endphp
 
                     @if($canManageLoan && $pendingLoan)
@@ -156,7 +156,7 @@
                         </div>
                     @endif
 
-                    @if($activeLoan && ($activeLoan?->borrower_id ?? 0) === auth()->id())
+                    @if($activeLoan && ($activeLoan?->borrower_id ?? 0) == auth()->id())
 
                         <form action="{{ route('assets.return', $asset->id) }}" method="POST">
                             @csrf
@@ -166,7 +166,7 @@
                             </button>
                         </form>
 
-                    @elseif($pendingLoan && ($pendingLoan?->borrower_id ?? 0) === auth()->id())
+                    @elseif($pendingLoan && ($pendingLoan?->borrower_id ?? 0) == auth()->id())
                         @php
                             $isMutasi = $pendingLoan->type === \App\Models\AssetLoan::TYPE_MUTASI;
                             $bgBox = $isMutasi ? 'bg-purple-50 border-purple-200' : 'bg-yellow-50 border-yellow-200';

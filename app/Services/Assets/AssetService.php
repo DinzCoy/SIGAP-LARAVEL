@@ -267,7 +267,7 @@ class AssetService
         $loan = AssetLoan::create([
             'asset_id'    => $asset->id,
             'borrower_id' => $user->id,
-            'lender_id'   => null,
+            'lender_id'   => $asset->user_id,
             'loan_reason' => $reason,
             'type'        => AssetLoan::TYPE_MUTASI,
             'status'      => AssetLoan::STATUS_PENDING,
