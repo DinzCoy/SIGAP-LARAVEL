@@ -495,7 +495,7 @@
                                             <td class="px-4 py-2.5 relative">
                                                 <div class="absolute inset-y-0 left-0 w-1 bg-bps-orange scale-y-0 group-hover:scale-y-100 transition-transform origin-top duration-300"></div>
                                                 <div class="flex items-center gap-2.5">
-                                                    <div class="software-icon w-7 h-7 rounded-lg flex items-center justify-center border transition-all duration-300 shadow-sm"
+                                                    <div class="shrink-0 software-icon w-7 h-7 rounded-lg flex items-center justify-center border transition-all duration-300 shadow-sm"
                                                          :style="'--char-hue: ' + ((item.name.charCodeAt(0) * 23) % 360) + 'deg'">
                                                         <span class="text-[10px] font-black" x-text="item.name.charAt(0).toUpperCase()"></span>
                                                     </div>
