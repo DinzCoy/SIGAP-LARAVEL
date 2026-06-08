@@ -139,7 +139,11 @@ class AssetController extends Controller
 
         $this->assetService->approveLoan($loan, $this->currentUser());
 
-        return redirect()->back()->with('success', 'Permintaan peminjaman berhasil disetujui.');
+        $msg = $loan->type === \App\Models\AssetLoan::TYPE_MUTASI 
+            ? 'Aset telah sukses dipindahtangankan secara permanen.' 
+            : 'Permintaan peminjaman berhasil disetujui.';
+
+        return redirect()->back()->with('success', $msg);
     }
 
     public function rejectLoan(Request $request, string $id): RedirectResponse

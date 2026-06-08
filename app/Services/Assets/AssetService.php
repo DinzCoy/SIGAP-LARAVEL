@@ -70,10 +70,11 @@ class AssetService
     {
         DB::transaction(function () use ($loan, $approver) {
             $loan->update([
-                'status'      => AssetLoan::STATUS_ACTIVE,
+                'status'      => $loan->type === AssetLoan::TYPE_MUTASI ? AssetLoan::STATUS_RETURNED : AssetLoan::STATUS_ACTIVE,
                 'lender_id'   => $approver->id,
                 'approved_at' => now(),
                 'loaned_at'   => now(),
+                'returned_at' => $loan->type === AssetLoan::TYPE_MUTASI ? now() : null,
             ]);
 
             if ($loan->type === AssetLoan::TYPE_MUTASI) {
