@@ -64,13 +64,19 @@ class PcReportController extends Controller
             $troubleNote = ($troubleNote ? $troubleNote . " | " : "") . "Disk Space Critical (Under {$diskThresholdGb}GB)";
         }
 
+        $asset = Asset::where('mac_address', $validated['mac_address'])->first();
+        $finalRoomName = null;
+        if ($asset && $asset->room) {
+            $finalRoomName = $asset->room->name;
+        }
+
         $report = PcReport::updateOrCreate(
             ['mac_address' => $validated['mac_address']],
             [
                 'hostname'     => $validated['hostname'],
                 'username'     => $validated['username'] ?? null,
                 'ip_address'   => $validated['ip_address'],
-                'room_name'    => $validated['room_name'] ?? null,
+                'room_name'    => $finalRoomName,
                 'os_name'      => $validated['os_name'] ?? null,
                 'os_build'     => $validated['os_build'] ?? null,
                 'total_ram_kb' => $validated['total_ram_kb'] ?? null,
@@ -85,7 +91,6 @@ class PcReportController extends Controller
             ]
         );
 
-        $asset = Asset::where('mac_address', $validated['mac_address'])->first();
         if ($asset) {
             $oldUserId = $asset->user_id;
             $oldRoomId = $asset->room_id;
@@ -102,16 +107,6 @@ class PcReportController extends Controller
                     $asset->allocated_at = now();
                     $hasChanged = true;
                     $reasons[] = "Ownership auto-sync: {$validated['username']}";
-                }
-            }
-
-            if (!empty($validated['room_name'])) {
-                $foundRoom = Room::where('name', $validated['room_name'])->first();
-                if ($foundRoom && $asset->room_id !== $foundRoom->id) {
-                    $newRoomId = $foundRoom->id;
-                    $asset->room_id = $newRoomId;
-                    $hasChanged = true;
-                    $reasons[] = "Location auto-sync: {$validated['room_name']}";
                 }
             }
 

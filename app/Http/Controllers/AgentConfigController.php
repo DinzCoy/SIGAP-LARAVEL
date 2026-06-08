@@ -18,15 +18,23 @@ class AgentConfigController extends Controller
             return response()->json(['status' => 'error', 'message' => 'Unauthorized'], 401);
         }
 
-        $roomName = $request->query('room_name', '');
+        $macAddress = $request->query('mac_address', '');
 
         $scheduledHoursRaw = SystemSetting::getValue('agent_schedule_hours', '9,15');
         $scheduledHours = array_map('intval', array_filter(explode(',', $scheduledHoursRaw)));
 
         $delayPerRoom = (int) SystemSetting::getValue('agent_delay_per_room', 300);
 
-        $room = Room::where('name', $roomName)->first();
-        $roomOrder = $room ? $room->sort_order : 0;
+        $roomOrder = 0;
+        $roomName = '';
+        
+        if (!empty($macAddress)) {
+            $asset = \App\Models\Asset::where('mac_address', $macAddress)->first();
+            if ($asset && $asset->room) {
+                $roomOrder = $asset->room->sort_order;
+                $roomName = $asset->room->name;
+            }
+        }
 
         $delaySeconds = $roomOrder * $delayPerRoom;
 

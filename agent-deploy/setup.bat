@@ -27,29 +27,21 @@ echo.
 echo  --------------------------------------------------
 echo.
 
-echo  [1/2] Alamat Server SIGAP
+echo  [1/1] Alamat Server SIGAP
 echo        Secara otomatis diarahkan ke domain produksi.
 echo.
 set SERVER_IP=sigap.makagang.stat7300.net
 
 echo.
-echo  [2/2] Nama Ruangan PC Ini
-echo        Harus sama persis dengan nama di Dashboard SIGAP.
-echo        Contoh: Ruangan Tata Usaha, Ruangan Server, Lab Komputer
-echo.
-set /p ROOM_NAME="        Masukkan nama ruangan: "
-
-echo.
 echo  --------------------------------------------------
 echo  Konfigurasi:
 echo    Server  : %SERVER_IP%
-echo    Ruangan : %ROOM_NAME%
 echo  --------------------------------------------------
 echo.
 echo  Sedang memproses instalasi, mohon tunggu...
 echo.
 
-powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0install-agent.ps1" -ServerIP "%SERVER_IP%" -RoomName "%ROOM_NAME%"
+powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0install-agent.ps1" -ServerIP "%SERVER_IP%"
 
 echo.
 echo  Instalasi selesai. Tekan tombol apa saja untuk keluar.

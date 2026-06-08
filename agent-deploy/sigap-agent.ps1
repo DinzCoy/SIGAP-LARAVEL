@@ -9,8 +9,17 @@ param(
 $ApiUrl      = "http://192.168.20.69/api/pc-report"
 $ConfigUrl   = "http://192.168.20.69/api/agent-config"
 $ApiKey      = "SIGAP_SECRET_API_KEY_2026"
-$RoomName    = "Ruangan Server BPS"
 $LogPath     = "$env:TEMP\bps_guardian_v2.log"
+
+$Adapter = Get-NetAdapter | Where-Object {
+    $_.Status -eq 'Up' -and
+    ($_.PhysicalMediaType -ne 'Native 802.11' -or $_.ConnectorPresent -eq $true) -and
+    $_.InterfaceDescription -notmatch "Virtual|Hyper-V|VMware|Box|VPN|Loopback|Pseudo|WSL"
+} | Sort-Object -Property @{Expression={$_.ConnectorPresent}; Descending=$true}, InterfaceDescription | Select-Object -First 1
+
+if (-not $Adapter) { $Adapter = Get-NetAdapter | Where-Object { $_.Status -eq 'Up' } | Select-Object -First 1 }
+
+$MacAddress = ($Adapter.MacAddress -replace "-", ":")
 
 function Write-Log {
     param([string]$Message, [string]$Color = "White")
@@ -28,7 +37,7 @@ if ($Mode -eq "scheduled") {
             "Accept"    = "application/json"
             "X-API-KEY" = $ApiKey
         }
-        $ConfigResponse = Invoke-RestMethod -Uri "$ConfigUrl`?room_name=$([uri]::EscapeDataString($RoomName))" `
+        $ConfigResponse = Invoke-RestMethod -Uri "$ConfigUrl`?mac_address=$([uri]::EscapeDataString($MacAddress))" `
                                             -Method Get -Headers $Headers -ErrorAction Stop
 
         $CurrentHour = (Get-Date).Hour
@@ -41,7 +50,7 @@ if ($Mode -eq "scheduled") {
 
         $DelaySeconds = [int]$ConfigResponse.delay_seconds
         if ($DelaySeconds -gt 0) {
-            Write-Log "Menunggu giliran ruangan '$RoomName' ($([Math]::Round($DelaySeconds / 60, 1)) menit)..." "Yellow"
+            Write-Log "Menunggu giliran delay dari server ($([Math]::Round($DelaySeconds / 60, 1)) menit)..." "Yellow"
             Start-Sleep -Seconds $DelaySeconds
         }
 
@@ -63,15 +72,7 @@ try {
         $_.AddressFamily -eq 'IPv4' -and $_.IPAddress -notmatch '^169\.254\.' -and $_.IPAddress -ne '127.0.0.1'
     } | Select-Object -First 1).IPAddress
 
-    $Adapter = Get-NetAdapter | Where-Object {
-        $_.Status -eq 'Up' -and
-        ($_.PhysicalMediaType -ne 'Native 802.11' -or $_.ConnectorPresent -eq $true) -and
-        $_.InterfaceDescription -notmatch "Virtual|Hyper-V|VMware|Box|VPN|Loopback|Pseudo|WSL"
-    } | Sort-Object -Property @{Expression={$_.ConnectorPresent}; Descending=$true}, InterfaceDescription | Select-Object -First 1
 
-    if (-not $Adapter) { $Adapter = Get-NetAdapter | Where-Object { $_.Status -eq 'Up' } | Select-Object -First 1 }
-
-    $MacAddress = ($Adapter.MacAddress -replace "-", ":")
 
     $OsInfo = Get-CimInstance Win32_OperatingSystem
     $OsName = $OsInfo.Caption
@@ -161,7 +162,6 @@ try {
         hostname      = $Hostname
         ip_address    = $IpAddress
         mac_address   = $MacAddress
-        room_name     = $RoomName
         os_name       = $OsName
         os_build      = [int]$OsBuild
         last_patch    = $LastPatchDate

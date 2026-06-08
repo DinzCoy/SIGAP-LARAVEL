@@ -1,8 +1,6 @@
 param(
     [Parameter(Mandatory = $true)]
     [string]$ServerIP,
-    [Parameter(Mandatory = $true)]
-    [string]$RoomName,
     [string]$ApiKey = "SIGAP_SECRET_API_KEY_2026",
     [int]$StartHour = 7,
     [int]$EndHour = 17
@@ -42,7 +40,6 @@ Write-Host "=================================================="
 Write-Host "   SIGAP Agent - Installer"
 Write-Host "=================================================="
 Write-Host "  Server    : $BaseUrl"
-Write-Host "  Ruangan   : $RoomName"
 Write-Host "  API Key   : $ApiKey"
 Write-Host "  Jadwal    : $StartHour.00 - $EndHour.00 WIT (setiap jam)"
 Write-Host ""
@@ -95,7 +92,6 @@ try {
     $AgentContent = $AgentContent -replace '\$ApiUrl\s*=\s*"[^"]*"',    "`$ApiUrl      = `"$BaseUrl/api/pc-report`""
     $AgentContent = $AgentContent -replace '\$ConfigUrl\s*=\s*"[^"]*"', "`$ConfigUrl   = `"$BaseUrl/api/agent-config`""
     $AgentContent = $AgentContent -replace '\$ApiKey\s*=\s*"[^"]*"',    "`$ApiKey      = `"$ApiKey`""
-    $AgentContent = $AgentContent -replace '\$RoomName\s*=\s*"[^"]*"',  "`$RoomName    = `"$RoomName`""
     $AgentContent | Set-Content $AgentPath -Force -Encoding UTF8
 
     Write-Host "  [OK] Konfigurasi berhasil diterapkan." -ForegroundColor Green
