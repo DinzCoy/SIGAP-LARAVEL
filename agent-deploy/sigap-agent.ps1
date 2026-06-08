@@ -8,7 +8,7 @@ param(
 
 $ApiUrl      = "http://192.168.20.69/api/pc-report"
 $ConfigUrl   = "http://192.168.20.69/api/agent-config"
-$ApiKey      = "BPS-SULSEL-SECRET-2026"
+$ApiKey      = "SIGAP_SECRET_API_KEY_2026"
 $RoomName    = "Ruangan Server BPS"
 $LogPath     = "$env:TEMP\bps_guardian_v2.log"
 
@@ -165,10 +165,10 @@ try {
         os_name       = $OsName
         os_build      = [int]$OsBuild
         last_patch    = $LastPatchDate
-        total_ram_kb  = [long]$TotalRamKb
-        ram_free_kb   = [long]$FreeRamKb
-        total_disk_b  = [long]$TotalDiskB
-        disk_free_b   = [long]$FreeDiskB
+        total_ram_kb  = [string]$TotalRamKb
+        ram_free_kb   = [string]$FreeRamKb
+        total_disk_b  = [string]$TotalDiskB
+        disk_free_b   = [string]$FreeDiskB
         disk_status   = $DiskStatus
         is_trouble    = $IsTrouble
         trouble_note  = $TroubleNote

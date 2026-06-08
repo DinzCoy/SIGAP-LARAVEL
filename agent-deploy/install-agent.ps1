@@ -3,7 +3,7 @@ param(
     [string]$ServerIP,
     [Parameter(Mandatory = $true)]
     [string]$RoomName,
-    [string]$ApiKey = "BPS-SULSEL-SECRET-2026",
+    [string]$ApiKey = "SIGAP_SECRET_API_KEY_2026",
     [int]$StartHour = 7,
     [int]$EndHour = 17
 )
