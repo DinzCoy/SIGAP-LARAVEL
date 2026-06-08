@@ -53,12 +53,12 @@ class AssetLoan extends Model
         return $this->belongsTo(User::class, 'borrower_id');
     }
 
-    public function scopeActive($query)
+    public function scopeActive(\Illuminate\Database\Eloquent\Builder $query)
     {
         return $query->where('status', self::STATUS_ACTIVE);
     }
 
-    public function scopePending($query)
+    public function scopePending(\Illuminate\Database\Eloquent\Builder $query)
     {
         return $query->where('status', self::STATUS_PENDING);
     }
