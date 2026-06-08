@@ -78,7 +78,7 @@ class AssetLoan extends Model
             true
         );
 
-        return ($this->lender_id === $user->id)
+        return ($this->lender_id == $user->id)
             || ($this->lender_id === null && $isAdminOrManager);
     }
 
@@ -90,8 +90,8 @@ class AssetLoan extends Model
             true
         );
 
-        return ($this->borrower_id === $user->id)
-            || ($this->lender_id === $user->id)
+        return ($this->borrower_id == $user->id)
+            || ($this->lender_id == $user->id)
             || ($this->lender_id === null && $isAdminOrManager);
     }
 }
