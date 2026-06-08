@@ -208,7 +208,7 @@
 
                     @else
 
-                        @if(auth()->id() === ($asset?->user_id ?? null))
+                        @if(auth()->id() == ($asset?->user_id ?? null))
                             <div class="flex items-center gap-4 bg-green-50 border border-green-200 rounded-xl p-6 text-left">
                                 <div class="p-2.5 rounded-xl bg-green-600">
                                     <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
