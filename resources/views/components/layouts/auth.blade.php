@@ -12,6 +12,8 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ $title ?? 'SIGAP' }} | SIGAP - BPS Sulsel</title>
 
+    <link rel="icon" type="image/svg+xml" href="{{ asset('images/logo_sigap.svg') }}">
+
     <link rel="preload" as="image" href="{{ asset('images/logo_sigap.svg') }}">
     <link rel="preload" as="image" href="{{ asset('images/nama_logo.svg') }}">
 
