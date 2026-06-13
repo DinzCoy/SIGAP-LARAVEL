@@ -100,8 +100,12 @@
     <div class="flex items-center h-16 border-b border-white/10 shrink-0 bg-bps-blue z-20 overflow-hidden px-0">
         <div class="w-20 shrink-0 flex justify-center items-center">
             <div
-                class="w-10 h-10 bg-white rounded-xl flex items-center justify-center shrink-0 font-extrabold text-bps-blue text-xs shadow-lg border-2 border-bps-orange hover:rotate-12 hover:scale-110 transition-all duration-300 cursor-pointer select-none">
-                BPS
+                class="w-10 h-10 bg-white rounded-xl flex items-center justify-center shrink-0 shadow-lg border-2 border-bps-orange hover:rotate-12 hover:scale-110 transition-all duration-300 cursor-pointer select-none overflow-hidden p-0.5"
+                style="filter: drop-shadow(0 0 6px rgba(255,255,255,0.4));">
+                <img src="{{ asset('images/logo_sigap.svg') }}"
+                     alt="Logo SIGAP"
+                     class="w-full h-full object-contain"
+                     style="filter: drop-shadow(0 0 2px rgba(255,255,255,0.8));">
             </div>
         </div>
         <div x-show="sidebarOpen" x-transition:enter="transition ease-out duration-[400ms]"

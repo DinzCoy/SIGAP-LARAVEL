@@ -14,7 +14,7 @@ use Illuminate\View\View;
 
 class DashboardController extends Controller
 {
-    protected $layananDashboard;
+    protected DashboardStatsService $layananDashboard;
 
     public function __construct(DashboardStatsService $layananDashboard)
     {
@@ -24,16 +24,38 @@ class DashboardController extends Controller
     public function index(Request $request): RedirectResponse|View
     {
         $activeRole = session('active_role_id');
+
+        // Jika session active_role_id kosong (misal: session expired, browser refresh,
+        // atau akses langsung ke /dashboard), auto-recover dengan mengambil role
+        // pertama user dari database dan simpan ke session.
+        if (!$activeRole) {
+            /** @var User $user */
+            $user = Auth::user();
+            $firstRole = $user->roles()->orderBy('id')->first();
+
+            if ($firstRole) {
+                $activeRole = $firstRole->id;
+                session(['active_role_id' => $activeRole]);
+
+                \Illuminate\Support\Facades\Log::info('Dashboard: auto-recovered active_role_id dari DB', [
+                    'user_id'   => $user->id,
+                    'role_id'   => $activeRole,
+                    'role_name' => $firstRole->name,
+                ]);
+            }
+        }
+
         $routeName = User::getDashboardRoute($activeRole);
 
         if ($routeName) {
             return redirect()->route($routeName);
         }
 
+        // Fallback terakhir: user tidak punya role sama sekali
         return view('dashboard', ['user' => Auth::user()]);
     }
 
-    public function switchRole($roleId)
+    public function switchRole(int|string $roleId)
     {
         $user = Auth::user();
         $allowedRoles = [
