@@ -67,7 +67,10 @@ if ($Mode -eq "scheduled") {
 try {
     Write-Log "Mengumpulkan data sistem..." "Cyan"
 
-    $Hostname = $env:COMPUTERNAME
+    # Gunakan DNS hostname agar nama panjang (format BMN) tidak terpotong.
+    # $env:COMPUTERNAME dibatasi 15 karakter (NetBIOS), sedangkan
+    # [System.Net.Dns]::GetHostName() mengembalikan nama lengkap tanpa batas.
+    $Hostname = [System.Net.Dns]::GetHostName()
     $IpAddress = (Get-NetIPAddress | Where-Object {
         $_.AddressFamily -eq 'IPv4' -and $_.IPAddress -notmatch '^169\.254\.' -and $_.IPAddress -ne '127.0.0.1'
     } | Select-Object -First 1).IPAddress
