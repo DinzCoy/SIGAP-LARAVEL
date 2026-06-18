@@ -226,31 +226,31 @@
                             </td>
 
                             <td class="px-6 py-4">
-                                <div class="flex items-center gap-2">
-                                    <span class="inline-flex items-center px-2 py-1 rounded-md text-xs font-semibold {{ $ramWarning ? 'bg-red-50 text-red-700 ring-1 ring-inset ring-red-600/20' : 'bg-gray-50 text-gray-700 ring-1 ring-inset ring-gray-500/10' }}">
+                                <div class="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
+                                    <span class="inline-flex items-center justify-center whitespace-nowrap px-2 py-1 rounded-md text-xs font-semibold {{ $ramWarning ? 'bg-red-50 text-red-700 ring-1 ring-inset ring-red-600/20' : 'bg-gray-50 text-gray-700 ring-1 ring-inset ring-gray-500/10' }}">
                                         {{ number_format($freeRamGb, 1) }} GB free
                                     </span>
-                                    <span class="text-xs text-gray-400">/ {{ number_format($totalRamGb, 1) }} GB</span>
+                                    <span class="text-xs text-gray-400 whitespace-nowrap">/ {{ number_format($totalRamGb, 1) }} GB</span>
                                 </div>
                             </td>
 
                             <td class="px-6 py-4">
                                 <div class="flex flex-col justify-center">
-                                    <div class="flex items-center gap-2">
+                                    <div class="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
                                         @if($diskCritical)
-                                            <span class="inline-flex items-center px-2 py-1 rounded-md text-xs font-bold bg-red-50 text-red-700 ring-1 ring-inset ring-red-600/20 animate-pulse" title="Kritis! Disk C penuh">
+                                            <span class="inline-flex items-center justify-center whitespace-nowrap px-2 py-1 rounded-md text-xs font-bold bg-red-50 text-red-700 ring-1 ring-inset ring-red-600/20 animate-pulse" title="Kritis! Disk C penuh">
                                                 ⚠️ {{ number_format($freeDiskGb, 1) }} GB free
                                             </span>
                                         @elseif($diskWarning)
-                                            <span class="inline-flex items-center px-2 py-1 rounded-md text-xs font-semibold bg-yellow-50 text-yellow-800 ring-1 ring-inset ring-yellow-600/20" title="Peringatan Storage">
+                                            <span class="inline-flex items-center justify-center whitespace-nowrap px-2 py-1 rounded-md text-xs font-semibold bg-yellow-50 text-yellow-800 ring-1 ring-inset ring-yellow-600/20" title="Peringatan Storage">
                                                 {{ number_format($freeDiskGb, 1) }} GB free
                                             </span>
                                         @else
-                                            <span class="inline-flex items-center px-2 py-1 rounded-md text-xs font-semibold bg-gray-50 text-gray-700 ring-1 ring-inset ring-gray-500/10">
+                                            <span class="inline-flex items-center justify-center whitespace-nowrap px-2 py-1 rounded-md text-xs font-semibold bg-gray-50 text-gray-700 ring-1 ring-inset ring-gray-500/10">
                                                 {{ number_format($freeDiskGb, 1) }} GB free
                                             </span>
                                         @endif
-                                        <span class="text-xs text-gray-400">/ {{ number_format($totalDiskGb, 0) }} GB</span>
+                                        <span class="text-xs text-gray-400 whitespace-nowrap">/ {{ number_format($totalDiskGb, 0) }} GB</span>
                                     </div>
                                     @if($report->disk_status)
                                         <div class="text-[10px] mt-2 font-semibold {{ $diskStatusColor }}">S.M.A.R.T: {{ $report->disk_status }}</div>
