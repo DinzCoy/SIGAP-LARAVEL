@@ -45,13 +45,13 @@ window.pimpinanDash = function() {
                     ctx.textBaseline = "middle";
                     ctx.textAlign    = "center";
 
-                    ctx.font      = "bold 32px Inter, sans-serif";
+                    ctx.font      = "bold 26px Inter, sans-serif";
                     ctx.fillStyle = palette.numberText;
-                    ctx.fillText(data.totalAssets, width / 2, textY - 8);
+                    ctx.fillText(data.totalAssets, width / 2, textY - 6);
 
-                    ctx.font      = "600 10px Inter, sans-serif";
+                    ctx.font      = "600 9px Inter, sans-serif";
                     ctx.fillStyle = palette.labelText;
-                    ctx.fillText("TOTAL ASET", width / 2, textY + 16);
+                    ctx.fillText("TOTAL ASET", width / 2, textY + 14);
 
                     ctx.save();
                 }
