@@ -205,7 +205,7 @@
                             </div>
 
                             @if(in_array(session('active_role_id'), [\App\Models\User::ROLE_ADMIN, \App\Models\User::ROLE_KETUA_TIM]) && count($technicians) > 0)
-                            <div class="mt-4">
+                            <div class="mt-4" id="technician_container">
                                 <label for="technician_id" class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Pilih Teknisi</label>
                                 <select id="technician_id" name="technician_id" class="w-full bg-gray-50 border border-gray-200 text-gray-800 focus:outline-none focus:ring-2 focus:ring-bps-blue/20 focus:border-bps-blue text-sm font-medium rounded-xl py-3 px-4 transition-all hover:bg-white cursor-pointer shadow-inner">
                                     <option value="" disabled {{ is_null($ticket?->technician_id) ? 'selected' : '' }}>-- Pilih Personel Teknisi --</option>
@@ -397,4 +397,28 @@
         </div>
     </div>
     </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const statusSelect = document.getElementById('status');
+            const technicianContainer = document.getElementById('technician_container');
+            const technicianSelect = document.getElementById('technician_id');
+            
+            function toggleTechnician() {
+                if (!technicianContainer) return;
+                // Hanya munculkan jika statusnya Diteruskan ke Teknisi (atau In Progress/Tugaskan ke Teknisi)
+                if (statusSelect.value === 'Diteruskan ke Teknisi' || statusSelect.value === 'In Progress') {
+                    technicianContainer.style.display = 'block';
+                } else {
+                    technicianContainer.style.display = 'none';
+                    if (technicianSelect) technicianSelect.value = ''; // Reset nilai
+                }
+            }
+            
+            if (statusSelect) {
+                statusSelect.addEventListener('change', toggleTechnician);
+                toggleTechnician(); // run on load
+            }
+        });
+    </script>
 </x-app-layout>
