@@ -5,6 +5,7 @@ namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Illuminate\Support\Facades\Auth;
 
 class DemoModeMiddleware
 {
@@ -15,7 +16,7 @@ class DemoModeMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (auth()->check() && auth()->user()->email === 'demo@bps.go.id') {
+        if (Auth::check() && Auth::user()->email === 'demo@bps.go.id') {
             if (in_array($request->method(), ['POST', 'PUT', 'PATCH', 'DELETE'])) {
                 // Allow logout for demo user (logout is POST)
                 if ($request->is('logout') || $request->routeIs('logout')) {
