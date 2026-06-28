@@ -17,6 +17,8 @@ return Application::configure(basePath: dirname(__DIR__))
             'api.key'    => \App\Http\Middleware\VerifyApiKey::class,
             'auth.token' => \App\Http\Middleware\AuthenticateApiToken::class,
         ]);
+        
+        $middleware->append(\App\Http\Middleware\DemoModeMiddleware::class);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
 
