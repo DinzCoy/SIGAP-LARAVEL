@@ -273,12 +273,7 @@ class Ticket extends Model
     public function scopeForRole(Builder $query, User $user, int $roleId): Builder
     {
         return match ($roleId) {
-            User::ROLE_PIMPINAN, User::ROLE_ADMIN, User::ROLE_PENGELOLA_ASET => $query,
-
-            User::ROLE_KETUA_TIM => $query->where(function ($q) use ($user) {
-                $q->where('status', self::STATUS_KE_KETUA_TIM)
-                  ->orWhere('team_leader_id', $user->id);
-            }),
+            User::ROLE_PIMPINAN, User::ROLE_ADMIN, User::ROLE_PENGELOLA_ASET, User::ROLE_KETUA_TIM => $query,
 
             User::ROLE_TEKNISI => $query->where('technician_id', $user->id),
 

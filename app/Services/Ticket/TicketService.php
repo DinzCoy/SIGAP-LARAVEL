@@ -103,7 +103,9 @@ class TicketService
         if ($statusBaru === Ticket::STATUS_KE_TEKNISI && $isAdminOrKetuaTim) {
             if (!empty($data['technician_id'])) {
                 $ticket->technician_id = $data['technician_id'];
-                $ticket->team_leader_id = $actor->id;
+                if ($activeRoleId == User::ROLE_KETUA_TIM || $actor->hasRole(User::ROLE_KETUA_TIM)) {
+                    $ticket->team_leader_id = $actor->id;
+                }
             }
         }
 
