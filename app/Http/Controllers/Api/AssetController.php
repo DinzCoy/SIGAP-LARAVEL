@@ -165,6 +165,8 @@ class AssetController extends Controller
         $assets = Asset::with(['room', 'deviceName'])
 
             ->whereIn('status_kondisi', ['Baik', 'Berfungsi'])
+            
+            ->whereNull('user_id')
 
             ->whereDoesntHave('loans', fn($q) =>
                 $q->whereIn('status', [AssetLoan::STATUS_ACTIVE, AssetLoan::STATUS_PENDING])
